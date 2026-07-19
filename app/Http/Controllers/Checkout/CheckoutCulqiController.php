@@ -9,6 +9,7 @@ use App\Services\Payments\CulqiClient;
 use App\Services\Payments\RegistrationPaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,10 +30,12 @@ class CheckoutCulqiController extends Controller
 
         $data = $request->validate([
             'plan_id' => ['required', 'integer', 'exists:plans,id'],
+            'channel' => ['nullable', 'string', Rule::in(Plan::channels())],
         ]);
 
         $plan = Plan::query()->whereKey($data['plan_id'])->where('active', true)->firstOrFail();
-        $payment = $payments->createPendingCulqiPayment($user, $plan);
+        $channel = (string) ($data['channel'] ?? Plan::CHANNEL_DIRECT);
+        $payment = $payments->createPendingCulqiPayment($user, $plan, $channel);
 
         return redirect()->route('checkout.culqi.show', $payment);
     }
@@ -133,6 +136,9 @@ class CheckoutCulqiController extends Controller
                 'payment_id' => (string) $payment->id,
                 'plan_id' => (string) ($payment->plan_id ?? ''),
                 'user_id' => (string) $user->id,
+                'channel' => (string) ($payment->channel ?? Plan::CHANNEL_DIRECT),
+                'platform_amount' => (string) ($payment->platform_amount ?? $payment->amount),
+                'clinic_commission' => (string) ($payment->clinic_commission ?? 0),
             ],
         ];
 

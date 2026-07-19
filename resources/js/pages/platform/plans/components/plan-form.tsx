@@ -24,6 +24,10 @@ type PlanFormData = {
     billing_period: 'registration' | 'annual';
     duration_months: string;
     amount: string;
+    vetsaas_amount: string;
+    vetsaas_clinic_commission: string;
+    partner_amount: string;
+    partner_clinic_commission: string;
     currency: 'PEN' | 'USD';
     active: boolean;
     is_default: boolean;
@@ -36,10 +40,17 @@ const emptyForm: PlanFormData = {
     billing_period: 'registration',
     duration_months: '12',
     amount: '',
+    vetsaas_amount: '',
+    vetsaas_clinic_commission: '',
+    partner_amount: '',
+    partner_clinic_commission: '',
     currency: 'PEN',
     active: true,
     is_default: false,
 };
+
+const moneyOrEmpty = (value: string | null | undefined): string =>
+    value != null && value !== '' ? String(value) : '';
 
 const buildInitial = (plan: Plan | null): PlanFormData =>
     plan
@@ -53,11 +64,28 @@ const buildInitial = (plan: Plan | null): PlanFormData =>
                       ? String(plan.duration_months)
                       : '12',
               amount: String(plan.amount),
+              vetsaas_amount: moneyOrEmpty(plan.vetsaas_amount),
+              vetsaas_clinic_commission: moneyOrEmpty(
+                  plan.vetsaas_clinic_commission,
+              ),
+              partner_amount: moneyOrEmpty(plan.partner_amount),
+              partner_clinic_commission: moneyOrEmpty(
+                  plan.partner_clinic_commission,
+              ),
               currency: plan.currency,
               active: plan.active,
               is_default: plan.is_default,
           }
         : emptyForm;
+
+function optionalMoney(value: string): number | null {
+    const trimmed = value.trim();
+    if (trimmed === '') {
+        return null;
+    }
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
+}
 
 export type PlanFormProps = {
     plan?: Plan | null;
@@ -75,6 +103,20 @@ export function PlanForm({ plan = null }: PlanFormProps) {
         errors,
         transform,
     } = useForm<PlanFormData>(buildInitial(plan));
+
+    const vetsaasPlatform = useMemo(() => {
+        const price = Number(data.vetsaas_amount || data.amount || 0);
+        const clinic = Number(data.vetsaas_clinic_commission || 0);
+        if (!Number.isFinite(price)) return null;
+        return Math.max(0, price - (Number.isFinite(clinic) ? clinic : 0));
+    }, [data.amount, data.vetsaas_amount, data.vetsaas_clinic_commission]);
+
+    const partnerPlatform = useMemo(() => {
+        const price = Number(data.partner_amount || data.amount || 0);
+        const clinic = Number(data.partner_clinic_commission || 0);
+        if (!Number.isFinite(price)) return null;
+        return Math.max(0, price - (Number.isFinite(clinic) ? clinic : 0));
+    }, [data.amount, data.partner_amount, data.partner_clinic_commission]);
 
     const canSubmit = useMemo(() => {
         if (data.code.trim().length < 2) return false;
@@ -97,6 +139,14 @@ export function PlanForm({ plan = null }: PlanFormProps) {
                     ? Number(form.duration_months || 12)
                     : null,
             amount: Number(form.amount),
+            vetsaas_amount: optionalMoney(form.vetsaas_amount),
+            vetsaas_clinic_commission: optionalMoney(
+                form.vetsaas_clinic_commission,
+            ),
+            partner_amount: optionalMoney(form.partner_amount),
+            partner_clinic_commission: optionalMoney(
+                form.partner_clinic_commission,
+            ),
         }));
 
         if (isEdit && plan) {
@@ -107,7 +157,7 @@ export function PlanForm({ plan = null }: PlanFormProps) {
     };
 
     return (
-        <form onSubmit={onSubmit} className="max-w-2xl space-y-6">
+        <form onSubmit={onSubmit} className="max-w-3xl space-y-6">
             <FormSection
                 title={t('plans:form.section_basic')}
                 description={t('plans:form.section_basic_hint')}
@@ -226,6 +276,7 @@ export function PlanForm({ plan = null }: PlanFormProps) {
                     <FormField
                         id="plan-amount"
                         label={t('plans:form.fields.amount')}
+                        hint={t('plans:form.fields.amount_hint')}
                         error={errors.amount}
                         required
                     >
@@ -285,6 +336,122 @@ export function PlanForm({ plan = null }: PlanFormProps) {
                         {t('plans:form.fields.is_default')}
                     </label>
                 </div>
+            </FormSection>
+
+            <FormSection
+                title={t('plans:form.section_vetsaas')}
+                description={t('plans:form.section_vetsaas_hint')}
+            >
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                        id="plan-vetsaas-amount"
+                        label={t('plans:form.fields.vetsaas_amount')}
+                        hint={t('plans:form.fields.vetsaas_amount_hint')}
+                        error={errors.vetsaas_amount}
+                    >
+                        <Input
+                            id="plan-vetsaas-amount"
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={data.vetsaas_amount}
+                            onChange={(e) =>
+                                setData('vetsaas_amount', e.target.value)
+                            }
+                            placeholder={data.amount || '—'}
+                            disabled={processing}
+                        />
+                    </FormField>
+                    <FormField
+                        id="plan-vetsaas-clinic"
+                        label={t('plans:form.fields.vetsaas_clinic_commission')}
+                        hint={t(
+                            'plans:form.fields.vetsaas_clinic_commission_hint',
+                        )}
+                        error={errors.vetsaas_clinic_commission}
+                    >
+                        <Input
+                            id="plan-vetsaas-clinic"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={data.vetsaas_clinic_commission}
+                            onChange={(e) =>
+                                setData(
+                                    'vetsaas_clinic_commission',
+                                    e.target.value,
+                                )
+                            }
+                            disabled={processing}
+                        />
+                    </FormField>
+                </div>
+                {vetsaasPlatform != null ? (
+                    <p className="text-sm text-muted-foreground">
+                        {t('plans:form.platform_share', {
+                            amount: vetsaasPlatform.toFixed(2),
+                            currency: data.currency,
+                        })}
+                    </p>
+                ) : null}
+            </FormSection>
+
+            <FormSection
+                title={t('plans:form.section_partner')}
+                description={t('plans:form.section_partner_hint')}
+            >
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                        id="plan-partner-amount"
+                        label={t('plans:form.fields.partner_amount')}
+                        hint={t('plans:form.fields.partner_amount_hint')}
+                        error={errors.partner_amount}
+                    >
+                        <Input
+                            id="plan-partner-amount"
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={data.partner_amount}
+                            onChange={(e) =>
+                                setData('partner_amount', e.target.value)
+                            }
+                            placeholder={data.amount || '—'}
+                            disabled={processing}
+                        />
+                    </FormField>
+                    <FormField
+                        id="plan-partner-clinic"
+                        label={t('plans:form.fields.partner_clinic_commission')}
+                        hint={t(
+                            'plans:form.fields.partner_clinic_commission_hint',
+                        )}
+                        error={errors.partner_clinic_commission}
+                    >
+                        <Input
+                            id="plan-partner-clinic"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={data.partner_clinic_commission}
+                            onChange={(e) =>
+                                setData(
+                                    'partner_clinic_commission',
+                                    e.target.value,
+                                )
+                            }
+                            disabled={processing}
+                        />
+                    </FormField>
+                </div>
+                {partnerPlatform != null ? (
+                    <p className="text-sm text-muted-foreground">
+                        {t('plans:form.platform_share', {
+                            amount: partnerPlatform.toFixed(2),
+                            currency: data.currency,
+                        })}
+                    </p>
+                ) : null}
             </FormSection>
 
             <div className="flex flex-wrap justify-end gap-2 border-t border-border/60 pt-4">

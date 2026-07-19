@@ -42,6 +42,10 @@ class PlanRequest extends FormRequest
                 Rule::requiredIf(fn () => $this->input('billing_period') === Plan::PERIOD_ANNUAL),
             ],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
+            'vetsaas_amount' => ['nullable', 'numeric', 'min:0.01', 'max:999999.99'],
+            'vetsaas_clinic_commission' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
+            'partner_amount' => ['nullable', 'numeric', 'min:0.01', 'max:999999.99'],
+            'partner_clinic_commission' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'currency' => ['required', Rule::in(['PEN', 'USD'])],
             'active' => ['sometimes', 'boolean'],
             'is_default' => ['sometimes', 'boolean'],
@@ -59,11 +63,50 @@ class PlanRequest extends FormRequest
             'description' => 'descripción',
             'billing_period' => 'periodo',
             'duration_months' => 'duración (meses)',
-            'amount' => 'monto',
+            'amount' => 'precio público',
+            'vetsaas_amount' => 'precio VetSaaS',
+            'vetsaas_clinic_commission' => 'comisión clínica VetSaaS',
+            'partner_amount' => 'precio partner',
+            'partner_clinic_commission' => 'comisión clínica partner',
             'currency' => 'moneda',
             'active' => 'activo',
             'is_default' => 'predeterminado',
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            $this->assertCommission(
+                $validator,
+                'vetsaas_amount',
+                'vetsaas_clinic_commission',
+                (float) ($this->input('amount') ?? 0),
+            );
+            $this->assertCommission(
+                $validator,
+                'partner_amount',
+                'partner_clinic_commission',
+                (float) ($this->input('amount') ?? 0),
+            );
+        });
+    }
+
+    private function assertCommission($validator, string $amountKey, string $commissionKey, float $fallbackAmount): void
+    {
+        $amount = $this->filled($amountKey)
+            ? (float) $this->input($amountKey)
+            : $fallbackAmount;
+        $commission = $this->filled($commissionKey)
+            ? (float) $this->input($commissionKey)
+            : 0.0;
+
+        if ($commission > $amount) {
+            $validator->errors()->add(
+                $commissionKey,
+                'La comisión de la clínica no puede ser mayor que el precio del canal.',
+            );
+        }
     }
 
     protected function prepareForValidation(): void
@@ -78,6 +121,17 @@ class PlanRequest extends FormRequest
             $this->merge(['duration_months' => null]);
         } elseif ($this->input('billing_period') === Plan::PERIOD_ANNUAL && ! $this->filled('duration_months')) {
             $this->merge(['duration_months' => 12]);
+        }
+
+        foreach ([
+            'vetsaas_amount',
+            'vetsaas_clinic_commission',
+            'partner_amount',
+            'partner_clinic_commission',
+        ] as $moneyKey) {
+            if ($this->exists($moneyKey) && $this->input($moneyKey) === '') {
+                $this->merge([$moneyKey => null]);
+            }
         }
     }
 }

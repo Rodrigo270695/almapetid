@@ -168,9 +168,36 @@ export default function Index({
                 header: t('plans:columns.amount'),
                 sortable: true,
                 cell: (plan) => (
-                    <span className="font-medium tabular-nums">
-                        {formatMoney(plan.amount, plan.currency)}
-                    </span>
+                    <div className="space-y-0.5 text-sm">
+                        <p className="font-medium tabular-nums">
+                            {formatMoney(plan.amount, plan.currency)}
+                            <span className="ml-1 text-xs font-normal text-muted-foreground">
+                                {t('plans:columns.amount_direct')}
+                            </span>
+                        </p>
+                        <p className="tabular-nums text-muted-foreground">
+                            {formatMoney(
+                                plan.vetsaas_amount ?? plan.amount,
+                                plan.currency,
+                            )}
+                            <span className="ml-1 text-xs">
+                                {t('plans:columns.amount_vetsaas')}
+                            </span>
+                            {plan.vetsaas_clinic_commission != null &&
+                            Number(plan.vetsaas_clinic_commission) > 0 ? (
+                                <span className="ml-1 text-xs">
+                                    (
+                                    {t('plans:columns.clinic_cut', {
+                                        amount: formatMoney(
+                                            plan.vetsaas_clinic_commission,
+                                            plan.currency,
+                                        ),
+                                    })}
+                                    )
+                                </span>
+                            ) : null}
+                        </p>
+                    </div>
                 ),
             },
             {

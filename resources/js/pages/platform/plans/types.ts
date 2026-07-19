@@ -8,6 +8,10 @@ export type Plan = {
     billing_period: PlanBillingPeriod;
     duration_months: number | null;
     amount: string;
+    vetsaas_amount: string | null;
+    vetsaas_clinic_commission: string | null;
+    partner_amount: string | null;
+    partner_clinic_commission: string | null;
     currency: 'PEN' | 'USD';
     active: boolean;
     is_default: boolean;

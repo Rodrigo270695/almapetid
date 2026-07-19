@@ -30,6 +30,9 @@ class RegistrationPayment extends Model
         'organization_id',
         'amount',
         'currency',
+        'channel',
+        'platform_amount',
+        'clinic_commission',
         'status',
         'provider',
         'provider_reference',
@@ -42,6 +45,8 @@ class RegistrationPayment extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'platform_amount' => 'decimal:2',
+            'clinic_commission' => 'decimal:2',
             'paid_at' => 'datetime',
         ];
     }

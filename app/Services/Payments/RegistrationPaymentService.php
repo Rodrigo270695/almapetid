@@ -10,23 +10,31 @@ use Illuminate\Validation\ValidationException;
 
 final class RegistrationPaymentService
 {
-    public function createPendingCulqiPayment(User $user, Plan $plan): RegistrationPayment
-    {
+    public function createPendingCulqiPayment(
+        User $user,
+        Plan $plan,
+        string $channel = Plan::CHANNEL_DIRECT,
+    ): RegistrationPayment {
         if (! $plan->active) {
             throw ValidationException::withMessages([
                 'plan_id' => 'Este plan no está disponible.',
             ]);
         }
 
+        $pricing = $plan->pricingFor($channel);
+
         return RegistrationPayment::query()->create([
             'plan_id' => $plan->id,
             'user_id' => $user->id,
-            'amount' => $plan->amount,
-            'currency' => $plan->currency,
+            'amount' => $pricing['amount'],
+            'currency' => $pricing['currency'],
+            'channel' => $pricing['channel'],
+            'platform_amount' => $pricing['platform_amount'],
+            'clinic_commission' => $pricing['clinic_commission'],
             'status' => RegistrationPayment::STATUS_PENDING,
             'provider' => RegistrationPayment::PROVIDER_CULQI,
             'created_by_user_id' => $user->id,
-            'notes' => 'Checkout Culqi · '.$plan->code,
+            'notes' => 'Checkout Culqi · '.$plan->code.' · canal '.$pricing['channel'],
         ]);
     }
 
