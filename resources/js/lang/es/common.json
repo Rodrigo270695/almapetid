@@ -1,0 +1,61 @@
+{
+    "actions": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "save_changes": "Guardar cambios",
+        "create": "Crear",
+        "add": "Agregar",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirm": "Confirmar",
+        "close": "Cerrar",
+        "search": "Buscar",
+        "back": "Volver",
+        "loading": "Cargando...",
+        "retry": "Reintentar",
+        "continue": "Continuar",
+        "filter": "Filtrar",
+        "clear": "Limpiar",
+        "clear_filters": "Limpiar filtros",
+        "export": "Exportar",
+        "export_xlsx": "Exportar Excel",
+        "copy": "Copiar",
+        "view": "Ver"
+    },
+    "feedback": {
+        "no_results": "Sin resultados",
+        "save_success": "Cambios guardados correctamente.",
+        "save_error": "No se pudieron guardar los cambios.",
+        "no_records": "Sin registros",
+        "loading_error": "Ocurrió un error al cargar la información.",
+        "delete_success": "Registro eliminado correctamente.",
+        "delete_error": "No se pudo eliminar el registro.",
+        "copied": "Copiado al portapapeles",
+        "copy_error": "No se pudo copiar al portapapeles"
+    },
+    "form": {
+        "required_field": "Campo obligatorio",
+        "unsaved_changes": "Tienes cambios sin guardar. ¿Estás seguro que quieres descartarlos?"
+    },
+    "language": {
+        "label": "Idioma",
+        "es": "Español",
+        "en": "English"
+    },
+    "table": {
+        "showing": "Mostrando",
+        "of": "de",
+        "results": "resultados",
+        "per_page": "Por página",
+        "first_page": "Primera página",
+        "previous_page": "Página anterior",
+        "next_page": "Página siguiente",
+        "last_page": "Última página",
+        "go_to_page": "Ir a página {{page}}",
+        "page_of": "{{current}} / {{total}}",
+        "selected_singular": "seleccionada",
+        "selected_plural": "seleccionadas",
+        "select_all": "Seleccionar todas las filas",
+        "select_row": "Seleccionar fila"
+    }
+}

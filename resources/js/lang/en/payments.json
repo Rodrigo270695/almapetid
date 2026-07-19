@@ -1,0 +1,85 @@
+{
+    "title": "Payments",
+    "description": "AlmaPet registration fee payments (manual and gateways). No crypto.",
+    "actions": {
+        "new": "Record payment",
+        "new_short": "New",
+        "create_first": "Record first payment"
+    },
+    "stats": {
+        "total": "Total",
+        "pending": "Pending",
+        "paid": "Paid",
+        "matches": "Matches"
+    },
+    "search_placeholder": "Search by email, plan or reference...",
+    "filter_status_label": "Status",
+    "filter_provider_label": "Provider",
+    "filters": {
+        "all_status": "All",
+        "all_providers": "All providers"
+    },
+    "status": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "failed": "Failed",
+        "refunded": "Refunded"
+    },
+    "providers": {
+        "manual": "Manual",
+        "culqi": "Culqi",
+        "niubiz": "Niubiz",
+        "stripe": "Stripe"
+    },
+    "columns": {
+        "id": "ID",
+        "payer": "Payer",
+        "plan": "Plan",
+        "amount": "Amount",
+        "status": "Status",
+        "provider": "Provider",
+        "created_at": "Created",
+        "acciones": "Actions"
+    },
+    "row": {
+        "actions_for": "Actions for payment #{{id}}",
+        "mark_paid": "Mark as paid",
+        "mark_refunded": "Mark refunded"
+    },
+    "empty": {
+        "no_records_title": "No payments yet",
+        "no_records_description": "Record a manual payment or wait for owner checkout.",
+        "no_results_title": "No results",
+        "no_results_description": "No payments match the current filters."
+    },
+    "form": {
+        "title_create": "Record payment",
+        "title_edit": "Edit payment",
+        "description_create": "Add a manual payment (cash / transfer / clinic Yape).",
+        "description_edit": "Fix status, provider or payment reference.",
+        "submit_create": "Record payment",
+        "submit_edit": "Save changes",
+        "section_basic": "Payment details",
+        "section_basic_hint": "Link plan and payer. Online checkout comes later.",
+        "fields": {
+            "plan": "Plan",
+            "plan_placeholder": "Select a plan",
+            "plan_none": "No plan",
+            "user": "Payer user",
+            "user_placeholder": "Select a user",
+            "user_search": "Search by name or email...",
+            "user_empty": "No users match",
+            "user_none": "No user",
+            "amount": "Amount",
+            "currency": "Currency",
+            "status": "Status",
+            "provider": "Provider",
+            "provider_reference": "Reference",
+            "provider_reference_placeholder": "Operation / voucher number",
+            "notes": "Notes"
+        }
+    },
+    "toast": {
+        "load_error": "Could not load payments."
+    }
+}

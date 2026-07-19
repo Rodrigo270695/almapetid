@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" role="img" aria-label="VetSaaS">
+  <rect width="320" height="72" rx="14" fill="#0B3A4A"/>
+  <text x="28" y="46" fill="#F0FDFA" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="28" font-weight="700" letter-spacing="-0.02em">VetSaaS</text>
+  <path d="M268 22c8 0 14 6 14 14s-6 14-14 14-14-6-14-14 6-14 14-14zm0 6c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8z" fill="#5EEAD4"/>
+  <circle cx="268" cy="36" r="3.5" fill="#5EEAD4"/>
+</svg>

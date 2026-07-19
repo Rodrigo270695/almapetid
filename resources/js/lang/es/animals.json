@@ -1,0 +1,89 @@
+{
+    "breadcrumb": "Mis mascotas",
+    "registered_by": "Inscrito por {{clinic}}",
+    "no_chip": "Sin microchip registrado aún.",
+    "index": {
+        "title": "Mis mascotas",
+        "subtitle": "Animales vinculados a tu documento.",
+        "subtitle_named": "Hola, {{name}}. Estas son tus mascotas.",
+        "empty": "Todavía no tienes mascotas en AlmaPet ID.",
+        "empty_hint": "Puedes registrar una mascota pagando el fee, o esperar a que una veterinaria la registre con tu DNI.",
+        "register_cta": "Registrar mascota",
+        "continue_register": "Continuar registro",
+        "count": "{{count}} mascota registrada",
+        "count_plural": "{{count}} mascotas registradas"
+    },
+    "register": {
+        "title": "Elegir plan",
+        "subtitle": "Paga el fee de registro AlmaPet y luego carga los datos de tu mascota.",
+        "pay_cta": "Pagar con Culqi",
+        "no_plans": "No hay planes activos. Contacta a soporte.",
+        "culqi_disabled": "Los pagos online aún no están configurados (Culqi)."
+    },
+    "create": {
+        "title": "Registrar mascota",
+        "subtitle": "Pago confirmado ({{plan}}). Completa los datos de tu animal y microchip.",
+        "submit": "Guardar mascota",
+        "paid_badge": "Pago confirmado",
+        "section_identity": "Identidad de la mascota",
+        "section_identity_hint": "Nombre, especie y raza del catálogo AlmaPet.",
+        "section_chip": "Microchip",
+        "name_placeholder": "Ej. Sashi",
+        "species_placeholder": "Selecciona especie",
+        "species_search": "Buscar especie…",
+        "species_empty": "Sin coincidencias. Puedes sugerir una nueva.",
+        "breed_placeholder": "Selecciona raza",
+        "breed_disabled": "Primero elige especie",
+        "breed_search": "Buscar raza…",
+        "breed_empty": "Sin coincidencias. Puedes sugerir una nueva.",
+        "suggest_species": "Solicitar especie «{{name}}»",
+        "suggest_breed": "Solicitar raza «{{name}}»",
+        "microchip_hint": "Solo dígitos, entre 9 y 20 caracteres (ISO suele ser 15).",
+        "photo_hint": "Opcional. Una foto clara ayuda a identificar a tu mascota.",
+        "photo_cta": "Subir foto",
+        "photo_change": "Cambiar"
+    },
+    "show": {
+        "back": "Volver al listado",
+        "edit": "Editar",
+        "edit_data": "Editar datos",
+        "download_certificate": "Descargar certificado PDF",
+        "section_animal": "Datos de la mascota",
+        "section_chip": "Microchip y certificado",
+        "section_clinic": "Veterinaria registradora"
+    },
+    "edit": {
+        "title": "Editar mascota",
+        "subtitle": "Actualiza solo los datos básicos. El microchip y certificado no se modifican.",
+        "submit": "Guardar cambios"
+    },
+    "species": {
+        "dog": "Perro",
+        "cat": "Gato",
+        "other": "Otro"
+    },
+    "sex": {
+        "male": "Macho",
+        "female": "Hembra"
+    },
+    "fields": {
+        "name": "Nombre",
+        "species": "Especie",
+        "breed": "Raza",
+        "sex": "Sexo",
+        "color": "Color",
+        "birth_date": "Fecha de nacimiento",
+        "notes": "Notas",
+        "microchip": "Microchip",
+        "public_code": "Código público",
+        "certificate": "Certificado",
+        "implant_date": "Fecha de implante",
+        "implant_site": "Sitio de implante",
+        "registered_at": "Registrado",
+        "clinic": "Clínica",
+        "ruc": "RUC",
+        "city": "Ciudad",
+        "clinic_phone": "Teléfono clínica",
+        "photo": "Foto"
+    }
+}

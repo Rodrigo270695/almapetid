@@ -1,0 +1,62 @@
+{
+    "title": "Settings",
+    "description": "Manage your profile and account settings",
+    "nav": {
+        "profile": "Profile",
+        "security": "Security",
+        "appearance": "Appearance",
+        "aria": "Settings"
+    },
+    "profile": {
+        "title": "Profile settings",
+        "section_title": "Profile",
+        "section_description": "Update your personal details, phone and email",
+        "name": "First name",
+        "name_placeholder": "Your first name",
+        "lastname": "Last name",
+        "lastname_placeholder": "Your last name",
+        "document_type": "Document type",
+        "document_number": "Document number",
+        "document_number_placeholder": "e.g. 12345678",
+        "email": "Email address",
+        "email_placeholder": "Email address",
+        "unverified": "Your email address is unverified.",
+        "resend_verification": "Click here to re-send the verification email.",
+        "verification_sent": "A new verification link has been sent to your email address.",
+        "phone": "Mobile phone",
+        "phone_placeholder": "e.g. 999888777",
+        "phone_hint": "Important so we can reach you about your pet."
+    },
+    "security": {
+        "title": "Security settings",
+        "password_title": "Update password",
+        "password_description": "Ensure your account is using a long, random password to stay secure",
+        "current_password": "Current password",
+        "new_password": "New password",
+        "confirm_password": "Confirm password",
+        "two_factor_title": "Two-factor authentication",
+        "two_factor_description": "Manage your two-factor authentication settings",
+        "two_factor_enabled_hint": "You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.",
+        "two_factor_disabled_hint": "When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.",
+        "disable_2fa": "Disable 2FA",
+        "enable_2fa": "Enable 2FA",
+        "continue_setup": "Continue setup"
+    },
+    "appearance": {
+        "title": "Appearance settings",
+        "section_title": "Appearance settings",
+        "section_description": "Update the appearance settings for your account",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+    },
+    "delete": {
+        "title": "Delete account",
+        "description": "Delete your account and all of its resources",
+        "warning": "Warning",
+        "warning_body": "Please proceed with caution, this cannot be undone.",
+        "button": "Delete account",
+        "confirm_title": "Are you sure you want to delete your account?",
+        "confirm_description": "Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password to confirm you would like to permanently delete your account."
+    }
+}

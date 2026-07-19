@@ -1,0 +1,109 @@
+{
+    "title": "Users",
+    "description": "Manage AlmaPet platform accounts. Assign roles to control access.",
+    "actions": {
+        "new": "New user",
+        "new_short": "New",
+        "create_first": "Create first user",
+        "delete_selected": "Delete selected"
+    },
+    "stats": {
+        "total": "Total",
+        "platform_admins": "Admins",
+        "filters": "Filters",
+        "matches": "Matches"
+    },
+    "search_placeholder": "Search by name, email, phone or document...",
+    "filter_role_label": "Filter by role",
+    "filters": {
+        "all_roles": "All roles"
+    },
+    "columns": {
+        "user": "User",
+        "document": "Document",
+        "role": "Role",
+        "created_at": "Created",
+        "acciones": "Actions",
+        "phone": "Phone"
+    },
+    "row": {
+        "no_document": "No document",
+        "no_role": "No role",
+        "current_user_badge": "You",
+        "copy_email": "Copy email",
+        "actions_for": "Actions for {{name}}",
+        "self_locked": "You can't delete your own account from here.",
+        "platform_admin_locked": "platform_admin accounts can't be deleted from the panel.",
+        "no_phone": "No phone"
+    },
+    "empty": {
+        "no_records_title": "No users yet",
+        "no_records_description": "Create the first user to manage platform access.",
+        "no_results_title": "No results",
+        "no_results_description": "No users match the current filters."
+    },
+    "aria": {
+        "results_count_one": "{{count}} user found",
+        "results_count_other": "{{count}} users found"
+    },
+    "form": {
+        "title_create": "New user",
+        "title_edit": "Edit user",
+        "description_create": "Fill in the new user details and assign a role.",
+        "description_edit": "Update user details or change their role.",
+        "submit_create": "Create user",
+        "submit_edit": "Save changes",
+        "section_basic": "Personal details",
+        "section_basic_hint": "Identity and contact information.",
+        "section_access": "Access",
+        "section_access_hint_create": "Set the initial password and role.",
+        "section_access_hint_edit": "Change the role or password. Leave password blank to keep the current one.",
+        "fields": {
+            "name": "First name",
+            "name_placeholder": "e.g. Maria",
+            "lastname": "Last name",
+            "lastname_placeholder": "e.g. Lopez",
+            "email": "Email",
+            "email_placeholder": "user@almapet.com",
+            "document_type": "Document type",
+            "document_type_placeholder": "Select…",
+            "document_number": "Document number",
+            "document_number_placeholder": "e.g. 12345678",
+            "role": "Role",
+            "role_placeholder": "Select a role",
+            "password": "Password",
+            "password_confirmation": "Confirm password",
+            "password_hint_edit": "Leave blank to keep the current password.",
+            "phone": "Mobile phone",
+            "phone_placeholder": "e.g. 999888777",
+            "phone_hint": "Contact channel (especially for owners)."
+        }
+    },
+    "document_types": {
+        "dni": "National ID (DNI)",
+        "passport": "Passport",
+        "national_id": "National ID",
+        "foreign_id": "Foreign ID",
+        "other": "Other"
+    },
+    "delete": {
+        "title": "Delete user",
+        "description": "You are about to delete <strong>{{name}}</strong>. This cannot be undone.",
+        "confirm": "Yes, delete user",
+        "loading": "Deleting...",
+        "self_blocked": "You can't delete your own account.",
+        "platform_admin_blocked": "Platform admins can't be deleted from the panel."
+    },
+    "bulk": {
+        "selected_singular": "user selected",
+        "selected_plural": "users selected",
+        "delete_title": "Delete {{count}} users",
+        "delete_description": "You will delete {{count}} users. platform_admin accounts and your own session will be skipped.",
+        "delete_confirm_singular": "Yes, delete user",
+        "delete_confirm_plural": "Yes, delete {{count}} users"
+    },
+    "toast": {
+        "email_copied": "Email copied",
+        "load_error": "Could not load the users list."
+    }
+}

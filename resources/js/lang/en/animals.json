@@ -1,0 +1,89 @@
+{
+    "breadcrumb": "My pets",
+    "registered_by": "Registered by {{clinic}}",
+    "no_chip": "No microchip registered yet.",
+    "index": {
+        "title": "My pets",
+        "subtitle": "Animals linked to your ID.",
+        "subtitle_named": "Hi, {{name}}. These are your pets.",
+        "empty": "You don't have pets on AlmaPet ID yet.",
+        "empty_hint": "You can register a pet after paying the fee, or wait for a clinic to register it with your ID.",
+        "register_cta": "Register pet",
+        "continue_register": "Continue registration",
+        "count": "{{count}} registered pet",
+        "count_plural": "{{count}} registered pets"
+    },
+    "register": {
+        "title": "Choose a plan",
+        "subtitle": "Pay the AlmaPet registration fee, then enter your pet details.",
+        "pay_cta": "Pay with Culqi",
+        "no_plans": "No active plans. Contact support.",
+        "culqi_disabled": "Online payments are not configured yet (Culqi)."
+    },
+    "create": {
+        "title": "Register pet",
+        "subtitle": "Payment confirmed ({{plan}}). Enter your animal and microchip details.",
+        "submit": "Save pet",
+        "paid_badge": "Payment confirmed",
+        "section_identity": "Pet identity",
+        "section_identity_hint": "Name, species and breed from the AlmaPet catalog.",
+        "section_chip": "Microchip",
+        "name_placeholder": "E.g. Sashi",
+        "species_placeholder": "Select species",
+        "species_search": "Search species…",
+        "species_empty": "No matches. You can suggest a new one.",
+        "breed_placeholder": "Select breed",
+        "breed_disabled": "Select species first",
+        "breed_search": "Search breed…",
+        "breed_empty": "No matches. You can suggest a new one.",
+        "suggest_species": "Request species “{{name}}”",
+        "suggest_breed": "Request breed “{{name}}”",
+        "microchip_hint": "Digits only, 9 to 20 characters (ISO is usually 15).",
+        "photo_hint": "Optional. A clear photo helps identify your pet.",
+        "photo_cta": "Upload photo",
+        "photo_change": "Change"
+    },
+    "show": {
+        "back": "Back to list",
+        "edit": "Edit",
+        "edit_data": "Edit details",
+        "download_certificate": "Download PDF certificate",
+        "section_animal": "Pet details",
+        "section_chip": "Microchip & certificate",
+        "section_clinic": "Registering clinic"
+    },
+    "edit": {
+        "title": "Edit pet",
+        "subtitle": "Update basic details only. Microchip and certificate stay unchanged.",
+        "submit": "Save changes"
+    },
+    "species": {
+        "dog": "Dog",
+        "cat": "Cat",
+        "other": "Other"
+    },
+    "sex": {
+        "male": "Male",
+        "female": "Female"
+    },
+    "fields": {
+        "name": "Name",
+        "species": "Species",
+        "breed": "Breed",
+        "sex": "Sex",
+        "color": "Color",
+        "birth_date": "Date of birth",
+        "notes": "Notes",
+        "microchip": "Microchip",
+        "public_code": "Public code",
+        "certificate": "Certificate",
+        "implant_date": "Implant date",
+        "implant_site": "Implant site",
+        "registered_at": "Registered",
+        "clinic": "Clinic",
+        "ruc": "Tax ID",
+        "city": "City",
+        "clinic_phone": "Clinic phone",
+        "photo": "Photo"
+    }
+}

@@ -1,0 +1,78 @@
+{
+    "title": "Plans",
+    "description": "Catalog of AlmaPet ID registration fees and annual plans.",
+    "actions": {
+        "new": "New plan",
+        "new_short": "New",
+        "create_first": "Create first plan"
+    },
+    "stats": {
+        "total": "Total",
+        "active": "Active",
+        "annual": "Annual",
+        "matches": "Matches"
+    },
+    "search_placeholder": "Search by name, code or description...",
+    "filter_status_label": "Status",
+    "filter_period_label": "Period",
+    "filters": {
+        "all_status": "All",
+        "active": "Active",
+        "inactive": "Inactive",
+        "all_periods": "All periods"
+    },
+    "periods": {
+        "registration": "One-time registration",
+        "annual": "Annual"
+    },
+    "columns": {
+        "name": "Plan",
+        "period": "Period",
+        "amount": "Price",
+        "payments": "Payments",
+        "acciones": "Actions"
+    },
+    "row": {
+        "default_badge": "Default",
+        "inactive_badge": "Inactive",
+        "actions_for": "Actions for {{name}}"
+    },
+    "empty": {
+        "no_records_title": "No plans yet",
+        "no_records_description": "Create the pricing catalog for registration fees and annual renewals.",
+        "no_results_title": "No results",
+        "no_results_description": "No plans match the current filters."
+    },
+    "form": {
+        "title_create": "New plan",
+        "title_edit": "Edit plan",
+        "description_create": "Define the fee or annual plan shown to owners and clinics.",
+        "description_edit": "Update price, term or plan status.",
+        "submit_create": "Create plan",
+        "submit_edit": "Save changes",
+        "section_basic": "Plan details",
+        "section_basic_hint": "Internal code, price and billing period.",
+        "fields": {
+            "code": "Code",
+            "code_placeholder": "e.g. one-time-fee",
+            "name": "Name",
+            "name_placeholder": "e.g. One-time registration",
+            "description": "Description",
+            "description_placeholder": "What this plan includes",
+            "billing_period": "Period",
+            "duration_months": "Duration (months)",
+            "amount": "Amount",
+            "currency": "Currency",
+            "active": "Active (available for checkout)",
+            "is_default": "Default plan"
+        }
+    },
+    "delete": {
+        "title": "Delete plan",
+        "description": "You are about to delete <strong>{{name}}</strong>. Only allowed if it has no related payments.",
+        "confirm": "Yes, delete plan"
+    },
+    "toast": {
+        "load_error": "Could not load plans."
+    }
+}

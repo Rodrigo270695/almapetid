@@ -1,0 +1,34 @@
+{
+    "items": {
+        "dashboard": "Dashboard",
+        "clinic_dashboard": "Clinic panel",
+        "register_chip": "Register chip",
+        "usuario": "User",
+        "roles": "Roles",
+        "usuarios": "Users",
+        "repository": "Repository",
+        "documentation": "Documentation",
+        "animals": "My pets",
+        "registrations": "Registrations",
+        "clinic_settings": "Clinic settings",
+        "facturacion": "Billing",
+        "planes": "Plans",
+        "pagos": "Payments",
+        "catalogo": "Catalog",
+        "especies_razas": "Species & breeds",
+        "comunicaciones": "Communications",
+        "alertas": "Alerts",
+        "auspiciadores": "Sponsors"
+    },
+    "groups": {
+        "main": "Main",
+        "admin": "Administration"
+    },
+    "aria": {
+        "navigation_menu": "Navigation menu"
+    },
+    "user_menu": {
+        "settings": "Settings",
+        "logout": "Log out"
+    }
+}

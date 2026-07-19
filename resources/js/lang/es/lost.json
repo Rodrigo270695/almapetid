@@ -1,0 +1,61 @@
+{
+    "status": {
+        "lost": "Perdido",
+        "active": "Activo"
+    },
+    "banner": {
+        "title": "Mascota declarada como perdida",
+        "hint": "Aparecerá como PERDIDO en su perfil público. Quien la encuentre puede reportarlo sin ver tu teléfono."
+    },
+    "actions": {
+        "declare": "Declarar perdido",
+        "recover": "Marcar recuperada",
+        "recover_confirm": "¿Confirmas que recuperaste a {{name}}?",
+        "copy_link": "Copiar enlace público",
+        "copied": "Enlace copiado"
+    },
+    "history": {
+        "title": "Historial de pérdida",
+        "empty": "Aún no hay declaraciones de pérdida.",
+        "lost": "Declarada perdida",
+        "recovered": "Marcada recuperada",
+        "open": "Abierta",
+        "location": "Ubicación"
+    },
+    "declare": {
+        "title": "Declarar mascota perdida",
+        "description": "Comparte cuándo y dónde se perdió. Estos datos ayudan a quien pueda encontrarla.",
+        "lost_at": "Fecha/hora aproximada",
+        "location": "Última ubicación",
+        "location_hint": "Selecciona departamento, provincia y distrito donde se perdió.",
+        "last_seen_city": "Ciudad",
+        "last_seen_zone": "Zona / distrito",
+        "public_notes": "Notas públicas (collar, señas)",
+        "photo": "Foto reciente (opcional)",
+        "submit": "Declarar perdido",
+        "cancel": "Cancelar"
+    },
+    "found_inbox": {
+        "title": "Reportes de hallazgo",
+        "empty": "Aún no hay reportes de hallazgo.",
+        "from": "De {{name}}",
+        "contact": "Contacto"
+    },
+    "public": {
+        "title": "Perfil AlmaPet",
+        "lost_alert": "Esta mascota está reportada como perdida",
+        "found_cta": "La encontré",
+        "found_title": "Reportar hallazgo",
+        "found_hint": "Avisaremos al tutor. No te mostramos su teléfono.",
+        "reporter_name": "Tu nombre",
+        "reporter_phone": "Teléfono",
+        "reporter_email": "Email",
+        "message": "Mensaje",
+        "city": "Ciudad",
+        "zone": "Zona",
+        "submit_found": "Enviar reporte",
+        "not_lost": "Registro activo en AlmaPet ID",
+        "clinic": "Veterinaria",
+        "success": "Reporte enviado. Gracias por ayudar."
+    }
+}

@@ -1,0 +1,78 @@
+{
+    "title": "Planes",
+    "description": "Catálogo de fees de registro y planes anuales de AlmaPet ID.",
+    "actions": {
+        "new": "Nuevo plan",
+        "new_short": "Nuevo",
+        "create_first": "Crear primer plan"
+    },
+    "stats": {
+        "total": "Total",
+        "active": "Activos",
+        "annual": "Anuales",
+        "matches": "Coincidencias"
+    },
+    "search_placeholder": "Buscar por nombre, código o descripción...",
+    "filter_status_label": "Estado",
+    "filter_period_label": "Periodo",
+    "filters": {
+        "all_status": "Todos",
+        "active": "Activos",
+        "inactive": "Inactivos",
+        "all_periods": "Todos los periodos"
+    },
+    "periods": {
+        "registration": "Registro único",
+        "annual": "Anual"
+    },
+    "columns": {
+        "name": "Plan",
+        "period": "Periodo",
+        "amount": "Precio",
+        "payments": "Pagos",
+        "acciones": "Acciones"
+    },
+    "row": {
+        "default_badge": "Predeterminado",
+        "inactive_badge": "Inactivo",
+        "actions_for": "Acciones para {{name}}"
+    },
+    "empty": {
+        "no_records_title": "Aún no hay planes",
+        "no_records_description": "Crea el catálogo de precios para el fee de registro y la renovación anual.",
+        "no_results_title": "Sin resultados",
+        "no_results_description": "Ningún plan coincide con los filtros actuales."
+    },
+    "form": {
+        "title_create": "Nuevo plan",
+        "title_edit": "Editar plan",
+        "description_create": "Define el fee o plan anual que verán dueños y clínicas.",
+        "description_edit": "Actualiza precio, vigencia o estado del plan.",
+        "submit_create": "Crear plan",
+        "submit_edit": "Guardar cambios",
+        "section_basic": "Datos del plan",
+        "section_basic_hint": "Código interno, precio y periodo de facturación.",
+        "fields": {
+            "code": "Código",
+            "code_placeholder": "ej. registro-unico",
+            "name": "Nombre",
+            "name_placeholder": "ej. Registro único",
+            "description": "Descripción",
+            "description_placeholder": "Qué incluye este plan",
+            "billing_period": "Periodo",
+            "duration_months": "Duración (meses)",
+            "amount": "Monto",
+            "currency": "Moneda",
+            "active": "Activo (visible para cobro)",
+            "is_default": "Plan predeterminado"
+        }
+    },
+    "delete": {
+        "title": "Eliminar plan",
+        "description": "Vas a eliminar <strong>{{name}}</strong>. Solo es posible si no tiene pagos asociados.",
+        "confirm": "Sí, eliminar plan"
+    },
+    "toast": {
+        "load_error": "No se pudo cargar la lista de planes."
+    }
+}

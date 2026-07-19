@@ -1,0 +1,222 @@
+{
+    "meta": {
+        "legal_label": "Información legal",
+        "updated_prefix": "Última actualización",
+        "disclaimer": "Este texto es informativo y puede actualizarse. Ante dudas legales, consulta a un profesional. Datos de la empresa (RUC, domicilio) se completarán al publicar en producción."
+    },
+    "privacy": {
+        "title": "Política de privacidad",
+        "updated": "19 de julio de 2026",
+        "intro": "En AlmaPet ID cuidamos los datos personales de dueños, personal de clínicas y personas que reportan un hallazgo. Esta política explica qué recopilamos, para qué y cómo puedes ejercer tus derechos.",
+        "sections": [
+            {
+                "heading": "1. Responsable del tratamiento",
+                "paragraphs": [
+                    "El responsable es AlmaPet ID (en adelante, «AlmaPet»), operador de la red de identidad animal disponible en este sitio.",
+                    "Para ejercer derechos o consultas de privacidad: privacidad@almapetid.com (correo de contacto provisional)."
+                ]
+            },
+            {
+                "heading": "2. Datos que tratamos",
+                "paragraphs": [
+                    "Dueños: nombres, documento de identidad, correo, teléfono, ubicación a nivel distrito (ubigeo), y datos de la mascota y microchip.",
+                    "Clínicas: razón social, RUC, contacto, ubicación y registros de implantación asociados.",
+                    "Hallazgos públicos: nombre, teléfono o correo del reportero, mensaje y zona aproximada, solo para notificar al tutor.",
+                    "Datos técnicos: IP, dispositivo, cookies necesarias y, si activas notificaciones, suscripción push."
+                ]
+            },
+            {
+                "heading": "3. Finalidades",
+                "paragraphs": [
+                    "Prestar el servicio de registro, certificado, declaración de perdido y reencuentro.",
+                    "Cobrar el fee de registro mediante pasarelas de pago o confirmación manual.",
+                    "Enviar alertas operativas (correo, push u otros canales que habilites).",
+                    "Cumplir obligaciones legales y atender reclamaciones."
+                ]
+            },
+            {
+                "heading": "4. Base legal y conservación",
+                "paragraphs": [
+                    "Tratamos datos por ejecución del contrato de servicio, interés legítimo en la seguridad de la red y, cuando corresponda, consentimiento (p. ej. marketing o cookies no esenciales).",
+                    "Conservamos los datos mientras la cuenta o el registro estén activos y el tiempo adicional que exija la ley o la defensa de reclamaciones."
+                ]
+            },
+            {
+                "heading": "5. Perfil público y mascotas perdidas",
+                "paragraphs": [
+                    "El perfil público muestra información limitada de la mascota (nombre, especie, foto, estado). No publica DNI ni dirección exacta del hogar.",
+                    "En estado «perdido» puede mostrarse zona/distrito aproximado y notas que el tutor elija hacer públicas."
+                ]
+            },
+            {
+                "heading": "6. Encargados y transferencias",
+                "paragraphs": [
+                    "Podemos usar proveedores de hosting, correo, pagos (p. ej. Culqi) y analítica bajo contratos de encargo. No vendemos datos personales.",
+                    "Si hay transferencia internacional, aplicaremos salvaguardas adecuadas."
+                ]
+            },
+            {
+                "heading": "7. Tus derechos",
+                "paragraphs": [
+                    "Puedes solicitar acceso, rectificación, cancelación, oposición y portabilidad según la normativa peruana aplicable (Ley 29733 y su reglamento).",
+                    "También puedes presentar una reclamación ante la Autoridad Nacional de Protección de Datos Personales."
+                ]
+            }
+        ]
+    },
+    "terms": {
+        "title": "Términos y condiciones",
+        "updated": "19 de julio de 2026",
+        "intro": "Al usar AlmaPet ID aceptas estos términos. Si no estás de acuerdo, no utilices el servicio.",
+        "sections": [
+            {
+                "heading": "1. El servicio",
+                "paragraphs": [
+                    "AlmaPet ID es una red de identidad animal: registro de microchip, certificado digital, estados (activo/perdido) y facilitación del reencuentro.",
+                    "El microchip ISO identifica al animal; AlmaPet no es un dispositivo GPS ni garantiza la localización física."
+                ]
+            },
+            {
+                "heading": "2. Cuentas y veracidad",
+                "paragraphs": [
+                    "Debes proporcionar información veraz. Eres responsable de la confidencialidad de tu acceso.",
+                    "Las clínicas afiliadas deben contar con autorización para registrar animales de sus clientes."
+                ]
+            },
+            {
+                "heading": "3. Registro y pagos",
+                "paragraphs": [
+                    "El fee de registro se indica al momento del pago. Puede cobrarse vía pasarela o incluirse en un pack de clínica.",
+                    "Un microchip solo puede tener un registro activo (o perdido) a la vez en la red."
+                ]
+            },
+            {
+                "heading": "4. Uso aceptable",
+                "paragraphs": [
+                    "Está prohibido usar el servicio para acoso, fraude, spam de hallazgos falsos o exponer datos de terceros sin base legal.",
+                    "Podemos suspender cuentas ante abuso, fraude de pago o riesgo a la integridad de la red."
+                ]
+            },
+            {
+                "heading": "5. Limitación de responsabilidad",
+                "paragraphs": [
+                    "AlmaPet facilita la identidad y el contacto intermediado; no responde por la conducta de terceros ni por demoras de operadores de red o pasarelas.",
+                    "En la medida permitida por ley, la responsabilidad se limita a los importes pagados a AlmaPet por el servicio en los 12 meses previos."
+                ]
+            },
+            {
+                "heading": "6. Ley aplicable",
+                "paragraphs": [
+                    "Estos términos se rigen por las leyes de la República del Perú. Los tribunales competentes serán los de Lima, salvo norma imperativa en contrario."
+                ]
+            }
+        ]
+    },
+    "returns": {
+        "title": "Cambios y devoluciones",
+        "updated": "19 de julio de 2026",
+        "intro": "Política aplicable al fee digital de registro en AlmaPet ID. El chip físico y la implantación los cobra la clínica y se rigen por su propia política.",
+        "sections": [
+            {
+                "heading": "1. Naturaleza del servicio",
+                "paragraphs": [
+                    "El fee de AlmaPet ID corresponde a un servicio digital de registro e identidad en la red. Una vez activado el registro y emitido el certificado/código, el servicio se considera prestado."
+                ]
+            },
+            {
+                "heading": "2. Derecho de retracto / devolución",
+                "paragraphs": [
+                    "Si el pago se realizó y el registro no llegó a activarse por causa imputable a AlmaPet, reembolsaremos el fee o reintentaremos la activación.",
+                    "No hay devolución del fee cuando el registro ya está activo o en estado perdido, salvo error de cobro duplicado demostrable."
+                ]
+            },
+            {
+                "heading": "3. Cómo solicitarlo",
+                "paragraphs": [
+                    "Escribe a soporte@almapetid.com con el correo de la cuenta, el número de microchip o código público, y el comprobante de pago.",
+                    "Responderemos en un plazo razonable (objetivo: 5–10 días hábiles)."
+                ]
+            },
+            {
+                "heading": "4. Chip físico e implantación",
+                "paragraphs": [
+                    "Cualquier cambio, garantía o devolución del microchip físico o del procedimiento clínico debe gestionarse con la veterinaria que lo realizó."
+                ]
+            }
+        ]
+    },
+    "cookies": {
+        "title": "Política de cookies",
+        "updated": "19 de julio de 2026",
+        "intro": "Usamos cookies y tecnologías similares para que el sitio funcione y, con tu permiso cuando aplique, para mejorar la experiencia.",
+        "sections": [
+            {
+                "heading": "1. Qué son",
+                "paragraphs": [
+                    "Las cookies son pequeños archivos que el navegador almacena. También usamos almacenamiento local (p. ej. idioma) y, si activas la PWA, suscripción a notificaciones."
+                ]
+            },
+            {
+                "heading": "2. Tipos que empleamos",
+                "paragraphs": [
+                    "Necesarias: sesión, seguridad CSRF, preferencia de idioma y temas.",
+                    "Funcionales: recordar instalación PWA o preferencias de la interfaz.",
+                    "Analítica (si se habilita): medición agregada de uso. Podrás rechazarlas cuando implementemos el banner de consentimiento."
+                ]
+            },
+            {
+                "heading": "3. Cómo gestionarlas",
+                "paragraphs": [
+                    "Puedes borrar o bloquear cookies desde la configuración de tu navegador. Si bloqueas las necesarias, algunas partes del sitio pueden dejar de funcionar."
+                ]
+            }
+        ]
+    },
+    "complaints": {
+        "title": "Libro de reclamaciones",
+        "updated": "19 de julio de 2026",
+        "intro": "Conforme a la normativa de protección al consumidor en el Perú, ponemos a disposición este Libro de Reclamaciones virtual para presentar quejas o reclamaciones relacionadas con el servicio AlmaPet ID.",
+        "sections": [
+            {
+                "heading": "1. Identificación del proveedor",
+                "paragraphs": [
+                    "Nombre comercial: AlmaPet ID.",
+                    "Domicilio, RUC y representante legal: se publicarán al momento de la operación comercial formal en Perú.",
+                    "Contacto: reclamaciones@almapetid.com"
+                ]
+            },
+            {
+                "heading": "2. Diferencia entre queja y reclamación",
+                "paragraphs": [
+                    "Reclamación: disconformidad relacionada directamente con el producto o servicio (pago, registro, certificado, alertas).",
+                    "Queja: malestar o disconformidad no relacionada directamente con el producto, o sobre la atención recibida."
+                ]
+            },
+            {
+                "heading": "3. Procedimiento",
+                "paragraphs": [
+                    "Completa el formulario con tus datos, el detalle de los hechos y tu pedido. Conserva una copia o captura.",
+                    "AlmaPet responderá en el plazo que indique la normativa aplicable (como referencia orientativa, hasta 15 días hábiles, salvo plazo distinto legal).",
+                    "Si no estás conforme con la respuesta, puedes acudir a INDECOPI u otras vías que correspondan."
+                ]
+            }
+        ],
+        "form": {
+            "title": "Registrar una hoja de reclamación",
+            "hint": "Los campos con * son obligatorios. Por ahora el envío queda registrado en pantalla; el ticket por correo se habilitará en producción.",
+            "name": "Nombre completo *",
+            "document": "Documento de identidad *",
+            "email": "Correo electrónico *",
+            "phone": "Teléfono",
+            "type": "Tipo *",
+            "type_placeholder": "Selecciona",
+            "types": {
+                "claim": "Reclamación",
+                "complaint": "Queja"
+            },
+            "detail": "Detalle de los hechos y pedido *",
+            "submit": "Enviar hoja",
+            "success": "Hemos recibido tu registro en pantalla. Guarda una captura. Pronto el envío generará un correlativo por correo."
+        }
+    }
+}

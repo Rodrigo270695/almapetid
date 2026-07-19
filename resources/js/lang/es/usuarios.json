@@ -1,0 +1,109 @@
+{
+    "title": "Usuarios",
+    "description": "Administra las cuentas de la plataforma AlmaPet. Asigna roles para controlar el acceso.",
+    "actions": {
+        "new": "Nuevo usuario",
+        "new_short": "Nuevo",
+        "create_first": "Crear primer usuario",
+        "delete_selected": "Eliminar seleccionados"
+    },
+    "stats": {
+        "total": "Total",
+        "platform_admins": "Admins",
+        "filters": "Filtros",
+        "matches": "Coincidencias"
+    },
+    "search_placeholder": "Buscar por nombre, email, celular o documento...",
+    "filter_role_label": "Filtrar por rol",
+    "filters": {
+        "all_roles": "Todos los roles"
+    },
+    "columns": {
+        "user": "Usuario",
+        "document": "Documento",
+        "role": "Rol",
+        "created_at": "Creado",
+        "acciones": "Acciones",
+        "phone": "Celular"
+    },
+    "row": {
+        "no_document": "Sin documento",
+        "no_role": "Sin rol",
+        "current_user_badge": "Tú",
+        "copy_email": "Copiar email",
+        "actions_for": "Acciones para {{name}}",
+        "self_locked": "No puedes eliminar tu propia cuenta desde aquí.",
+        "platform_admin_locked": "Las cuentas platform_admin no se pueden eliminar desde el panel.",
+        "no_phone": "Sin celular"
+    },
+    "empty": {
+        "no_records_title": "Aún no hay usuarios",
+        "no_records_description": "Crea el primer usuario para gestionar accesos a la plataforma.",
+        "no_results_title": "Sin resultados",
+        "no_results_description": "Ningún usuario coincide con los filtros actuales."
+    },
+    "aria": {
+        "results_count_one": "{{count}} usuario encontrado",
+        "results_count_other": "{{count}} usuarios encontrados"
+    },
+    "form": {
+        "title_create": "Nuevo usuario",
+        "title_edit": "Editar usuario",
+        "description_create": "Completa los datos del nuevo usuario y asígnale un rol.",
+        "description_edit": "Actualiza la información del usuario o cambia su rol.",
+        "submit_create": "Crear usuario",
+        "submit_edit": "Guardar cambios",
+        "section_basic": "Datos personales",
+        "section_basic_hint": "Identidad y contacto del usuario.",
+        "section_access": "Acceso",
+        "section_access_hint_create": "Define la contraseña inicial y el rol.",
+        "section_access_hint_edit": "Cambia el rol o la contraseña. Si no quieres cambiar la contraseña, deja los campos vacíos.",
+        "fields": {
+            "name": "Nombres",
+            "name_placeholder": "Ej. María",
+            "lastname": "Apellidos",
+            "lastname_placeholder": "Ej. López",
+            "email": "Correo electrónico",
+            "email_placeholder": "usuario@almapet.com",
+            "document_type": "Tipo de documento",
+            "document_type_placeholder": "Selecciona…",
+            "document_number": "Número de documento",
+            "document_number_placeholder": "Ej. 12345678",
+            "role": "Rol",
+            "role_placeholder": "Selecciona un rol",
+            "password": "Contraseña",
+            "password_confirmation": "Confirmar contraseña",
+            "password_hint_edit": "Déjalo vacío para conservar la contraseña actual.",
+            "phone": "Celular",
+            "phone_placeholder": "Ej. 999888777",
+            "phone_hint": "Canal de contacto (especialmente para dueños)."
+        }
+    },
+    "document_types": {
+        "dni": "DNI",
+        "passport": "Pasaporte",
+        "national_id": "Cédula / ID nacional",
+        "foreign_id": "Carnet de extranjería",
+        "other": "Otro"
+    },
+    "delete": {
+        "title": "Eliminar usuario",
+        "description": "Vas a eliminar a <strong>{{name}}</strong>. Esta acción no se puede deshacer.",
+        "confirm": "Sí, eliminar usuario",
+        "loading": "Eliminando...",
+        "self_blocked": "No puedes eliminar tu propia cuenta.",
+        "platform_admin_blocked": "No se puede eliminar un administrador de plataforma desde el panel."
+    },
+    "bulk": {
+        "selected_singular": "usuario seleccionado",
+        "selected_plural": "usuarios seleccionados",
+        "delete_title": "Eliminar {{count}} usuarios",
+        "delete_description": "Vas a eliminar {{count}} usuarios. Las cuentas platform_admin y tu propia sesión se omitirán.",
+        "delete_confirm_singular": "Sí, eliminar usuario",
+        "delete_confirm_plural": "Sí, eliminar {{count}} usuarios"
+    },
+    "toast": {
+        "email_copied": "Email copiado",
+        "load_error": "No se pudo cargar la lista de usuarios."
+    }
+}

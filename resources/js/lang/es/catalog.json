@@ -1,0 +1,77 @@
+{
+    "breadcrumb": "Catálogo",
+    "title": "Especies y razas",
+    "subtitle": "Administra el catálogo usado al registrar mascotas. Las sugerencias se pueden usar de inmediato; tú las apruebas o rechazas después.",
+    "actions": {
+        "new_species": "Nueva especie",
+        "new_breed": "Nueva raza",
+        "new_short": "Nueva"
+    },
+    "stats": {
+        "species": "Especies",
+        "breeds": "Razas",
+        "pending": "Pendientes"
+    },
+    "columns": {
+        "species": "Especie",
+        "breed": "Raza",
+        "status": "Estado",
+        "acciones": "Acciones"
+    },
+    "row": {
+        "breeds_count": "{{count}} razas",
+        "actions_for": "Acciones para {{name}}"
+    },
+    "aria": {
+        "species_count": "{{count}} especies",
+        "breeds_count": "{{count}} razas"
+    },
+    "type": {
+        "species": "Especie",
+        "breed": "Raza"
+    },
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "confirm_delete_species": "¿Eliminar la especie \"{{name}}\" y todas sus razas?",
+    "confirm_delete_breed": "¿Eliminar la raza \"{{name}}\"?",
+    "suggestions": {
+        "title": "Solicitudes pendientes",
+        "hint": "Ya están usables en registro. Aprueba o rechaza (rechazar las desactiva).",
+        "requested_by": "Solicitado por {{name}}",
+        "approve": "Aprobar",
+        "reject": "Rechazar"
+    },
+    "species_panel": {
+        "title": "Especies",
+        "hint": "Selecciona una para ver sus razas.",
+        "placeholder": "Ej. Conejo",
+        "empty": "Aún no hay especies",
+        "empty_hint": "Crea la primera especie del catálogo AlmaPet."
+    },
+    "breeds_panel": {
+        "title": "Razas",
+        "for_species": "De {{name}}",
+        "select_species": "Selecciona una especie",
+        "select_species_hint": "Haz clic en una especie de la tabla izquierda para ver sus razas.",
+        "placeholder": "Ej. Pastor Alemán",
+        "empty": "Sin razas para esta especie",
+        "empty_hint": "Agrega la primera raza de esta especie."
+    },
+    "form": {
+        "species_title": "Nueva especie",
+        "species_description": "Se publicará de inmediato en el catálogo de registro.",
+        "species_hint": "Nombre corto y claro (ej. Perro, Gato).",
+        "breed_title": "Nueva raza",
+        "breed_description": "Se agregará a la especie {{species}}.",
+        "breed_hint": "Nombre de la raza tal como debe verse en el combobox.",
+        "section_basic": "Datos"
+    },
+    "delete": {
+        "species_title": "Eliminar especie",
+        "species_hint": "También se eliminarán todas las razas asociadas.",
+        "breed_title": "Eliminar raza",
+        "breed_hint": "Esta acción no se puede deshacer."
+    }
+}

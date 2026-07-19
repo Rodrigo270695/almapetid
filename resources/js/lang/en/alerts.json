@@ -1,0 +1,56 @@
+{
+    "title": "Alerts",
+    "subtitle": "Connect WhatsApp (OpenWA), manage push, and send notices from the platform session.",
+    "whatsapp": {
+        "title": "Platform WhatsApp (AlmaPet)",
+        "description": "Number used for lost/found alerts and superadmin notices.",
+        "disabled": "OpenWA is not configured. Set OPENWA_ENABLED, OPENWA_API_URL and OPENWA_API_KEY in .env.",
+        "status_ready": "Connected",
+        "status_pending": "Pending",
+        "status_error": "Error",
+        "phone": "Linked number",
+        "session": "Session",
+        "last_sync": "Last sync",
+        "scan_qr": "Scan this QR with WhatsApp",
+        "connect": "Connect / show QR",
+        "sync": "Sync status",
+        "disconnect": "Log out",
+        "disconnect_title": "Disconnect WhatsApp?",
+        "disconnect_description": "The platform session will stop sending alerts until you scan the QR again.",
+        "test_send": "Send test",
+        "test_title": "Test message",
+        "test_description": "Sent from AlmaPet’s OpenWA session.",
+        "test_phone": "Recipient",
+        "test_phone_hint": "E.g. 987654321 or 51987654321",
+        "test_message": "Message",
+        "test_default_message": "AlmaPet ID test: platform WhatsApp is connected."
+    },
+    "push": {
+        "title": "Web Push",
+        "ready": "VAPID configured: you can push to subscribed users.",
+        "missing": "Missing VAPID keys (php artisan webpush:vapid).",
+        "hint": "Owners/clinics must allow browser notifications."
+    },
+    "sponsors": {
+        "title": "Sponsors",
+        "subtitle": "AlmaPet ID network partners. VetSaaS links the clinic to microchip registration.",
+        "visit": "Visit site"
+    },
+    "form": {
+        "title": "Send alert",
+        "channels": "Channels",
+        "channel_push": "Push",
+        "channel_whatsapp": "WhatsApp",
+        "audience": "Audience",
+        "audience_owners": "Owners",
+        "audience_clinics": "Clinics / staff",
+        "audience_admins": "Platform admins",
+        "audience_test": "Test (one phone)",
+        "test_phone": "Test phone",
+        "title_label": "Title",
+        "body": "Message",
+        "url": "URL (push / link)",
+        "submit": "Send alert",
+        "sending": "Sending…"
+    }
+}

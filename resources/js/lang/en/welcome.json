@@ -1,0 +1,369 @@
+{
+    "head_title": "AlmaPet ID",
+    "nav": {
+        "how": "How it works",
+        "why": "Why it matters",
+        "vets": "Veterinarians",
+        "audiences": "Owners & clinics",
+        "lost": "Lost pets",
+        "pricing": "Pricing",
+        "search": "Search chip",
+        "login": "Log in",
+        "register": "Get started",
+        "dashboard": "Go to dashboard",
+        "open_menu": "Open menu",
+        "close_menu": "Close menu"
+    },
+    "hero": {
+        "headline": "Your pet’s identity, always with you.",
+        "subhead": "Register the microchip, certify, and declare lost. A network for owners and clinics in Peru.",
+        "search_label": "Search microchip or code",
+        "search_placeholder": "Microchip or AlmaPet code",
+        "search_cta": "Search",
+        "cta_primary": "Register my pet",
+        "cta_lost": "View lost pets"
+    },
+    "hub": {
+        "title": "Explore AlmaPet ID",
+        "subtitle": "Each section is its own view. Pick where to start.",
+        "cards": {
+            "why": {
+                "title": "Why it matters",
+                "body": "Abandonment, unregistered chips, and responsible ownership in Peru.",
+                "cta": "See causes"
+            },
+            "how": {
+                "title": "How it works",
+                "body": "Register, certify, recover — plus microchip benefits.",
+                "cta": "See the flow"
+            },
+            "vets": {
+                "title": "Veterinarians",
+                "body": "How your clinic becomes a registering entity on the network.",
+                "cta": "I’m a clinic"
+            },
+            "audiences": {
+                "title": "Owners & clinics",
+                "body": "Two clear paths to join AlmaPet ID.",
+                "cta": "Choose a path"
+            },
+            "lost": {
+                "title": "Lost pets",
+                "body": "Public reunion wall without sensitive home details.",
+                "cta": "View lost"
+            },
+            "search": {
+                "title": "Search microchip",
+                "body": "Look up by microchip number or AlmaPet public code.",
+                "cta": "Search now"
+            },
+            "pricing": {
+                "title": "Pricing & plans",
+                "body": "Service registry fee: certificate, profile, and reunion network.",
+                "cta": "See pricing"
+            }
+        }
+    },
+    "pages": {
+        "why": {
+            "title": "Why identification matters",
+            "subtitle": "ID only works if a network connects owner, clinic, and finder."
+        },
+        "how": {
+            "title": "How AlmaPet ID works",
+            "subtitle": "From microchip to certificate and reunion, step by step."
+        },
+        "vets": {
+            "title": "Veterinarians on the network",
+            "subtitle": "Implant, register, and manage lost pets from your clinic — no crypto."
+        },
+        "audiences": {
+            "title": "Owners and clinics",
+            "subtitle": "One animal identity network, two experiences built for you."
+        },
+        "chips": {
+            "iso": "ISO microchip",
+            "peru": "Built for Peru",
+            "no_crypto": "No cryptocurrency",
+            "reunion": "Real reunion",
+            "privacy": "Privacy first",
+            "clinic": "Built for clinics"
+        }
+    },
+    "magnet": {
+        "eyebrow": "Registry fee",
+        "title": "Hire AlmaPet ID registration for your pet",
+        "subtitle": "You pay the digital service fee: network identity, certificate, and lost declaration. Your vet places the physical chip.",
+        "cta_start": "Register pet",
+        "cta_pricing": "See pricing",
+        "cta_search": "Search microchip",
+        "cta_whatsapp": "Clinic WhatsApp",
+        "points": {
+            "a": {
+                "title": "Registration with certificate",
+                "body": "ISO microchip enrollment + public AlmaPet code on the network."
+            },
+            "b": {
+                "title": "Lost when needed",
+                "body": "Declare lost and activate the public profile for reunion."
+            },
+            "c": {
+                "title": "No crypto",
+                "body": "Pay the fee in local currency. No wallets or blockchain."
+            }
+        }
+    },
+    "pricing": {
+        "eyebrow": "Pricing",
+        "title": "AlmaPet ID service plans",
+        "subtitle": "This is the network registry fee (digital service contract). It does not include the physical chip or clinic implant.",
+        "featured": "Recommended",
+        "empty": "No plans published yet.",
+        "fallback_desc": "Registration on the AlmaPet ID network.",
+        "period_once": "One-time registration fee",
+        "period_annual": "For {{months}} months of validity",
+        "cta": "Start registration",
+        "note": "Prices in PEN. Pay in-app when registering your pet. The physical chip is handled by your clinic.",
+        "includes": {
+            "inc_cert": "AlmaPet certificate / code",
+            "inc_profile": "Limited public digital profile",
+            "inc_lost": "Declare lost and found reports"
+        }
+    },
+    "search_page": {
+        "eyebrow": "Public lookup",
+        "title": "Search microchip",
+        "subtitle": "Look up by microchip number, AlmaPet code, or certificate. No sensitive home details.",
+        "hint": "E.g. 15-digit ISO, short QR code, or AP-… certificate.",
+        "invalid": "Enter at least 4 characters (microchip or AlmaPet code).",
+        "not_found_title": "No active registration",
+        "not_found_body": "We couldn’t find “{{q}}” on the AlmaPet ID network.",
+        "not_found_edu": "An implanted chip without registration won’t help with reunion. Register the chip to activate network identity.",
+        "lost_banner": "Pet reported as lost",
+        "active_banner": "Active registration on AlmaPet ID",
+        "cta_profile": "View public profile",
+        "cta_found": "I found this pet",
+        "fields": {
+            "code": "AlmaPet code",
+            "microchip": "Microchip",
+            "clinic": "Clinic",
+            "location": "Location"
+        }
+    },
+    "float": {
+        "whatsapp": "WhatsApp",
+        "whatsapp_clinic": "Clinic WhatsApp",
+        "whatsapp_message": "Hi AlmaPet ID, I’d like information about microchip registration.",
+        "whatsapp_clinic_message": "Hi AlmaPet ID, I’m a clinic/vet and want to join the network.",
+        "back_top": "Back to top"
+    },
+    "causes": {
+        "eyebrow": "Responsible ownership",
+        "title": "Identification is also protection",
+        "subtitle": "Many countries already support pet ID as part of responsible ownership. In practice, a chip only works if a network connects it to the owner and clinic — without crypto friction.",
+        "closing": "With your registration and your clinic’s, we can change how families reunite with their animals.",
+        "items": {
+            "abandonment": {
+                "title": "Abandonment",
+                "body": "Without linked identity, a found animal becomes a “stray”. Registration helps bring them home."
+            },
+            "lost": {
+                "title": "Lost pets",
+                "body": "Declaring lost on AlmaPet activates the public profile so finders can report without seeing your phone."
+            },
+            "unregistered": {
+                "title": "Chip without registry",
+                "body": "Implanting without registering leaves a dead number. Clinics can close that gap in one click."
+            },
+            "abuse": {
+                "title": "Abuse & irresponsibility",
+                "body": "Formal ID reinforces responsible ownership and supports recovery with authorities when needed."
+            },
+            "trafficking": {
+                "title": "Irregular trade",
+                "body": "Ownership history and a certificate make companion-animal trafficking harder."
+            },
+            "law": {
+                "title": "Peru’s legal frame",
+                "body": "Companion-animal identification aligns with responsible ownership and municipal / RENIAN-style registries."
+            }
+        }
+    },
+    "how": {
+        "title": "How it works",
+        "subtitle": "The microchip identifies. AlmaPet ID connects owner, clinic, and finder.",
+        "steps": {
+            "register": {
+                "title": "Register",
+                "body": "The clinic or owner enrolls the ISO microchip on the AlmaPet ID network."
+            },
+            "certify": {
+                "title": "Certify",
+                "body": "You get a public code and a digital profile to share or put on a collar tag."
+            },
+            "recover": {
+                "title": "Recover",
+                "body": "If they’re lost, declare it. Finders can report without seeing your phone number."
+            }
+        }
+    },
+    "benefits": {
+        "title": "What you gain by registering",
+        "subtitle": "The chip is rice-grain sized. The value is the network: identity, reunion, and day-to-day clinic operations.",
+        "image_alt": "Microchip procedure at a veterinary clinic",
+        "caption": "ISO microchip: identifies. AlmaPet ID: connects.",
+        "items": {
+            "identity": {
+                "title": "Permanent identity",
+                "body": "A unique code linked to your pet and you as verified tutor."
+            },
+            "reunion": {
+                "title": "Better reunion odds",
+                "body": "Visible lost status, public wall, and mediated found reports."
+            },
+            "travel": {
+                "title": "Travel-ready baseline",
+                "body": "ISO microchips are common for international paperwork; registration keeps your data tidy."
+            },
+            "clinic": {
+                "title": "Clinic at the center",
+                "body": "Whoever implants can register on the spot — fewer loose papers, better follow-up."
+            },
+            "law": {
+                "title": "Responsible ownership",
+                "body": "Aligns with formal identification and a digital certificate / card."
+            },
+            "privacy": {
+                "title": "Privacy by design",
+                "body": "The public profile does not expose national ID or exact home address."
+            }
+        }
+    },
+    "vets": {
+        "eyebrow": "Registering entities",
+        "title": "Veterinarians and clinics on the network",
+        "subtitle": "These are the institutions that implant the microchip and upload the record to AlmaPet ID under national rules. No wallets or blockchain — real clinical operations.",
+        "image_alt": "Veterinarian caring for a dog in clinic",
+        "step_label": "Step {{n}}",
+        "cta": "Register my clinic",
+        "contact_title": "Are you a clinic or vet?",
+        "contact_body": "Message us on WhatsApp at {{phone}} to join as a registering entity.",
+        "steps": {
+            "entity": {
+                "title": "Be a registering entity",
+                "body": "A clinic, practice, or organization authorized to identify companion animals."
+            },
+            "network": {
+                "title": "Join the AlmaPet network",
+                "body": "Create the clinic account, verify your details, and start registering chips."
+            },
+            "ready": {
+                "title": "Operate from day one",
+                "body": "Patient enrollment, lost declarations, and a registrations panel in one place."
+            }
+        }
+    },
+    "audiences": {
+        "title": "For owners and clinics",
+        "subtitle": "One network, two clear paths.",
+        "owner": {
+            "title": "I’m an owner",
+            "body": "Register your pet, keep the certificate, and declare lost when needed.",
+            "cta": "Create owner account"
+        },
+        "clinic": {
+            "title": "I’m a clinic",
+            "body": "Register chips at implant, manage lost pets, and offer the registry fee to clients.",
+            "cta": "Register my clinic"
+        }
+    },
+    "lost_cta": {
+        "eyebrow": "Reunion",
+        "title": "Pets declared lost",
+        "subtitle": "Browse the public wall or search by microchip. No sensitive home details.",
+        "cta": "View lost wall",
+        "search": "Search by chip"
+    },
+    "lost_wall": {
+        "title": "Lost pets",
+        "subtitle": "Public reunion wall. Broad area only — no home address or owner phone.",
+        "badge": "Lost",
+        "count": "{{filtered}} in this view · {{count}} open total",
+        "lost_since": "Declared on {{date}}",
+        "cta_help": "I found this / view profile",
+        "empty_title": "No pets currently declared lost",
+        "empty_body": "When an owner or clinic declares a loss, it will show here. You can also search by microchip.",
+        "empty_filtered_title": "Nothing matches these filters",
+        "empty_filtered_body": "Try another city or species, or clear the filters.",
+        "prev": "Previous",
+        "next": "Next",
+        "page": "Page {{current}} of {{last}}",
+        "filters": {
+            "city": "City / area",
+            "species": "Species",
+            "all_cities": "All",
+            "all_species": "All",
+            "apply": "Filter",
+            "clear": "Clear"
+        }
+    },
+    "join": {
+        "title": "Join the network",
+        "subtitle": "Owners who register. Clinics that implant. One animal identity for Peru — ready for Latam.",
+        "cta_start": "Get started",
+        "cta_clinic": "I’m a clinic"
+    },
+    "sponsors": {
+        "eyebrow": "Sponsors",
+        "title": "Network partners",
+        "subtitle": "Clinics connected with clinical software that registers the microchip on AlmaPet ID.",
+        "cta": "Learn more"
+    },
+    "network": {
+        "eyebrow": "The network",
+        "title": "Who powers and joins AlmaPet",
+        "subtitle": "Technology partners and VetSaaS clinics with an active plan and published brand mark.",
+        "sponsors_label": "Partners",
+        "clinics_label": "Clinics on the network",
+        "clinics_cta": "Join as a clinic",
+        "visit": "Visit"
+    },
+    "trust": {
+        "title": "Built with care",
+        "subtitle": "Privacy first. No GPS promises and no cryptocurrency.",
+        "items": {
+            "privacy": {
+                "title": "Mediated contact",
+                "body": "Finders don’t see your phone — we notify you and the clinic."
+            },
+            "no_gps": {
+                "title": "The chip is not GPS",
+                "body": "It identifies the animal. AlmaPet ID is the network that makes that number useful."
+            },
+            "no_crypto": {
+                "title": "Simple payment",
+                "body": "Registry fee in local currency. No wallets or blockchain."
+            }
+        }
+    },
+    "footer": {
+        "tagline": "Animal identity network. Microchip, certificate, and reunion.",
+        "product": "Product",
+        "legal": "Legal",
+        "rights": "All rights reserved.",
+        "chip_note": "The microchip is not GPS.",
+        "clinic_whatsapp_hint": "Clinics: WhatsApp contact →",
+        "links": {
+            "how": "How it works",
+            "vets": "Veterinarians",
+            "lost": "Lost pets",
+            "search": "Search",
+            "pricing": "Pricing",
+            "privacy": "Privacy policy",
+            "terms": "Terms of service",
+            "returns": "Returns & refunds",
+            "cookies": "Cookie policy",
+            "complaints": "Complaints book"
+        }
+    }
+}

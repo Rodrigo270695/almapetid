@@ -1,0 +1,34 @@
+{
+    "items": {
+        "dashboard": "Panel",
+        "clinic_dashboard": "Panel clínica",
+        "register_chip": "Registrar chip",
+        "usuario": "Usuario",
+        "roles": "Roles",
+        "usuarios": "Usuarios",
+        "repository": "Repositorio",
+        "documentation": "Documentación",
+        "animals": "Mis mascotas",
+        "registrations": "Registros",
+        "clinic_settings": "Config. clínica",
+        "facturacion": "Facturación",
+        "planes": "Planes",
+        "pagos": "Pagos",
+        "catalogo": "Catálogo",
+        "especies_razas": "Especies y razas",
+        "comunicaciones": "Comunicaciones",
+        "alertas": "Alertas",
+        "auspiciadores": "Auspiciadores"
+    },
+    "groups": {
+        "main": "Principal",
+        "admin": "Administración"
+    },
+    "aria": {
+        "navigation_menu": "Menú de navegación"
+    },
+    "user_menu": {
+        "settings": "Configuración",
+        "logout": "Cerrar sesión"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "title": "Mis mascotas",
+    "breadcrumb": "Panel",
+    "welcome": "Aquí verás las mascotas vinculadas a tu documento.",
+    "welcome_named": "Hola, {{name}}. Estas son tus mascotas registradas.",
+    "empty": "Todavía no tienes mascotas en AlmaPet ID.",
+    "empty_hint": "Si una veterinaria ya registró tu animal con tu DNI, aparecerán aquí al entrar.",
+    "registered_by": "Inscrito por {{clinic}}",
+    "no_chip": "Sin microchip registrado aún."
+}

@@ -1,0 +1,10 @@
+{
+    "title": "My pets",
+    "breadcrumb": "Dashboard",
+    "welcome": "Pets linked to your ID will show up here.",
+    "welcome_named": "Hi, {{name}}. Here are your registered pets.",
+    "empty": "You don't have pets in AlmaPet ID yet.",
+    "empty_hint": "If a clinic already registered your pet with your ID, they will appear here when you sign in.",
+    "registered_by": "Registered by {{clinic}}",
+    "no_chip": "No microchip registered yet."
+}

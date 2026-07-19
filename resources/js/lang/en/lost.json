@@ -1,0 +1,61 @@
+{
+    "status": {
+        "lost": "Lost",
+        "active": "Active"
+    },
+    "banner": {
+        "title": "Pet marked as lost",
+        "hint": "It will show as LOST on the public profile. Finders can report without seeing your phone."
+    },
+    "actions": {
+        "declare": "Declare lost",
+        "recover": "Mark recovered",
+        "recover_confirm": "Confirm that you recovered {{name}}?",
+        "copy_link": "Copy public link",
+        "copied": "Link copied"
+    },
+    "history": {
+        "title": "Lost history",
+        "empty": "No lost declarations yet.",
+        "lost": "Declared lost",
+        "recovered": "Marked recovered",
+        "open": "Open",
+        "location": "Location"
+    },
+    "declare": {
+        "title": "Declare pet lost",
+        "description": "Share when and where it went missing. This helps anyone who might find it.",
+        "lost_at": "Approximate date/time",
+        "location": "Last seen location",
+        "location_hint": "Select the department, province and district where it was lost.",
+        "last_seen_city": "City",
+        "last_seen_zone": "Area / district",
+        "public_notes": "Public notes (collar, marks)",
+        "photo": "Recent photo (optional)",
+        "submit": "Declare lost",
+        "cancel": "Cancel"
+    },
+    "found_inbox": {
+        "title": "Found reports",
+        "empty": "No found reports yet.",
+        "from": "From {{name}}",
+        "contact": "Contact"
+    },
+    "public": {
+        "title": "AlmaPet profile",
+        "lost_alert": "This pet is reported as lost",
+        "found_cta": "I found it",
+        "found_title": "Report a find",
+        "found_hint": "We'll notify the owner. Their phone is never shown to you.",
+        "reporter_name": "Your name",
+        "reporter_phone": "Phone",
+        "reporter_email": "Email",
+        "message": "Message",
+        "city": "City",
+        "zone": "Area",
+        "submit_found": "Send report",
+        "not_lost": "Active AlmaPet ID registration",
+        "clinic": "Clinic",
+        "success": "Report sent. Thank you for helping."
+    }
+}

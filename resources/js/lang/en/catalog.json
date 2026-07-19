@@ -1,0 +1,77 @@
+{
+    "breadcrumb": "Catalog",
+    "title": "Species & breeds",
+    "subtitle": "Manage the catalog used when registering pets. Suggestions are usable immediately; you approve or reject them later.",
+    "actions": {
+        "new_species": "New species",
+        "new_breed": "New breed",
+        "new_short": "New"
+    },
+    "stats": {
+        "species": "Species",
+        "breeds": "Breeds",
+        "pending": "Pending"
+    },
+    "columns": {
+        "species": "Species",
+        "breed": "Breed",
+        "status": "Status",
+        "acciones": "Actions"
+    },
+    "row": {
+        "breeds_count": "{{count}} breeds",
+        "actions_for": "Actions for {{name}}"
+    },
+    "aria": {
+        "species_count": "{{count}} species",
+        "breeds_count": "{{count}} breeds"
+    },
+    "type": {
+        "species": "Species",
+        "breed": "Breed"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "confirm_delete_species": "Delete species \"{{name}}\" and all its breeds?",
+    "confirm_delete_breed": "Delete breed \"{{name}}\"?",
+    "suggestions": {
+        "title": "Pending requests",
+        "hint": "They are already usable in registration. Approve or reject (reject deactivates them).",
+        "requested_by": "Requested by {{name}}",
+        "approve": "Approve",
+        "reject": "Reject"
+    },
+    "species_panel": {
+        "title": "Species",
+        "hint": "Select one to see its breeds.",
+        "placeholder": "E.g. Rabbit",
+        "empty": "No species yet",
+        "empty_hint": "Create the first species in the AlmaPet catalog."
+    },
+    "breeds_panel": {
+        "title": "Breeds",
+        "for_species": "For {{name}}",
+        "select_species": "Select a species",
+        "select_species_hint": "Click a species on the left table to see its breeds.",
+        "placeholder": "E.g. German Shepherd",
+        "empty": "No breeds for this species",
+        "empty_hint": "Add the first breed for this species."
+    },
+    "form": {
+        "species_title": "New species",
+        "species_description": "It will be published immediately in the registration catalog.",
+        "species_hint": "Short, clear name (e.g. Dog, Cat).",
+        "breed_title": "New breed",
+        "breed_description": "It will be added to {{species}}.",
+        "breed_hint": "Breed name as it should appear in the combobox.",
+        "section_basic": "Details"
+    },
+    "delete": {
+        "species_title": "Delete species",
+        "species_hint": "All associated breeds will also be deleted.",
+        "breed_title": "Delete breed",
+        "breed_hint": "This action cannot be undone."
+    }
+}

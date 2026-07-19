@@ -1,0 +1,19 @@
+{
+    "title": "Sponsors",
+    "subtitle": "Partners shown on the home page (Orvae, VetSaaS, others). Upload logo and link here.",
+    "add": "New sponsor",
+    "edit": "Edit sponsor",
+    "empty": "No sponsors yet. Create Orvae and VetSaaS here.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "featured": "Featured",
+    "confirm_delete": "Delete {{name}}?",
+    "fields": {
+        "name": "Name",
+        "code": "Code (slug)",
+        "tagline": "Short description",
+        "url": "URL",
+        "logo": "Logo",
+        "sort_order": "Order"
+    }
+}

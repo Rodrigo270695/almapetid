@@ -1,0 +1,222 @@
+{
+    "meta": {
+        "legal_label": "Legal information",
+        "updated_prefix": "Last updated",
+        "disclaimer": "This text is informational and may change. For legal advice, consult a professional. Company details (tax ID, address) will be completed for production."
+    },
+    "privacy": {
+        "title": "Privacy policy",
+        "updated": "July 19, 2026",
+        "intro": "AlmaPet ID protects personal data of owners, clinic staff, and people who report a found pet. This policy explains what we collect, why, and how you can exercise your rights.",
+        "sections": [
+            {
+                "heading": "1. Controller",
+                "paragraphs": [
+                    "The controller is AlmaPet ID (“AlmaPet”), operator of the animal identity network on this site.",
+                    "Privacy requests: privacidad@almapetid.com (provisional contact)."
+                ]
+            },
+            {
+                "heading": "2. Data we process",
+                "paragraphs": [
+                    "Owners: name, ID document, email, phone, district-level location, pet and microchip data.",
+                    "Clinics: business name, tax ID, contact, location, and related implant registrations.",
+                    "Public found reports: reporter name, phone or email, message, and approximate area — only to notify the owner.",
+                    "Technical data: IP, device, necessary cookies, and push subscription if enabled."
+                ]
+            },
+            {
+                "heading": "3. Purposes",
+                "paragraphs": [
+                    "Provide registration, certificate, lost declaration, and reunion flows.",
+                    "Collect the registry fee via payment gateways or manual confirmation.",
+                    "Send operational alerts (email, push, or other channels you enable).",
+                    "Meet legal duties and handle complaints."
+                ]
+            },
+            {
+                "heading": "4. Legal basis and retention",
+                "paragraphs": [
+                    "We process data to perform the service contract, for legitimate interests in network integrity, and with consent when required (e.g. non-essential cookies).",
+                    "We keep data while the account or registration is active and for any additional period required by law or claims defense."
+                ]
+            },
+            {
+                "heading": "5. Public profile and lost pets",
+                "paragraphs": [
+                    "The public profile shows limited pet information (name, species, photo, status). It does not publish national ID or exact home address.",
+                    "When status is “lost”, approximate district/area and tutor-chosen public notes may appear."
+                ]
+            },
+            {
+                "heading": "6. Processors and transfers",
+                "paragraphs": [
+                    "We may use hosting, email, payments (e.g. Culqi), and analytics under processor agreements. We do not sell personal data.",
+                    "International transfers, if any, will use appropriate safeguards."
+                ]
+            },
+            {
+                "heading": "7. Your rights",
+                "paragraphs": [
+                    "You may request access, rectification, erasure, objection, and portability under applicable Peruvian law (Law 29733).",
+                    "You may also file a complaint with the National Data Protection Authority."
+                ]
+            }
+        ]
+    },
+    "terms": {
+        "title": "Terms of service",
+        "updated": "July 19, 2026",
+        "intro": "By using AlmaPet ID you accept these terms. If you disagree, do not use the service.",
+        "sections": [
+            {
+                "heading": "1. The service",
+                "paragraphs": [
+                    "AlmaPet ID is an animal identity network: microchip registration, digital certificate, status (active/lost), and mediated reunion.",
+                    "An ISO microchip identifies the animal; AlmaPet is not GPS and does not guarantee physical location."
+                ]
+            },
+            {
+                "heading": "2. Accounts and accuracy",
+                "paragraphs": [
+                    "You must provide accurate information and keep your credentials confidential.",
+                    "Affiliated clinics must be authorized to register their clients’ animals."
+                ]
+            },
+            {
+                "heading": "3. Registration and payments",
+                "paragraphs": [
+                    "The registry fee is shown at checkout. It may be charged via gateway or included in a clinic pack.",
+                    "A microchip may only have one active (or lost) registration on the network at a time."
+                ]
+            },
+            {
+                "heading": "4. Acceptable use",
+                "paragraphs": [
+                    "Do not use the service for harassment, fraud, fake found reports, or exposing third-party data without a legal basis.",
+                    "We may suspend accounts for abuse, payment fraud, or risks to network integrity."
+                ]
+            },
+            {
+                "heading": "5. Liability",
+                "paragraphs": [
+                    "AlmaPet facilitates identity and mediated contact; it is not liable for third-party conduct or carrier/payment delays.",
+                    "To the extent permitted by law, liability is limited to fees paid to AlmaPet in the prior 12 months."
+                ]
+            },
+            {
+                "heading": "6. Governing law",
+                "paragraphs": [
+                    "These terms are governed by the laws of Peru. Courts of Lima shall have jurisdiction unless mandatory law provides otherwise."
+                ]
+            }
+        ]
+    },
+    "returns": {
+        "title": "Returns & refunds",
+        "updated": "July 19, 2026",
+        "intro": "Applies to the AlmaPet ID digital registry fee. Physical chips and implant procedures are billed by the clinic under their own policy.",
+        "sections": [
+            {
+                "heading": "1. Nature of the service",
+                "paragraphs": [
+                    "The AlmaPet ID fee is for a digital registry/identity service. Once the registration is activated and the certificate/code issued, the service is considered delivered."
+                ]
+            },
+            {
+                "heading": "2. Refunds",
+                "paragraphs": [
+                    "If payment succeeded but activation failed due to AlmaPet, we will refund the fee or retry activation.",
+                    "No fee refund after the registration is active or lost, except for proven duplicate charges."
+                ]
+            },
+            {
+                "heading": "3. How to request",
+                "paragraphs": [
+                    "Email soporte@almapetid.com with account email, microchip or public code, and payment proof.",
+                    "We aim to respond within 5–10 business days."
+                ]
+            },
+            {
+                "heading": "4. Physical chip & implant",
+                "paragraphs": [
+                    "Warranty or returns for the physical microchip or clinical procedure must be handled with the veterinary clinic."
+                ]
+            }
+        ]
+    },
+    "cookies": {
+        "title": "Cookie policy",
+        "updated": "July 19, 2026",
+        "intro": "We use cookies and similar technologies to run the site and, where required, with your permission to improve the experience.",
+        "sections": [
+            {
+                "heading": "1. What they are",
+                "paragraphs": [
+                    "Cookies are small files stored by your browser. We also use local storage (e.g. language) and, if you enable the PWA, a push subscription."
+                ]
+            },
+            {
+                "heading": "2. Types we use",
+                "paragraphs": [
+                    "Necessary: session, CSRF security, language and theme preference.",
+                    "Functional: PWA install preference or UI settings.",
+                    "Analytics (if enabled): aggregated usage. You will be able to reject them when the consent banner is live."
+                ]
+            },
+            {
+                "heading": "3. Managing cookies",
+                "paragraphs": [
+                    "You can delete or block cookies in your browser settings. Blocking necessary cookies may break parts of the site."
+                ]
+            }
+        ]
+    },
+    "complaints": {
+        "title": "Complaints book",
+        "updated": "July 19, 2026",
+        "intro": "Under Peruvian consumer protection rules, we provide this virtual Complaints Book for claims or complaints about the AlmaPet ID service.",
+        "sections": [
+            {
+                "heading": "1. Provider identification",
+                "paragraphs": [
+                    "Trade name: AlmaPet ID.",
+                    "Address, tax ID and legal representative will be published when formal commercial operations begin in Peru.",
+                    "Contact: reclamaciones@almapetid.com"
+                ]
+            },
+            {
+                "heading": "2. Claim vs complaint",
+                "paragraphs": [
+                    "Claim (reclamación): disagreement directly related to the product or service (payment, registration, certificate, alerts).",
+                    "Complaint (queja): dissatisfaction not directly related to the product, or about the attention received."
+                ]
+            },
+            {
+                "heading": "3. Procedure",
+                "paragraphs": [
+                    "Complete the form with your details, facts, and request. Keep a copy or screenshot.",
+                    "AlmaPet will respond within the legally applicable term (orientative reference: up to 15 business days).",
+                    "If you disagree with the response, you may go to INDECOPI or other applicable channels."
+                ]
+            }
+        ],
+        "form": {
+            "title": "File a complaints sheet",
+            "hint": "Fields marked * are required. Submission is acknowledged on screen for now; email ticket correlatives will ship in production.",
+            "name": "Full name *",
+            "document": "ID document *",
+            "email": "Email *",
+            "phone": "Phone",
+            "type": "Type *",
+            "type_placeholder": "Select",
+            "types": {
+                "claim": "Claim",
+                "complaint": "Complaint"
+            },
+            "detail": "Facts and request *",
+            "submit": "Submit sheet",
+            "success": "We recorded your submission on screen. Keep a screenshot. Soon this will generate an email correlative."
+        }
+    }
+}

@@ -1,0 +1,740 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+|--------------------------------------------------------------------------
+| AlmaPet ID — paleta de 2 colores
+|--------------------------------------------------------------------------
+| Distinta de VetSaaS (verde). Solo dos matices:
+|
+|  1. SKY / CELESTE  (brand-a)  — ~225°
+|     Claridad, confianza, identidad digital. Color dominante de acción.
+|
+|  2. CORAL          (brand-b)  — ~28°
+|     Calor, cuidado, vínculo con el animal. Acento y atmósfera.
+|
+| Neutrales = Sky desaturado. Sin verde VetSaaS, sin púrpura genérico.
+*/
+
+@theme {
+    --font-sans:
+        'Manrope', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display:
+        'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    --color-brand-sky: var(--brand-sky);
+    --color-brand-coral: var(--brand-coral);
+    --color-brand-sky-soft: var(--brand-sky-soft);
+    --color-brand-coral-soft: var(--brand-coral-soft);
+
+    /* Escala brand-* (compat data-page portado de VetSaaS) → sky AlmaPet */
+    --color-brand-50: var(--brand-sky-soft);
+    --color-brand-100: oklch(0.93 0.035 225);
+    --color-brand-200: oklch(0.88 0.045 225);
+    --color-brand-300: oklch(0.78 0.07 225);
+    --color-brand-400: oklch(0.68 0.09 225);
+    --color-brand-500: var(--brand-sky);
+    --color-brand-600: oklch(0.46 0.11 225);
+    --color-brand-700: oklch(0.4 0.1 225);
+    --color-brand-800: oklch(0.34 0.09 230);
+    --color-brand-900: oklch(0.28 0.07 235);
+    --color-brand-950: oklch(0.22 0.05 235);
+}
+
+:root {
+    /* —— Duo de marca (modo claro) —— */
+    --brand-sky: oklch(0.52 0.11 225);
+    --brand-coral: oklch(0.7 0.14 28);
+    --brand-sky-soft: oklch(0.95 0.03 225);
+    --brand-coral-soft: oklch(0.95 0.035 28);
+
+    --background: oklch(0.985 0.012 225);
+    --foreground: oklch(0.26 0.05 235);
+
+    --card: oklch(0.995 0.008 225);
+    --card-foreground: oklch(0.26 0.05 235);
+
+    --popover: oklch(0.995 0.008 225);
+    --popover-foreground: oklch(0.26 0.05 235);
+
+    /* Primary = Celeste / Sky */
+    --primary: oklch(0.52 0.11 225);
+    --primary-foreground: oklch(0.99 0.01 95);
+
+    /* Secondary = Coral suave */
+    --secondary: oklch(0.94 0.04 28);
+    --secondary-foreground: oklch(0.38 0.1 28);
+
+    --muted: oklch(0.94 0.025 225);
+    --muted-foreground: oklch(0.5 0.04 230);
+
+    /* Accent = Coral */
+    --accent: oklch(0.9 0.06 28);
+    --accent-foreground: oklch(0.35 0.1 28);
+
+    --destructive: oklch(0.55 0.2 25);
+    --destructive-foreground: oklch(0.98 0.01 95);
+
+    --border: oklch(0.88 0.03 225);
+    --input: oklch(0.9 0.025 225);
+    --ring: oklch(0.55 0.1 225);
+
+    --chart-1: oklch(0.52 0.11 225);
+    --chart-2: oklch(0.7 0.14 28);
+    --chart-3: oklch(0.62 0.09 220);
+    --chart-4: oklch(0.78 0.1 35);
+    --chart-5: oklch(0.4 0.08 235);
+
+    --radius: 0.75rem;
+
+    --sidebar: oklch(0.97 0.02 225);
+    --sidebar-foreground: oklch(0.26 0.05 235);
+    --sidebar-primary: oklch(0.52 0.11 225);
+    --sidebar-primary-foreground: oklch(0.99 0.01 95);
+    --sidebar-accent: oklch(0.93 0.04 28);
+    --sidebar-accent-foreground: oklch(0.35 0.1 28);
+    --sidebar-border: oklch(0.88 0.03 225);
+    --sidebar-ring: oklch(0.55 0.1 225);
+
+    --auth-glow-a: oklch(0.75 0.1 225 / 0.4);
+    --auth-glow-b: oklch(0.82 0.12 28 / 0.4);
+    --auth-panel: oklch(0.34 0.09 230);
+    --auth-panel-fg: oklch(0.97 0.015 95);
+    --auth-panel-muted: oklch(0.82 0.04 225);
+
+    --glass-bg: oklch(1 0.01 225 / 0.38);
+    --glass-border: oklch(1 0.02 95 / 0.72);
+    --glass-highlight: oklch(1 0.01 95 / 0.85);
+    --glass-chip: oklch(1 0.01 225 / 0.42);
+}
+
+.dark {
+    /* —— Duo de marca (modo oscuro) —— */
+    --brand-sky: oklch(0.78 0.1 225);
+    --brand-coral: oklch(0.78 0.13 28);
+    --brand-sky-soft: oklch(0.28 0.045 230);
+    --brand-coral-soft: oklch(0.3 0.05 28);
+
+    --background: oklch(0.17 0.035 235);
+    --foreground: oklch(0.95 0.015 95);
+
+    --card: oklch(0.22 0.04 230);
+    --card-foreground: oklch(0.95 0.015 95);
+
+    --popover: oklch(0.22 0.04 230);
+    --popover-foreground: oklch(0.95 0.015 95);
+
+    --primary: oklch(0.78 0.1 225);
+    --primary-foreground: oklch(0.2 0.05 235);
+
+    --secondary: oklch(0.3 0.05 28);
+    --secondary-foreground: oklch(0.92 0.04 28);
+
+    --muted: oklch(0.26 0.04 230);
+    --muted-foreground: oklch(0.72 0.04 225);
+
+    --accent: oklch(0.34 0.07 28);
+    --accent-foreground: oklch(0.94 0.04 28);
+
+    --destructive: oklch(0.58 0.18 25);
+    --destructive-foreground: oklch(0.96 0.02 95);
+
+    --border: oklch(0.32 0.045 230);
+    --input: oklch(0.28 0.04 230);
+    --ring: oklch(0.7 0.09 225);
+
+    --chart-1: oklch(0.78 0.1 225);
+    --chart-2: oklch(0.78 0.13 28);
+    --chart-3: oklch(0.65 0.08 220);
+    --chart-4: oklch(0.72 0.1 35);
+    --chart-5: oklch(0.5 0.07 235);
+
+    --sidebar: oklch(0.19 0.038 235);
+    --sidebar-foreground: oklch(0.95 0.015 95);
+    --sidebar-primary: oklch(0.78 0.1 225);
+    --sidebar-primary-foreground: oklch(0.2 0.05 235);
+    --sidebar-accent: oklch(0.3 0.055 28);
+    --sidebar-accent-foreground: oklch(0.94 0.04 28);
+    --sidebar-border: oklch(0.32 0.045 230);
+    --sidebar-ring: oklch(0.7 0.09 225);
+
+    --auth-glow-a: oklch(0.48 0.1 225 / 0.5);
+    --auth-glow-b: oklch(0.5 0.12 28 / 0.35);
+    --auth-panel: oklch(0.15 0.045 235);
+    --auth-panel-fg: oklch(0.96 0.015 95);
+    --auth-panel-muted: oklch(0.72 0.05 225);
+
+    --glass-bg: oklch(0.22 0.04 230 / 0.42);
+    --glass-border: oklch(1 0.02 95 / 0.16);
+    --glass-highlight: oklch(1 0.02 95 / 0.12);
+    --glass-chip: oklch(0.26 0.04 230 / 0.65);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground antialiased;
+    }
+}
+
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    .auth-atmosphere {
+        background-color: var(--background);
+        background-image:
+            radial-gradient(
+                ellipse 80% 60% at 10% 20%,
+                var(--auth-glow-a),
+                transparent 55%
+            ),
+            radial-gradient(
+                ellipse 70% 50% at 90% 80%,
+                var(--auth-glow-b),
+                transparent 50%
+            ),
+            linear-gradient(
+                165deg,
+                var(--brand-sky-soft) 0%,
+                var(--background) 42%,
+                var(--brand-coral-soft) 100%
+            );
+    }
+
+    .auth-panel-atmosphere {
+        background-color: var(--auth-panel);
+        background-image:
+            radial-gradient(
+                ellipse 90% 70% at 20% 10%,
+                oklch(0.5 0.11 225 / 0.55),
+                transparent 60%
+            ),
+            radial-gradient(
+                ellipse 70% 55% at 85% 90%,
+                oklch(0.58 0.13 28 / 0.4),
+                transparent 55%
+            );
+    }
+
+    /* Glass card — login / auth forms (animal-friendly) */
+    .auth-glass {
+        border-radius: 1.5rem;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-bg);
+        box-shadow:
+            0 1px 0 0 var(--glass-highlight) inset,
+            inset 0 -1px 0 0 oklch(1 0.01 95 / 0.18),
+            0 28px 60px -24px oklch(0.35 0.08 230 / 0.35),
+            0 12px 28px -14px oklch(0.5 0.1 28 / 0.22);
+        backdrop-filter: blur(40px) saturate(1.7);
+        -webkit-backdrop-filter: blur(40px) saturate(1.7);
+    }
+
+    /* Shared-element names para View Transitions (Inertia) */
+    .auth-vt-card {
+        view-transition-name: auth-card;
+    }
+
+    .auth-vt-copy {
+        view-transition-name: auth-copy;
+    }
+
+    .auth-vt-body {
+        view-transition-name: auth-body;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Auth View Transitions — liquid glass morph (2026)
+|--------------------------------------------------------------------------
+| Login ↔ Register: slide horizontal + blur
+| Login ↔ Forgot:   slide vertical + blur
+*/
+@supports (view-transition-name: none) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none;
+        mix-blend-mode: normal;
+    }
+
+    ::view-transition-group(auth-card) {
+        animation-duration: 520ms;
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    ::view-transition-old(auth-card),
+    ::view-transition-new(auth-card) {
+        height: 100%;
+        overflow: clip;
+        border-radius: 1.5rem;
+    }
+
+    /* Default morph (fallback) */
+    ::view-transition-old(auth-card) {
+        animation: 420ms cubic-bezier(0.4, 0, 1, 1) both auth-glass-out;
+    }
+
+    ::view-transition-new(auth-card) {
+        animation: 520ms cubic-bezier(0.22, 1, 0.36, 1) both auth-glass-in;
+    }
+
+    ::view-transition-old(auth-copy) {
+        animation: 280ms cubic-bezier(0.4, 0, 1, 1) both auth-copy-out;
+    }
+
+    ::view-transition-new(auth-copy) {
+        animation: 420ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both auth-copy-in;
+    }
+
+    ::view-transition-old(auth-body) {
+        animation: 260ms cubic-bezier(0.4, 0, 1, 1) both auth-body-out;
+    }
+
+    ::view-transition-new(auth-body) {
+        animation: 480ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both auth-body-in;
+    }
+
+    /* Login → Register */
+    html[data-auth-nav='to-register']::view-transition-old(auth-card) {
+        animation-name: auth-slide-out-left;
+    }
+    html[data-auth-nav='to-register']::view-transition-new(auth-card) {
+        animation-name: auth-slide-in-right;
+    }
+
+    /* Register → Login */
+    html[data-auth-nav='to-login']::view-transition-old(auth-card) {
+        animation-name: auth-slide-out-right;
+    }
+    html[data-auth-nav='to-login']::view-transition-new(auth-card) {
+        animation-name: auth-slide-in-left;
+    }
+
+    /* Login → Forgot */
+    html[data-auth-nav='to-forgot']::view-transition-old(auth-card) {
+        animation-name: auth-slide-out-up;
+    }
+    html[data-auth-nav='to-forgot']::view-transition-new(auth-card) {
+        animation-name: auth-slide-in-up;
+    }
+
+    /* Forgot → Login */
+    html[data-auth-nav='from-forgot']::view-transition-old(auth-card) {
+        animation-name: auth-slide-out-down;
+    }
+    html[data-auth-nav='from-forgot']::view-transition-new(auth-card) {
+        animation-name: auth-slide-in-down;
+    }
+
+    @keyframes auth-glass-out {
+        to {
+            opacity: 0;
+            filter: blur(10px) saturate(1.25);
+            transform: scale(0.96);
+        }
+    }
+
+    @keyframes auth-glass-in {
+        from {
+            opacity: 0;
+            filter: blur(12px) saturate(1.35);
+            transform: scale(0.97);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0) saturate(1);
+            transform: scale(1);
+        }
+    }
+
+    @keyframes auth-copy-out {
+        to {
+            opacity: 0;
+            filter: blur(6px);
+            transform: translateY(-6px);
+        }
+    }
+
+    @keyframes auth-copy-in {
+        from {
+            opacity: 0;
+            filter: blur(8px);
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes auth-body-out {
+        to {
+            opacity: 0;
+            filter: blur(4px);
+            transform: translateY(8px);
+        }
+    }
+
+    @keyframes auth-body-in {
+        from {
+            opacity: 0;
+            filter: blur(6px);
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes auth-slide-out-left {
+        to {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateX(-18%) scale(0.97);
+        }
+    }
+
+    @keyframes auth-slide-in-right {
+        from {
+            opacity: 0;
+            filter: blur(12px);
+            transform: translateX(18%) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    @keyframes auth-slide-out-right {
+        to {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateX(18%) scale(0.97);
+        }
+    }
+
+    @keyframes auth-slide-in-left {
+        from {
+            opacity: 0;
+            filter: blur(12px);
+            transform: translateX(-18%) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    @keyframes auth-slide-out-up {
+        to {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(-14%) scale(0.97);
+        }
+    }
+
+    @keyframes auth-slide-in-up {
+        from {
+            opacity: 0;
+            filter: blur(12px);
+            transform: translateY(16%) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes auth-slide-out-down {
+        to {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(14%) scale(0.97);
+        }
+    }
+
+    @keyframes auth-slide-in-down {
+        from {
+            opacity: 0;
+            filter: blur(12px);
+            transform: translateY(-16%) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        ::view-transition-group(*),
+        ::view-transition-old(*),
+        ::view-transition-new(*) {
+            animation: none !important;
+        }
+
+        .nav-collapsible-content,
+        .nav-sub-enter,
+        .nav-flyout-rail {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
+}
+
+/* Sidebar collapsible — apertura/cierre suave 2026 */
+@layer components {
+    .nav-collapsible-content {
+        overflow: hidden;
+        will-change: height, opacity, transform;
+    }
+
+    .nav-collapsible-content[data-state='open'] {
+        animation: nav-collapsible-down 380ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .nav-collapsible-content[data-state='closed'] {
+        animation: nav-collapsible-up 260ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-sub-enter {
+        animation: nav-sub-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .nav-flyout {
+        isolation: isolate;
+    }
+
+    .nav-flyout-rail {
+        transform-origin: top;
+        animation: nav-rail-draw 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+}
+
+@keyframes nav-collapsible-down {
+    from {
+        height: 0;
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        height: var(--radix-collapsible-content-height);
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes nav-collapsible-up {
+    from {
+        height: var(--radix-collapsible-content-height);
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        height: 0;
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes nav-sub-in {
+    from {
+        opacity: 0;
+        filter: blur(2px);
+        transform: translateX(-8px);
+    }
+    to {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateX(0);
+    }
+}
+
+@keyframes nav-rail-draw {
+    from {
+        opacity: 0;
+        transform: scaleY(0.35);
+    }
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+/* Landing público */
+@keyframes landing-kenburns {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.06);
+    }
+}
+
+@keyframes landing-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes landing-hero-stagger {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+        filter: blur(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+.landing-hero-copy > * {
+    animation: landing-hero-stagger 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-copy > *:nth-child(1) {
+    animation-delay: 0.05s;
+}
+.landing-hero-copy > *:nth-child(2) {
+    animation-delay: 0.16s;
+}
+.landing-hero-copy > *:nth-child(3) {
+    animation-delay: 0.28s;
+}
+.landing-hero-copy > *:nth-child(4) {
+    animation-delay: 0.4s;
+}
+.landing-hero-copy > *:nth-child(5) {
+    animation-delay: 0.52s;
+}
+
+.landing-media img {
+    transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landing-media:hover img {
+    transform: scale(1.04);
+}
+
+.landing-hero-img {
+    animation: landing-kenburns 32s ease-out forwards;
+    will-change: transform;
+}
+
+@keyframes network-marquee {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        transform: translate3d(-50%, 0, 0);
+    }
+}
+
+.network-marquee-row {
+    animation: network-marquee 55s linear infinite;
+    will-change: transform;
+}
+
+.network-marquee:hover .network-marquee-row {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-hero-copy > * {
+        animation: none !important;
+    }
+
+    .landing-media img {
+        transition: none !important;
+    }
+
+    .landing-media:hover img {
+        transform: none !important;
+    }
+
+    .landing-hero-img {
+        animation: none !important;
+    }
+
+    .network-marquee-row {
+        animation: none !important;
+    }
+
+    .network-marquee {
+        overflow-x: auto;
+    }
+}

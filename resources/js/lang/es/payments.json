@@ -1,0 +1,85 @@
+{
+    "title": "Pagos",
+    "description": "Pagos del fee de registro AlmaPet (manual y pasarelas). Sin criptomonedas.",
+    "actions": {
+        "new": "Registrar pago",
+        "new_short": "Nuevo",
+        "create_first": "Registrar primer pago"
+    },
+    "stats": {
+        "total": "Total",
+        "pending": "Pendientes",
+        "paid": "Pagados",
+        "matches": "Coincidencias"
+    },
+    "search_placeholder": "Buscar por email, plan o referencia...",
+    "filter_status_label": "Estado",
+    "filter_provider_label": "Proveedor",
+    "filters": {
+        "all_status": "Todos",
+        "all_providers": "Todos los proveedores"
+    },
+    "status": {
+        "pending": "Pendiente",
+        "paid": "Pagado",
+        "failed": "Fallido",
+        "refunded": "Reembolsado"
+    },
+    "providers": {
+        "manual": "Manual",
+        "culqi": "Culqi",
+        "niubiz": "Niubiz",
+        "stripe": "Stripe"
+    },
+    "columns": {
+        "id": "ID",
+        "payer": "Pagador",
+        "plan": "Plan",
+        "amount": "Monto",
+        "status": "Estado",
+        "provider": "Proveedor",
+        "created_at": "Creado",
+        "acciones": "Acciones"
+    },
+    "row": {
+        "actions_for": "Acciones para pago #{{id}}",
+        "mark_paid": "Marcar como pagado",
+        "mark_refunded": "Marcar reembolso"
+    },
+    "empty": {
+        "no_records_title": "Aún no hay pagos",
+        "no_records_description": "Registra un pago manual o espera el checkout del dueño.",
+        "no_results_title": "Sin resultados",
+        "no_results_description": "Ningún pago coincide con los filtros actuales."
+    },
+    "form": {
+        "title_create": "Registrar pago",
+        "title_edit": "Editar pago",
+        "description_create": "Carga un pago manual (efectivo / transferencia / Yape en clínica).",
+        "description_edit": "Corrige estado, proveedor o referencia del pago.",
+        "submit_create": "Registrar pago",
+        "submit_edit": "Guardar cambios",
+        "section_basic": "Detalle del pago",
+        "section_basic_hint": "Asocia plan y pagador. El checkout online se conectará después.",
+        "fields": {
+            "plan": "Plan",
+            "plan_placeholder": "Selecciona un plan",
+            "plan_none": "Sin plan",
+            "user": "Usuario pagador",
+            "user_placeholder": "Selecciona un usuario",
+            "user_search": "Buscar por nombre o email...",
+            "user_empty": "Ningún usuario coincide",
+            "user_none": "Sin usuario",
+            "amount": "Monto",
+            "currency": "Moneda",
+            "status": "Estado",
+            "provider": "Proveedor",
+            "provider_reference": "Referencia",
+            "provider_reference_placeholder": "Nº operación / voucher",
+            "notes": "Notas"
+        }
+    },
+    "toast": {
+        "load_error": "No se pudo cargar la lista de pagos."
+    }
+}

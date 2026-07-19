@@ -1,0 +1,11 @@
+{
+    "prompt_title": "Enable notifications",
+    "prompt_description": "Get important AlmaPet alerts on this device.",
+    "preparing_sw": "Preparing the service worker… wait a few seconds or reload the page.",
+    "enable": "Enable",
+    "disable": "Disable",
+    "active_title": "Notifications on",
+    "active_description": "You’ll receive catalog and key event alerts on this device.",
+    "permission_denied": "Notifications are blocked in the browser. Enable them in the site settings.",
+    "brave_local_hint": "Brave may block push locally. Use Chrome, Edge or Firefox, or disable Shields for this site."
+}

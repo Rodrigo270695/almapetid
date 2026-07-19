@@ -1,0 +1,19 @@
+{
+    "title": "Auspiciadores",
+    "subtitle": "Partners visibles en el home (Orvae, VetSaaS u otros). Sube logo y enlace desde aquí.",
+    "add": "Nuevo auspiciador",
+    "edit": "Editar auspiciador",
+    "empty": "Aún no hay auspiciadores. Crea Orvae y VetSaaS aquí.",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "featured": "Destacado",
+    "confirm_delete": "¿Eliminar a {{name}}?",
+    "fields": {
+        "name": "Nombre",
+        "code": "Código (slug)",
+        "tagline": "Descripción corta",
+        "url": "URL",
+        "logo": "Logo",
+        "sort_order": "Orden"
+    }
+}

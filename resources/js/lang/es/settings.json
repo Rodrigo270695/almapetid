@@ -1,0 +1,62 @@
+{
+    "title": "Configuración",
+    "description": "Administra tu perfil y la configuración de tu cuenta",
+    "nav": {
+        "profile": "Perfil",
+        "security": "Seguridad",
+        "appearance": "Apariencia",
+        "aria": "Configuración"
+    },
+    "profile": {
+        "title": "Configuración de perfil",
+        "section_title": "Perfil",
+        "section_description": "Actualiza tus datos personales, celular y correo",
+        "name": "Nombres",
+        "name_placeholder": "Tus nombres",
+        "lastname": "Apellidos",
+        "lastname_placeholder": "Tus apellidos",
+        "document_type": "Tipo de documento",
+        "document_number": "Número de documento",
+        "document_number_placeholder": "Ej. 12345678",
+        "email": "Correo electrónico",
+        "email_placeholder": "Correo electrónico",
+        "unverified": "Tu correo no está verificado.",
+        "resend_verification": "Haz clic aquí para reenviar el correo de verificación.",
+        "verification_sent": "Se ha enviado un nuevo enlace de verificación a tu correo.",
+        "phone": "Celular",
+        "phone_placeholder": "Ej. 999888777",
+        "phone_hint": "Importante para contactarte por tu mascota."
+    },
+    "security": {
+        "title": "Configuración de seguridad",
+        "password_title": "Actualizar contraseña",
+        "password_description": "Usa una contraseña larga y aleatoria para mantener tu cuenta segura",
+        "current_password": "Contraseña actual",
+        "new_password": "Nueva contraseña",
+        "confirm_password": "Confirmar contraseña",
+        "two_factor_title": "Autenticación de dos factores",
+        "two_factor_description": "Administra la autenticación de dos factores de tu cuenta",
+        "two_factor_enabled_hint": "Durante el inicio de sesión se te pedirá un PIN seguro que puedes obtener de la aplicación TOTP en tu teléfono.",
+        "two_factor_disabled_hint": "Al activar la autenticación de dos factores, se te pedirá un PIN seguro al iniciar sesión. Puedes obtenerlo de una aplicación compatible con TOTP en tu teléfono.",
+        "disable_2fa": "Desactivar 2FA",
+        "enable_2fa": "Activar 2FA",
+        "continue_setup": "Continuar configuración"
+    },
+    "appearance": {
+        "title": "Configuración de apariencia",
+        "section_title": "Configuración de apariencia",
+        "section_description": "Actualiza la apariencia de tu cuenta",
+        "light": "Claro",
+        "dark": "Oscuro",
+        "system": "Sistema"
+    },
+    "delete": {
+        "title": "Eliminar cuenta",
+        "description": "Elimina tu cuenta y todos sus recursos",
+        "warning": "Advertencia",
+        "warning_body": "Procede con cuidado; esta acción no se puede deshacer.",
+        "button": "Eliminar cuenta",
+        "confirm_title": "¿Seguro que quieres eliminar tu cuenta?",
+        "confirm_description": "Una vez eliminada tu cuenta, todos sus recursos y datos se eliminarán de forma permanente. Ingresa tu contraseña para confirmar que deseas eliminar tu cuenta de forma permanente."
+    }
+}

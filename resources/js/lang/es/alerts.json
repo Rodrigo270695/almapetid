@@ -1,0 +1,56 @@
+{
+    "title": "Alertas",
+    "subtitle": "Conecta WhatsApp (OpenWA), gestiona push y envía avisos desde la sesión de plataforma.",
+    "whatsapp": {
+        "title": "WhatsApp de plataforma (AlmaPet)",
+        "description": "Número desde el que salen las alertas de perdido, hallazgo y avisos del superadmin.",
+        "disabled": "OpenWA no está configurado. Define OPENWA_ENABLED, OPENWA_API_URL y OPENWA_API_KEY en el .env.",
+        "status_ready": "Conectado",
+        "status_pending": "Pendiente",
+        "status_error": "Error",
+        "phone": "Número vinculado",
+        "session": "Sesión",
+        "last_sync": "Última sincronización",
+        "scan_qr": "Escanea este QR con WhatsApp",
+        "connect": "Conectar / mostrar QR",
+        "sync": "Sincronizar estado",
+        "disconnect": "Cerrar sesión",
+        "disconnect_title": "¿Desvincular WhatsApp?",
+        "disconnect_description": "La sesión de plataforma dejará de enviar alertas hasta que vuelvas a escanear el QR.",
+        "test_send": "Enviar prueba",
+        "test_title": "Mensaje de prueba",
+        "test_description": "Se enviará desde la sesión OpenWA de AlmaPet.",
+        "test_phone": "Destinatario",
+        "test_phone_hint": "Ej. 987654321 o 51987654321",
+        "test_message": "Mensaje",
+        "test_default_message": "Prueba AlmaPet ID: WhatsApp de plataforma conectado."
+    },
+    "push": {
+        "title": "Web Push",
+        "ready": "VAPID configurado: puedes enviar push a usuarios con suscripción.",
+        "missing": "Faltan claves VAPID (php artisan webpush:vapid).",
+        "hint": "Los dueños/clínicas deben aceptar notificaciones en el navegador."
+    },
+    "sponsors": {
+        "title": "Auspiciadores",
+        "subtitle": "Partners de la red AlmaPet ID. VetSaaS conecta la clínica con el registro de microchip.",
+        "visit": "Visitar sitio"
+    },
+    "form": {
+        "title": "Enviar alerta",
+        "channels": "Canales",
+        "channel_push": "Push",
+        "channel_whatsapp": "WhatsApp",
+        "audience": "Audiencia",
+        "audience_owners": "Dueños",
+        "audience_clinics": "Clínicas / staff",
+        "audience_admins": "Admins plataforma",
+        "audience_test": "Prueba (un teléfono)",
+        "test_phone": "Teléfono de prueba",
+        "title_label": "Título",
+        "body": "Mensaje",
+        "url": "URL (push / enlace)",
+        "submit": "Enviar alerta",
+        "sending": "Enviando…"
+    }
+}
