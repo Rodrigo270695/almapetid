@@ -2,6 +2,14 @@ import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import PublicLayout from '@/layouts/public-layout';
 
+type Pricing = {
+    amount: number;
+    currency: string;
+    platform_amount: number;
+    clinic_commission: number;
+    plan_name: string | null;
+} | null;
+
 type Props = {
     token: string;
     expires_at: string | null;
@@ -13,7 +21,17 @@ type Props = {
     };
     owner_name: string;
     microchip: string | null;
+    pricing: Pricing;
+    culqi_ready: boolean;
 };
+
+function money(amount: number, currency: string): string {
+    return new Intl.NumberFormat('es-PE', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2,
+    }).format(amount);
+}
 
 export default function HandoffConfirm({
     token,
@@ -21,6 +39,8 @@ export default function HandoffConfirm({
     animal,
     owner_name,
     microchip,
+    pricing,
+    culqi_ready,
 }: Props) {
     const form = useForm({
         token,
@@ -38,8 +58,8 @@ export default function HandoffConfirm({
                     Registrar en AlmaPet ID
                 </h1>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    Confirma los datos enviados desde la clínica para crear el
-                    registro de identidad y el certificado con QR.
+                    Confirma los datos y paga el fee de registro (convenio
+                    VetSaaS) para activar el certificado con QR.
                 </p>
 
                 <dl className="mt-8 space-y-3 rounded-2xl border border-border/70 bg-card p-5 text-sm">
@@ -70,6 +90,31 @@ export default function HandoffConfirm({
                         </dd>
                     </div>
                 </dl>
+
+                {pricing ? (
+                    <div className="mt-4 rounded-2xl border border-cyan-500/25 bg-cyan-500/8 px-5 py-4 text-sm">
+                        <p className="font-medium text-foreground">
+                            {pricing.plan_name ?? 'Fee de registro'} · convenio
+                            VetSaaS
+                        </p>
+                        <p className="mt-1 text-2xl font-semibold tabular-nums">
+                            {money(pricing.amount, pricing.currency)}
+                        </p>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                            AlmaPet {money(pricing.platform_amount, pricing.currency)}
+                            {' · '}
+                            Clínica{' '}
+                            {money(pricing.clinic_commission, pricing.currency)}
+                        </p>
+                    </div>
+                ) : null}
+
+                {!culqi_ready ? (
+                    <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
+                        Culqi aún no está configurado en el servidor. No se puede
+                        cobrar el registro.
+                    </p>
+                ) : null}
 
                 <form
                     className="mt-8 space-y-5"
@@ -123,13 +168,22 @@ export default function HandoffConfirm({
                             {form.errors.paciente}
                         </p>
                     ) : null}
+                    {form.errors.plan ? (
+                        <p className="text-sm text-destructive">{form.errors.plan}</p>
+                    ) : null}
 
                     <Button
                         type="submit"
                         className="w-full"
-                        disabled={form.processing || !form.data.accept_terms}
+                        disabled={
+                            form.processing ||
+                            !form.data.accept_terms ||
+                            !culqi_ready
+                        }
                     >
-                        {form.processing ? 'Registrando…' : 'Confirmar registro'}
+                        {form.processing
+                            ? 'Preparando pago…'
+                            : 'Continuar al pago'}
                     </Button>
                 </form>
             </div>

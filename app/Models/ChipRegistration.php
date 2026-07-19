@@ -14,6 +14,8 @@ class ChipRegistration extends Model
 
     public const STATUS_LOST = 'lost';
 
+    public const STATUS_PENDING_PAYMENT = 'pending_payment';
+
     protected $fillable = [
         'microchip',
         'public_code',
@@ -70,6 +72,11 @@ class ChipRegistration extends Model
     public function foundReports(): HasMany
     {
         return $this->hasMany(FoundReport::class, 'registration_id');
+    }
+
+    public function isPendingPayment(): bool
+    {
+        return $this->status === self::STATUS_PENDING_PAYMENT;
     }
 
     public function isLost(): bool

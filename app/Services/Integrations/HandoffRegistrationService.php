@@ -8,6 +8,9 @@ use App\Models\ChipRegistration;
 use App\Models\HandoffToken;
 use App\Models\Organization;
 use App\Models\Owner;
+use App\Models\Plan;
+use App\Models\RegistrationPayment;
+use App\Services\Payments\RegistrationPaymentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -17,13 +20,16 @@ final class HandoffRegistrationService
     public function __construct(
         private readonly VetSaasWebhookDispatcher $webhooks,
         private readonly HandoffTokenService $tokens,
+        private readonly RegistrationPaymentService $payments,
     ) {}
 
     /**
-     * Confirma el handoff: crea/upsert org + owner + animal + chip activo
-     * y notifica a VetSaaS.
+     * Confirma el handoff: crea org + owner + animal + chip pending_payment
+     * y un pago Culqi con canal VetSaaS.
+     *
+     * @return array{registration: ChipRegistration, payment: RegistrationPayment, pricing: array{channel: string, amount: float, platform_amount: float, clinic_commission: float, currency: string}}
      */
-    public function confirm(HandoffToken $token): ChipRegistration
+    public function confirm(HandoffToken $token): array
     {
         if (! $token->isConsumable()) {
             throw ValidationException::withMessages([
@@ -54,7 +60,10 @@ final class HandoffRegistrationService
             ]);
         }
 
-        $registration = DB::transaction(function () use ($token, $payload, $microchip, $tenantId, $pacienteId): ChipRegistration {
+        $plan = $this->resolveRegistrationPlan();
+        $pricing = $plan->pricingFor(Plan::CHANNEL_VETSAAS);
+
+        $result = DB::transaction(function () use ($token, $payload, $microchip, $tenantId, $pacienteId, $plan, $pricing): array {
             $org = $this->resolveOrganization($payload);
             $owner = $this->upsertOwner($payload['owner'] ?? [], $org->id);
 
@@ -77,8 +86,8 @@ final class HandoffRegistrationService
                 'animal_id' => $animal->id,
                 'organization_id' => $org->id,
                 'registered_by_user_id' => null,
-                'status' => ChipRegistration::STATUS_ACTIVE,
-                'registered_at' => now(),
+                'status' => ChipRegistration::STATUS_PENDING_PAYMENT,
+                'registered_at' => null,
                 'implant_date' => $payload['implant_date'] ?? null,
                 'implant_site' => $payload['implant_site'] ?? null,
                 'certificate_code' => ChipRegistration::makeCertificateCode(),
@@ -87,14 +96,96 @@ final class HandoffRegistrationService
                 'vetsaas_paciente_id' => $pacienteId,
             ]);
 
+            $guestEmail = $this->guestEmail($owner, $payload);
+
+            $payment = $this->payments->createHandoffCulqiPayment(
+                $plan,
+                $registration,
+                $org,
+                $guestEmail,
+                Plan::CHANNEL_VETSAAS,
+            );
+
             $this->tokens->markUsed($token);
 
-            return $registration;
+            return [
+                'registration' => $registration,
+                'payment' => $payment,
+                'pricing' => $pricing,
+            ];
         });
 
-        $this->webhooks->dispatchRegistered($registration->fresh(['animal.owner', 'organization']) ?? $registration);
+        return $result;
+    }
 
-        return $registration;
+    /**
+     * Activa el registro tras pago Culqi y notifica a VetSaaS.
+     */
+    public function activateAfterPayment(RegistrationPayment $payment): ChipRegistration
+    {
+        $payment->loadMissing('chipRegistration');
+
+        $registration = $payment->chipRegistration;
+        if ($registration === null) {
+            throw ValidationException::withMessages([
+                'payment' => 'El pago no está vinculado a un registro.',
+            ]);
+        }
+
+        if ($registration->isActive()) {
+            return $registration;
+        }
+
+        if (! $registration->isPendingPayment()) {
+            throw ValidationException::withMessages([
+                'payment' => 'El registro no está pendiente de pago.',
+            ]);
+        }
+
+        $registration->update([
+            'status' => ChipRegistration::STATUS_ACTIVE,
+            'registered_at' => now(),
+        ]);
+
+        $fresh = $registration->fresh(['animal.owner', 'organization']) ?? $registration;
+        $this->webhooks->dispatchRegistered($fresh);
+
+        return $fresh;
+    }
+
+    private function resolveRegistrationPlan(): Plan
+    {
+        $plan = Plan::query()
+            ->where('active', true)
+            ->where('billing_period', Plan::PERIOD_REGISTRATION)
+            ->orderByDesc('is_default')
+            ->orderBy('sort_order')
+            ->first();
+
+        if ($plan === null) {
+            throw ValidationException::withMessages([
+                'plan' => 'No hay un plan de registro activo. Configúralo en el panel admin.',
+            ]);
+        }
+
+        return $plan;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function guestEmail(Owner $owner, array $payload): string
+    {
+        if (filled($owner->email)) {
+            return (string) $owner->email;
+        }
+
+        $clinicEmail = $payload['clinic']['email'] ?? null;
+        if (filled($clinicEmail)) {
+            return (string) $clinicEmail;
+        }
+
+        return 'handoff+'.$owner->id.'@almapetid.com';
     }
 
     /**

@@ -7,7 +7,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CertificatePdfService
 {
@@ -25,7 +24,7 @@ class CertificatePdfService
             ->first();
     }
 
-    public function download(ChipRegistration $chip): Response|StreamedResponse
+    public function download(ChipRegistration $chip): Response
     {
         $chip->loadMissing(['animal.owner', 'organization']);
 
@@ -43,8 +42,14 @@ class CertificatePdfService
         ])->setPaper('a4', 'portrait');
 
         $filename = 'almapet-'.$chip->certificate_code.'.pdf';
+        $binary = $pdf->output();
 
-        return $pdf->download($filename);
+        return response($binary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Length' => (string) strlen($binary),
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
+        ]);
     }
 
     public function qrPngDataUri(string $url): string

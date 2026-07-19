@@ -18,6 +18,7 @@ use App\Http\Controllers\Owner\AnimalController;
 use App\Http\Controllers\Owner\AnimalLostController;
 use App\Http\Controllers\Platform\PlatformCatalogController;
 use App\Http\Controllers\Public\CertificateController;
+use App\Http\Controllers\PublicSite\HandoffCheckoutController;
 use App\Http\Controllers\PublicSite\HandoffController;
 use App\Http\Controllers\Public\PublicLostWallController;
 use App\Http\Controllers\Public\PublicPetProfileController;
@@ -70,6 +71,16 @@ Route::get('/handoff', [HandoffController::class, 'show'])
 Route::post('/handoff', [HandoffController::class, 'confirm'])
     ->middleware('throttle:20,1')
     ->name('public.handoff.confirm');
+Route::get('/handoff/pago/{payment}', [HandoffCheckoutController::class, 'show'])
+    ->middleware('throttle:60,1')
+    ->name('public.handoff.checkout');
+Route::post('/handoff/pago/{payment}/charge', [HandoffCheckoutController::class, 'charge'])
+    ->middleware('throttle:20,1')
+    ->name('public.handoff.charge');
+Route::get('/handoff/exito/{code}', [HandoffCheckoutController::class, 'success'])
+    ->middleware('throttle:60,1')
+    ->where('code', '[A-Za-z0-9\\-]+')
+    ->name('public.handoff.success');
 
 Route::get('/perdidos', PublicLostWallController::class)
     ->middleware('throttle:60,1')

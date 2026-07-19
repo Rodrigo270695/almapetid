@@ -2,6 +2,8 @@
 
 namespace App\Services\Payments;
 
+use App\Models\ChipRegistration;
+use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\RegistrationPayment;
 use App\Models\User;
@@ -35,6 +37,41 @@ final class RegistrationPaymentService
             'provider' => RegistrationPayment::PROVIDER_CULQI,
             'created_by_user_id' => $user->id,
             'notes' => 'Checkout Culqi · '.$plan->code.' · canal '.$pricing['channel'],
+        ]);
+    }
+
+    /**
+     * Pago guest del handoff VetSaaS (sin sesión de dueño).
+     */
+    public function createHandoffCulqiPayment(
+        Plan $plan,
+        ChipRegistration $registration,
+        Organization $organization,
+        string $guestEmail,
+        string $channel = Plan::CHANNEL_VETSAAS,
+    ): RegistrationPayment {
+        if (! $plan->active) {
+            throw ValidationException::withMessages([
+                'plan_id' => 'Este plan no está disponible.',
+            ]);
+        }
+
+        $pricing = $plan->pricingFor($channel);
+
+        return RegistrationPayment::query()->create([
+            'plan_id' => $plan->id,
+            'chip_registration_id' => $registration->id,
+            'user_id' => null,
+            'organization_id' => $organization->id,
+            'amount' => $pricing['amount'],
+            'currency' => $pricing['currency'],
+            'channel' => $pricing['channel'],
+            'platform_amount' => $pricing['platform_amount'],
+            'clinic_commission' => $pricing['clinic_commission'],
+            'status' => RegistrationPayment::STATUS_PENDING,
+            'provider' => RegistrationPayment::PROVIDER_CULQI,
+            'created_by_user_id' => null,
+            'notes' => 'Handoff VetSaaS · '.$plan->code.' · '.$guestEmail,
         ]);
     }
 
