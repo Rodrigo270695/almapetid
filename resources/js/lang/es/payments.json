@@ -1,6 +1,6 @@
 {
     "title": "Pagos",
-    "description": "Pagos del fee de registro AlmaPet (manual y pasarelas). Sin criptomonedas.",
+    "description": "Clientes, registros y cobros AlmaPet (Culqi / manual). Ordenados por fecha de pago.",
     "actions": {
         "new": "Registrar pago",
         "new_short": "Nuevo",
@@ -10,14 +10,20 @@
         "total": "Total",
         "pending": "Pendientes",
         "paid": "Pagados",
-        "matches": "Coincidencias"
+        "matches": "Coincidencias",
+        "earned_total": "Cobrado",
+        "earned_platform": "Ganado AlmaPet",
+        "registrations": "Registros",
+        "registrations_active": "Activos"
     },
-    "search_placeholder": "Buscar por email, plan o referencia...",
+    "search_placeholder": "Buscar cliente, DNI, chip, clínica o referencia...",
     "filter_status_label": "Estado",
     "filter_provider_label": "Proveedor",
+    "filter_channel_label": "Canal",
     "filters": {
         "all_status": "Todos",
-        "all_providers": "Todos los proveedores"
+        "all_providers": "Todos los proveedores",
+        "all_channels": "Todos los canales"
     },
     "status": {
         "pending": "Pendiente",
@@ -31,14 +37,26 @@
         "niubiz": "Niubiz",
         "stripe": "Stripe"
     },
+    "channels": {
+        "direct": "Directo",
+        "vetsaas": "VetSaaS",
+        "partner": "Partner"
+    },
     "columns": {
         "id": "ID",
         "payer": "Pagador",
+        "client": "Cliente",
+        "pet": "Mascota",
+        "clinic": "Clínica",
+        "chip": "Microchip",
+        "channel": "Canal",
         "plan": "Plan",
         "amount": "Monto",
         "status": "Estado",
         "provider": "Proveedor",
+        "paid_at": "Fecha y hora",
         "created_at": "Creado",
+        "created_hint": "Sin pago (creado)",
         "acciones": "Acciones"
     },
     "row": {

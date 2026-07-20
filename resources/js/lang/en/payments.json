@@ -1,6 +1,6 @@
 {
     "title": "Payments",
-    "description": "AlmaPet registration fee payments (manual and gateways). No crypto.",
+    "description": "Clients, registrations and AlmaPet fees (Culqi / manual). Sorted by payment date.",
     "actions": {
         "new": "Record payment",
         "new_short": "New",
@@ -10,14 +10,20 @@
         "total": "Total",
         "pending": "Pending",
         "paid": "Paid",
-        "matches": "Matches"
+        "matches": "Matches",
+        "earned_total": "Collected",
+        "earned_platform": "AlmaPet earned",
+        "registrations": "Registrations",
+        "registrations_active": "Active"
     },
-    "search_placeholder": "Search by email, plan or reference...",
+    "search_placeholder": "Search client, ID, chip, clinic or reference...",
     "filter_status_label": "Status",
     "filter_provider_label": "Provider",
+    "filter_channel_label": "Channel",
     "filters": {
         "all_status": "All",
-        "all_providers": "All providers"
+        "all_providers": "All providers",
+        "all_channels": "All channels"
     },
     "status": {
         "pending": "Pending",
@@ -31,14 +37,26 @@
         "niubiz": "Niubiz",
         "stripe": "Stripe"
     },
+    "channels": {
+        "direct": "Direct",
+        "vetsaas": "VetSaaS",
+        "partner": "Partner"
+    },
     "columns": {
         "id": "ID",
         "payer": "Payer",
+        "client": "Client",
+        "pet": "Pet",
+        "clinic": "Clinic",
+        "chip": "Microchip",
+        "channel": "Channel",
         "plan": "Plan",
         "amount": "Amount",
         "status": "Status",
         "provider": "Provider",
+        "paid_at": "Date & time",
         "created_at": "Created",
+        "created_hint": "Unpaid (created)",
         "acciones": "Actions"
     },
     "row": {

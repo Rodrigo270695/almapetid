@@ -1,5 +1,12 @@
 import { Head, setLayoutProps } from '@inertiajs/react';
-import { Banknote, Filter, Plus, ScreenShare } from 'lucide-react';
+import {
+    Banknote,
+    Filter,
+    PawPrint,
+    Plus,
+    ScreenShare,
+    Wallet,
+} from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from '@/components/can';
@@ -21,6 +28,8 @@ import type { Paginated } from '@/types';
 import { PaymentFormModal } from './components/payment-form-modal';
 import { PaymentRowActions } from './components/payment-row-actions';
 import type {
+    PaymentChannel,
+    PaymentChipRef,
     PaymentFilters,
     PaymentStats,
     PlanCatalogItem,
@@ -44,15 +53,30 @@ type ModalState =
 const DEFAULT_PER_PAGE = 10;
 const DEFAULT_STATUS = 'todos';
 const DEFAULT_PROVIDER = 'todos';
+const DEFAULT_CHANNEL = 'todos';
 
-function formatMoney(amount: string, currency: string): string {
-    const n = Number(amount);
+function formatMoney(amount: string | number, currency: string): string {
+    const n = typeof amount === 'number' ? amount : Number(amount);
     if (!Number.isFinite(n)) return `${currency} ${amount}`;
     return new Intl.NumberFormat('es-PE', {
         style: 'currency',
         currency,
         minimumFractionDigits: 2,
     }).format(n);
+}
+
+function formatDateTime(iso: string | null | undefined): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleString('es-PE', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    });
 }
 
 function statusVariant(
@@ -68,6 +92,50 @@ function statusVariant(
         default:
             return 'outline';
     }
+}
+
+function channelVariant(
+    channel: string | null | undefined,
+): 'default' | 'secondary' | 'outline' {
+    switch (channel) {
+        case 'vetsaas':
+            return 'default';
+        case 'partner':
+            return 'secondary';
+        default:
+            return 'outline';
+    }
+}
+
+function paymentChip(p: RegistrationPayment): PaymentChipRef | null {
+    return p.chip_registration ?? p.chipRegistration ?? null;
+}
+
+function clientLabel(p: RegistrationPayment): {
+    title: string;
+    subtitle: string | null;
+} {
+    const owner = paymentChip(p)?.animal?.owner;
+    if (owner) {
+        const name = `${owner.name} ${owner.lastname}`.trim();
+        const parts = [
+            owner.document_number ? `DNI ${owner.document_number}` : null,
+            owner.email,
+        ].filter(Boolean);
+        return {
+            title: name || '—',
+            subtitle: parts.length ? parts.join(' · ') : null,
+        };
+    }
+
+    if (p.user) {
+        return {
+            title: `${p.user.name} ${p.user.lastname}`.trim(),
+            subtitle: p.user.email,
+        };
+    }
+
+    return { title: '—', subtitle: null };
 }
 
 export default function Index({
@@ -97,7 +165,11 @@ export default function Index({
         setSort,
         setPerPage,
         applyFilter,
-    } = useDataTablePage<{ status: string | null; provider: string | null }>({
+    } = useDataTablePage<{
+        status: string | null;
+        provider: string | null;
+        channel: string | null;
+    }>({
         routeUrl: payments.index().url,
         initialFilters: filters,
         only: ['payments', 'filters', 'stats'],
@@ -105,8 +177,8 @@ export default function Index({
         storageKey: 'almapetid.payments.prefs',
         defaults: {
             per_page: DEFAULT_PER_PAGE,
-            sort: null,
-            direction: null,
+            sort: 'paid_at',
+            direction: 'desc',
         },
     });
 
@@ -140,12 +212,22 @@ export default function Index({
         [t],
     );
 
+    const channelOptions: readonly FilterChip<string>[] = useMemo(
+        () => [
+            { value: 'todos', label: t('payments:filters.all_channels') },
+            { value: 'direct', label: t('payments:channels.direct') },
+            { value: 'vetsaas', label: t('payments:channels.vetsaas') },
+            { value: 'partner', label: t('payments:channels.partner') },
+        ],
+        [t],
+    );
+
     const activeFiltersCount = useMemo(() => {
         let count = 0;
         if (filters.search) count += 1;
-        if (filters.sort) count += 1;
         if (filters.status !== DEFAULT_STATUS) count += 1;
         if (filters.provider !== DEFAULT_PROVIDER) count += 1;
+        if ((filters.channel ?? DEFAULT_CHANNEL) !== DEFAULT_CHANNEL) count += 1;
         if (filters.per_page !== DEFAULT_PER_PAGE) count += 1;
         return count;
     }, [filters]);
@@ -153,50 +235,121 @@ export default function Index({
     const columns: DataTableColumn<RegistrationPayment>[] = useMemo(() => {
         const base: DataTableColumn<RegistrationPayment>[] = [
             {
-                key: 'id',
-                header: t('payments:columns.id'),
+                key: 'paid_at',
+                header: t('payments:columns.paid_at'),
+                sortable: true,
                 cell: (p) => (
-                    <span className="tabular-nums text-muted-foreground">
-                        #{p.id}
-                    </span>
+                    <div className="min-w-[9.5rem]">
+                        <p className="text-sm tabular-nums text-foreground">
+                            {formatDateTime(p.paid_at ?? p.created_at)}
+                        </p>
+                        {!p.paid_at ? (
+                            <p className="text-[11px] text-muted-foreground">
+                                {t('payments:columns.created_hint')}
+                            </p>
+                        ) : null}
+                    </div>
                 ),
             },
             {
                 key: 'user',
-                header: t('payments:columns.payer'),
+                header: t('payments:columns.client'),
+                cell: (p) => {
+                    const client = clientLabel(p);
+                    const pet = paymentChip(p)?.animal?.name;
+                    return (
+                        <div className="min-w-0 max-w-[14rem]">
+                            <p className="truncate font-medium">{client.title}</p>
+                            {client.subtitle ? (
+                                <p className="truncate text-xs text-muted-foreground">
+                                    {client.subtitle}
+                                </p>
+                            ) : null}
+                            {pet ? (
+                                <p className="truncate text-xs text-muted-foreground">
+                                    {t('payments:columns.pet')}: {pet}
+                                </p>
+                            ) : null}
+                        </div>
+                    );
+                },
+            },
+            {
+                key: 'organization',
+                header: t('payments:columns.clinic'),
                 cell: (p) =>
-                    p.user ? (
-                        <div className="min-w-0">
-                            <p className="truncate font-medium">
-                                {p.user.name} {p.user.lastname}
+                    p.organization ? (
+                        <div className="min-w-0 max-w-[11rem]">
+                            <p className="truncate text-sm font-medium">
+                                {p.organization.name}
                             </p>
-                            <p className="truncate text-xs text-muted-foreground">
-                                {p.user.email}
-                            </p>
+                            {p.organization.ruc ? (
+                                <p className="truncate text-xs text-muted-foreground">
+                                    RUC {p.organization.ruc}
+                                </p>
+                            ) : null}
                         </div>
                     ) : (
                         <span className="text-muted-foreground">—</span>
                     ),
             },
             {
-                key: 'plan',
-                header: t('payments:columns.plan'),
-                cell: (p) =>
-                    p.plan ? (
-                        <span className="text-sm">{p.plan.name}</span>
+                key: 'chip',
+                header: t('payments:columns.chip'),
+                cell: (p) => {
+                    const chip = paymentChip(p);
+                    return chip ? (
+                        <div className="min-w-0">
+                            <p className="font-mono text-xs tracking-wide">
+                                {chip.microchip}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                                {chip.public_code}
+                            </p>
+                        </div>
                     ) : (
                         <span className="text-muted-foreground">—</span>
-                    ),
+                    );
+                },
+            },
+            {
+                key: 'channel',
+                header: t('payments:columns.channel'),
+                sortable: true,
+                cell: (p) => {
+                    const ch = (p.channel || 'direct') as PaymentChannel;
+                    return (
+                        <Badge variant={channelVariant(ch)}>
+                            {t(`payments:channels.${ch}`, {
+                                defaultValue: ch,
+                            })}
+                        </Badge>
+                    );
+                },
             },
             {
                 key: 'amount',
                 header: t('payments:columns.amount'),
                 sortable: true,
-                cell: (p) => (
-                    <span className="font-medium tabular-nums">
-                        {formatMoney(p.amount, p.currency)}
-                    </span>
-                ),
+                cell: (p) => {
+                    const clinic = Number(p.clinic_commission ?? 0);
+                    return (
+                        <div>
+                            <p className="font-medium tabular-nums">
+                                {formatMoney(p.amount, p.currency)}
+                            </p>
+                            {clinic > 0 ? (
+                                <p className="text-[11px] text-muted-foreground">
+                                    AlmaPet{' '}
+                                    {formatMoney(
+                                        p.platform_amount ?? p.amount,
+                                        p.currency,
+                                    )}
+                                </p>
+                            ) : null}
+                        </div>
+                    );
+                },
             },
             {
                 key: 'status',
@@ -219,18 +372,14 @@ export default function Index({
                 ),
             },
             {
-                key: 'created_at',
-                header: t('payments:columns.created_at'),
-                sortable: true,
-                cell: (p) => (
-                    <span className="text-xs text-muted-foreground">
-                        {new Date(p.created_at).toLocaleDateString(undefined, {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric',
-                        })}
-                    </span>
-                ),
+                key: 'plan',
+                header: t('payments:columns.plan'),
+                cell: (p) =>
+                    p.plan ? (
+                        <span className="text-sm">{p.plan.name}</span>
+                    ) : (
+                        <span className="text-muted-foreground">—</span>
+                    ),
             },
         ];
 
@@ -269,15 +418,33 @@ export default function Index({
                     description={t('payments:description')}
                     stats={[
                         {
-                            label: t('payments:stats.total'),
-                            value: stats.total,
+                            label: t('payments:stats.earned_platform'),
+                            value: formatMoney(
+                                stats.earned_platform,
+                                stats.currency || 'PEN',
+                            ),
+                            variant: 'primary',
+                            icon: Wallet,
+                        },
+                        {
+                            label: t('payments:stats.earned_total'),
+                            value: formatMoney(
+                                stats.earned_total,
+                                stats.currency || 'PEN',
+                            ),
                             variant: 'info',
                             icon: Banknote,
                         },
                         {
-                            label: t('payments:stats.pending'),
-                            value: stats.pending,
-                            variant: 'warning',
+                            label: t('payments:stats.registrations_active'),
+                            value: stats.registrations_active,
+                            variant: 'primary',
+                            icon: PawPrint,
+                        },
+                        {
+                            label: t('payments:stats.registrations'),
+                            value: stats.registrations,
+                            variant: 'info',
                         },
                         {
                             label: t('payments:stats.paid'),
@@ -285,9 +452,14 @@ export default function Index({
                             variant: 'primary',
                         },
                         {
+                            label: t('payments:stats.pending'),
+                            value: stats.pending,
+                            variant: 'warning',
+                        },
+                        {
                             label: t('payments:stats.matches'),
                             value: stats.coincidencias,
-                            variant: 'primary',
+                            variant: 'muted',
                             icon: ScreenShare,
                         },
                         {
@@ -345,6 +517,19 @@ export default function Index({
                                 options={statusOptions}
                             />
                             <FilterChips
+                                ariaLabel={t('payments:filter_channel_label')}
+                                value={filters.channel ?? DEFAULT_CHANNEL}
+                                onChange={(channel) =>
+                                    applyFilter({
+                                        channel:
+                                            channel === DEFAULT_CHANNEL
+                                                ? null
+                                                : channel,
+                                    })
+                                }
+                                options={channelOptions}
+                            />
+                            <FilterChips
                                 ariaLabel={t('payments:filter_provider_label')}
                                 value={filters.provider}
                                 onChange={(provider) =>
@@ -375,6 +560,11 @@ export default function Index({
                                 provider:
                                     filters.provider !== DEFAULT_PROVIDER
                                         ? filters.provider
+                                        : undefined,
+                                channel:
+                                    (filters.channel ?? DEFAULT_CHANNEL) !==
+                                    DEFAULT_CHANNEL
+                                        ? filters.channel
                                         : undefined,
                             }}
                         />
