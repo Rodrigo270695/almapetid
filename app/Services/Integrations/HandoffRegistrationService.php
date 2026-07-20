@@ -39,24 +39,31 @@ final class HandoffRegistrationService
 
         $payload = $token->payload;
         $microchip = preg_replace('/\D+/', '', (string) ($payload['microchip'] ?? '')) ?? '';
-
-        if (ChipRegistration::query()->where('microchip', $microchip)->exists()) {
-            throw ValidationException::withMessages([
-                'microchip' => 'Este microchip ya está registrado en AlmaPet ID.',
-            ]);
-        }
-
         $tenantId = (string) ($payload['vetsaas_tenant_id'] ?? '');
         $pacienteId = (string) ($payload['vetsaas_paciente_id'] ?? '');
 
-        if (
-            ChipRegistration::query()
-                ->where('vetsaas_tenant_id', $tenantId)
-                ->where('vetsaas_paciente_id', $pacienteId)
-                ->exists()
-        ) {
+        $existing = ChipRegistration::query()
+            ->where(function ($q) use ($microchip, $tenantId, $pacienteId): void {
+                $q->where('microchip', $microchip);
+                if ($tenantId !== '' && $pacienteId !== '') {
+                    $q->orWhere(function ($inner) use ($tenantId, $pacienteId): void {
+                        $inner->where('vetsaas_tenant_id', $tenantId)
+                            ->where('vetsaas_paciente_id', $pacienteId);
+                    });
+                }
+            })
+            ->latest('id')
+            ->first();
+
+        if ($existing !== null) {
+            if ($existing->isPendingPayment()) {
+                return $this->resumePendingPayment($token, $existing, $payload);
+            }
+
             throw ValidationException::withMessages([
-                'paciente' => 'Este paciente ya tiene un registro AlmaPet vinculado.',
+                'microchip' => $existing->microchip === $microchip
+                    ? 'Este microchip ya está registrado en AlmaPet ID.'
+                    : 'Este paciente ya tiene un registro AlmaPet vinculado.',
             ]);
         }
 
@@ -116,6 +123,56 @@ final class HandoffRegistrationService
         });
 
         return $result;
+    }
+
+    /**
+     * Reanuda checkout si el chip quedó pending_payment (p. ej. falló el redirect a Culqi).
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array{registration: ChipRegistration, payment: RegistrationPayment, pricing: array{channel: string, amount: float, platform_amount: float, clinic_commission: float, currency: string}}
+     */
+    private function resumePendingPayment(HandoffToken $token, ChipRegistration $registration, array $payload): array
+    {
+        $plan = $this->resolveRegistrationPlan();
+        $pricing = $plan->pricingFor(Plan::CHANNEL_VETSAAS);
+
+        $registration->loadMissing(['organization', 'animal.owner']);
+
+        $payment = RegistrationPayment::query()
+            ->where('chip_registration_id', $registration->id)
+            ->where('channel', Plan::CHANNEL_VETSAAS)
+            ->where('status', RegistrationPayment::STATUS_PENDING)
+            ->latest('id')
+            ->first();
+
+        if ($payment === null) {
+            $org = $registration->organization;
+            if ($org === null) {
+                $org = $this->resolveOrganization($payload);
+                $registration->forceFill(['organization_id' => $org->id])->save();
+            }
+
+            $owner = $registration->animal?->owner;
+            $guestEmail = $owner !== null
+                ? $this->guestEmail($owner, $payload)
+                : 'handoff+'.$registration->id.'@almapetid.com';
+
+            $payment = $this->payments->createHandoffCulqiPayment(
+                $plan,
+                $registration,
+                $org,
+                $guestEmail,
+                Plan::CHANNEL_VETSAAS,
+            );
+        }
+
+        $this->tokens->markUsed($token);
+
+        return [
+            'registration' => $registration,
+            'payment' => $payment,
+            'pricing' => $pricing,
+        ];
     }
 
     /**
