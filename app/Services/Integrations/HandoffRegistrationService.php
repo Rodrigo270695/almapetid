@@ -138,6 +138,17 @@ final class HandoffRegistrationService
 
         $registration->loadMissing(['organization', 'animal.owner']);
 
+        $org = $registration->organization;
+        if ($org === null) {
+            $org = $this->resolveOrganization($payload);
+            $registration->forceFill(['organization_id' => $org->id])->save();
+        }
+
+        $owner = $registration->animal?->owner;
+        $guestEmail = $owner !== null
+            ? $this->guestEmail($owner, $payload)
+            : 'handoff+'.$registration->id.'@almapetid.com';
+
         $payment = RegistrationPayment::query()
             ->where('chip_registration_id', $registration->id)
             ->where('channel', Plan::CHANNEL_VETSAAS)
@@ -146,17 +157,6 @@ final class HandoffRegistrationService
             ->first();
 
         if ($payment === null) {
-            $org = $registration->organization;
-            if ($org === null) {
-                $org = $this->resolveOrganization($payload);
-                $registration->forceFill(['organization_id' => $org->id])->save();
-            }
-
-            $owner = $registration->animal?->owner;
-            $guestEmail = $owner !== null
-                ? $this->guestEmail($owner, $payload)
-                : 'handoff+'.$registration->id.'@almapetid.com';
-
             $payment = $this->payments->createHandoffCulqiPayment(
                 $plan,
                 $registration,
@@ -164,6 +164,19 @@ final class HandoffRegistrationService
                 $guestEmail,
                 Plan::CHANNEL_VETSAAS,
             );
+        } else {
+            // Sincroniza monto con el plan actual (evita cobros viejos a S/25).
+            $payment->forceFill([
+                'plan_id' => $plan->id,
+                'organization_id' => $org->id,
+                'amount' => $pricing['amount'],
+                'currency' => $pricing['currency'],
+                'channel' => $pricing['channel'],
+                'platform_amount' => $pricing['platform_amount'],
+                'clinic_commission' => $pricing['clinic_commission'],
+                'notes' => 'Handoff VetSaaS · '.$plan->code.' · '.$guestEmail,
+            ])->save();
+            $payment = $payment->fresh() ?? $payment;
         }
 
         $this->tokens->markUsed($token);

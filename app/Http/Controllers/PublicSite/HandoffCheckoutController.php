@@ -39,6 +39,9 @@ final class HandoffCheckoutController extends Controller
                 ->with('error', 'Este pago ya no está pendiente.');
         }
 
+        // Alinea montos pendientes con el plan actual (p. ej. VetSaaS bajó a S/15).
+        $this->syncPendingPricing($payment);
+
         $payment->load([
             'plan:id,code,name',
             'chipRegistration.animal',
@@ -98,6 +101,8 @@ final class HandoffCheckoutController extends Controller
                 ->route('public.handoff.checkout', $payment)
                 ->with('error', 'El pago no está pendiente.');
         }
+
+        $this->syncPendingPricing($payment);
 
         if (! $this->culqiEnabled()) {
             return redirect()
@@ -211,6 +216,52 @@ final class HandoffCheckoutController extends Controller
         }
 
         return 'pago@almapetid.com';
+    }
+
+    private function syncPendingPricing(RegistrationPayment $payment): void
+    {
+        if ($payment->status !== RegistrationPayment::STATUS_PENDING) {
+            return;
+        }
+
+        $channel = (string) ($payment->channel ?: Plan::CHANNEL_VETSAAS);
+        $plan = $payment->plan_id
+            ? Plan::query()->find($payment->plan_id)
+            : null;
+
+        if ($plan === null) {
+            $plan = Plan::query()
+                ->where('active', true)
+                ->where('billing_period', Plan::PERIOD_REGISTRATION)
+                ->orderByDesc('is_default')
+                ->orderBy('sort_order')
+                ->first();
+        }
+
+        if ($plan === null) {
+            return;
+        }
+
+        $pricing = $plan->pricingFor($channel);
+
+        if (
+            (float) $payment->amount === $pricing['amount']
+            && (float) ($payment->platform_amount ?? 0) === $pricing['platform_amount']
+            && (float) ($payment->clinic_commission ?? 0) === $pricing['clinic_commission']
+        ) {
+            return;
+        }
+
+        $payment->forceFill([
+            'plan_id' => $plan->id,
+            'amount' => $pricing['amount'],
+            'currency' => $pricing['currency'],
+            'channel' => $pricing['channel'],
+            'platform_amount' => $pricing['platform_amount'],
+            'clinic_commission' => $pricing['clinic_commission'],
+        ])->save();
+
+        $payment->refresh();
     }
 
     private function culqiEnabled(): bool
