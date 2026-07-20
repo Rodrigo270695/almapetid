@@ -10,6 +10,8 @@
     },
     "pets_count": "{{count}} mascota",
     "pets_count_plural": "{{count}} mascotas",
+    "expand_pets": "Ver mascotas",
+    "collapse_pets": "Ocultar mascotas",
     "registered_at": "Registrado",
     "chip_status": {
         "active": "Activo",
