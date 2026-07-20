@@ -91,19 +91,33 @@ class PushNotificationService
     /**
      * @param  Collection<int, User>  $users
      * @param  array{title: string, body: string, url: string, tag: string}  $payload
+     * @return int Número de suscripciones con entrega exitosa
      */
-    public function sendToUsers(Collection $users, array $payload): void
+    public function sendToUsers(Collection $users, array $payload): int
     {
-        if (! $this->isConfigured() || $users->isEmpty()) {
-            return;
+        if (! $this->isConfigured()) {
+            Log::info('Web push skipped: VAPID not configured');
+
+            return 0;
         }
 
+        if ($users->isEmpty()) {
+            return 0;
+        }
+
+        $userIds = $users->pluck('id')->all();
+
         $subscriptions = PushSubscription::query()
-            ->whereIn('user_id', $users->pluck('id')->all())
+            ->whereIn('user_id', $userIds)
             ->get();
 
         if ($subscriptions->isEmpty()) {
-            return;
+            Log::info('Web push skipped: no subscriptions', [
+                'user_ids' => $userIds,
+                'tag' => $payload['tag'] ?? null,
+            ]);
+
+            return 0;
         }
 
         $webPush = new WebPush([
@@ -128,8 +142,11 @@ class PushNotificationService
             );
         }
 
+        $sent = 0;
+
         foreach ($webPush->flush() as $report) {
             if ($report->isSuccess()) {
+                $sent++;
                 continue;
             }
 
@@ -146,5 +163,7 @@ class PushNotificationService
                 'reason' => $report->getReason(),
             ]);
         }
+
+        return $sent;
     }
 }

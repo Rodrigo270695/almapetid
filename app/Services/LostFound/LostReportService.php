@@ -79,7 +79,9 @@ class LostReportService
             return $report;
         });
 
-        $this->vetsaasWebhooks->dispatchLost($registration->fresh() ?? $registration);
+        $fresh = $registration->fresh() ?? $registration;
+        $this->vetsaasWebhooks->dispatchLost($fresh);
+        $this->notifyLostAfterResponse($fresh->id, $report->id);
 
         return $report;
     }
@@ -118,7 +120,9 @@ class LostReportService
             return $open->fresh();
         });
 
-        $this->vetsaasWebhooks->dispatchRecovered($registration->fresh() ?? $registration);
+        $fresh = $registration->fresh() ?? $registration;
+        $this->vetsaasWebhooks->dispatchRecovered($fresh);
+        $this->notifyRecoveredAfterResponse($fresh->id);
 
         return $report;
     }
@@ -144,5 +148,32 @@ class LostReportService
         }
 
         abort(403);
+    }
+
+    private function notifyLostAfterResponse(int $registrationId, int $reportId): void
+    {
+        dispatch(function () use ($registrationId, $reportId): void {
+            $registration = ChipRegistration::query()->find($registrationId);
+            $report = LostReport::query()->find($reportId);
+
+            if ($registration === null || $report === null) {
+                return;
+            }
+
+            app(LostFoundNotifier::class)->notifyDeclaredLost($registration, $report);
+        })->afterResponse();
+    }
+
+    private function notifyRecoveredAfterResponse(int $registrationId): void
+    {
+        dispatch(function () use ($registrationId): void {
+            $registration = ChipRegistration::query()->find($registrationId);
+
+            if ($registration === null) {
+                return;
+            }
+
+            app(LostFoundNotifier::class)->notifyRecovered($registration);
+        })->afterResponse();
     }
 }

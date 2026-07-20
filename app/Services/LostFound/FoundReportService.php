@@ -5,14 +5,13 @@ namespace App\Services\LostFound;
 use App\Models\ChipRegistration;
 use App\Models\FoundReport;
 use App\Models\LostReport;
-use App\Services\Push\PushNotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class FoundReportService
 {
     public function __construct(
-        private readonly PushNotificationService $push,
+        private readonly LostFoundNotifier $notifier,
     ) {}
 
     /**
@@ -51,30 +50,26 @@ class FoundReportService
             ]);
         });
 
-        $this->notifyOwner($registration, $found);
-
-        return $found->fresh();
-    }
-
-    private function notifyOwner(ChipRegistration $registration, FoundReport $found): void
-    {
-        $registration->loadMissing(['animal.owner.user']);
-
-        $ownerUser = $registration->animal?->owner?->user;
-        $animalId = $registration->animal_id;
-        $animalName = $registration->animal?->name ?? 'tu mascota';
-
-        if ($ownerUser !== null && $animalId !== null) {
-            $this->push->sendToUsers(collect([$ownerUser]), [
-                'title' => '¡Posible hallazgo!',
-                'body' => "Alguien reportó haber encontrado a {$animalName}.",
-                'url' => '/animals/'.$animalId,
-                'tag' => 'found-report-'.$found->id,
-            ]);
-        }
+        $this->notifyAfterResponse($registration->id, $found->id);
 
         $found->update([
             'notified_owner_at' => now(),
         ]);
+
+        return $found->fresh();
+    }
+
+    private function notifyAfterResponse(int $registrationId, int $foundId): void
+    {
+        dispatch(function () use ($registrationId, $foundId): void {
+            $registration = ChipRegistration::query()->find($registrationId);
+            $found = FoundReport::query()->find($foundId);
+
+            if ($registration === null || $found === null) {
+                return;
+            }
+
+            app(LostFoundNotifier::class)->notifyFound($registration, $found);
+        })->afterResponse();
     }
 }
