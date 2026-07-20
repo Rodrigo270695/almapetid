@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 
 type Props = {
     reason: 'missing' | 'expired';
+    error_detail?: string | null;
 };
 
-export default function HandoffInvalid({ reason }: Props) {
+export default function HandoffInvalid({ reason, error_detail }: Props) {
     return (
         <PublicLayout title="Enlace no válido">
             <Head title="Enlace no válido" />
@@ -19,6 +20,11 @@ export default function HandoffInvalid({ reason }: Props) {
                         ? 'Falta el token de handoff. Vuelve a VetSaaS e inicia el registro otra vez.'
                         : 'Este enlace expiró o ya fue usado. Desde la ficha del paciente en VetSaaS puedes generar uno nuevo.'}
                 </p>
+                {error_detail ? (
+                    <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-left font-mono text-xs text-destructive">
+                        {error_detail}
+                    </p>
+                ) : null}
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
                     <Button asChild variant="outline">
                         <Link href="/buscar">Buscar microchip</Link>
