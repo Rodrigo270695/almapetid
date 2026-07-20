@@ -26,6 +26,7 @@ use App\Http\Controllers\Public\PublicSearchController;
 use App\Http\Controllers\Platform\PlatformSponsorController;
 use App\Http\Controllers\Platform\PlatformAlertController;
 use App\Http\Controllers\Platform\PlatformWhatsAppController;
+use App\Http\Controllers\Platform\PlatformClientController;
 use App\Http\Controllers\Platform\PlatformPaymentController;
 use App\Http\Controllers\Platform\PlatformPlanController;
 use App\Http\Controllers\Platform\PlatformRoleController;
@@ -300,6 +301,10 @@ Route::middleware(['auth', 'verified', 'document.complete', 'platform'])->prefix
     Route::middleware('permission:payments.update')
         ->post('payments/{payment}/mark-refunded', [PlatformPaymentController::class, 'markRefunded'])
         ->name('payments.mark-refunded');
+
+    Route::middleware('permission:payments.view')
+        ->get('clients', [PlatformClientController::class, 'index'])
+        ->name('clients.index');
 
     Route::middleware('permission:alerts.view')
         ->get('alerts', [PlatformAlertController::class, 'index'])

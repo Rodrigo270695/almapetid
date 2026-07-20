@@ -14,6 +14,7 @@ import animalsEn from '@/lang/en/animals.json';
 import catalogEn from '@/lang/en/catalog.json';
 import plansEn from '@/lang/en/plans.json';
 import paymentsEn from '@/lang/en/payments.json';
+import clientsEn from '@/lang/en/clients.json';
 import pushEn from '@/lang/en/push.json';
 import lostEn from '@/lang/en/lost.json';
 import legalEn from '@/lang/en/legal.json';
@@ -31,6 +32,7 @@ import animalsEs from '@/lang/es/animals.json';
 import catalogEs from '@/lang/es/catalog.json';
 import plansEs from '@/lang/es/plans.json';
 import paymentsEs from '@/lang/es/payments.json';
+import clientsEs from '@/lang/es/clients.json';
 import pushEs from '@/lang/es/push.json';
 import lostEs from '@/lang/es/lost.json';
 import legalEs from '@/lang/es/legal.json';
@@ -62,6 +64,7 @@ const resources = {
         catalog: catalogEs,
         plans: plansEs,
         payments: paymentsEs,
+        clients: clientsEs,
         push: pushEs,
         lost: lostEs,
         legal: legalEs,
@@ -81,6 +84,7 @@ const resources = {
         catalog: catalogEn,
         plans: plansEn,
         payments: paymentsEn,
+        clients: clientsEn,
         push: pushEn,
         lost: lostEn,
         legal: legalEn,
@@ -97,7 +101,7 @@ void i18n
         fallbackLng: DEFAULT_LOCALE,
         supportedLngs: SUPPORTED_LOCALES as unknown as string[],
         defaultNS: 'common',
-        ns: ['common', 'auth', 'nav', 'settings', 'dashboard', 'welcome', 'roles', 'usuarios', 'animals', 'catalog', 'plans', 'payments', 'push', 'lost', 'legal', 'alerts', 'sponsors'],
+        ns: ['common', 'auth', 'nav', 'settings', 'dashboard', 'welcome', 'roles', 'usuarios', 'animals', 'catalog', 'plans', 'payments', 'clients', 'push', 'lost', 'legal', 'alerts', 'sponsors'],
         interpolation: {
             escapeValue: false,
         },

@@ -1,0 +1,28 @@
+{
+    "title": "Clientes registrados",
+    "description": "Titulares con sus mascotas y microchips AlmaPet, agrupados por cliente.",
+    "search_placeholder": "Buscar por nombre, DNI, email, mascota o chip...",
+    "stats": {
+        "clients": "Clientes",
+        "pets": "Mascotas",
+        "active": "Activos",
+        "matches": "Coincidencias"
+    },
+    "pets_count": "{{count}} mascota",
+    "pets_count_plural": "{{count}} mascotas",
+    "registered_at": "Registrado",
+    "chip_status": {
+        "active": "Activo",
+        "pending_payment": "Pendiente pago",
+        "lost": "Perdido"
+    },
+    "empty": {
+        "no_records_title": "Sin clientes en este periodo",
+        "no_records_description": "Cuando se registren chips en el rango de fechas, aparecerán aquí.",
+        "no_results_title": "Sin resultados",
+        "no_results_description": "Ningún cliente coincide con la búsqueda o el rango."
+    },
+    "toast": {
+        "load_error": "No se pudo cargar la lista de clientes."
+    }
+}

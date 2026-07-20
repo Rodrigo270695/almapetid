@@ -8,6 +8,7 @@ use App\Models\ChipRegistration;
 use App\Models\Plan;
 use App\Models\RegistrationPayment;
 use App\Models\User;
+use App\Support\DateRange;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -84,6 +85,13 @@ class PlatformPaymentController extends Controller
             $channel = 'todos';
         }
 
+        $range = DateRange::resolve(
+            $request->query('desde'),
+            $request->query('hasta'),
+        );
+        $desde = $range['desde'];
+        $hasta = $range['hasta'];
+
         $query = RegistrationPayment::query()
             ->with([
                 'plan:id,code,name',
@@ -94,6 +102,10 @@ class PlatformPaymentController extends Controller
                 'chipRegistration.animal:id,name,owner_id',
                 'chipRegistration.animal.owner:id,name,lastname,email,document_number',
             ])
+            ->whereBetween(
+                DB::raw('DATE(COALESCE(paid_at, created_at))'),
+                [$desde, $hasta],
+            )
             ->when($search !== '', function (Builder $q) use ($search): void {
                 $q->where(function (Builder $inner) use ($search): void {
                     $inner->where('provider_reference', 'like', "%{$search}%")
@@ -143,10 +155,6 @@ class PlatformPaymentController extends Controller
 
         $payments = $query->paginate($perPage)->withQueryString();
 
-        $paidQuery = RegistrationPayment::query()->where('status', RegistrationPayment::STATUS_PAID);
-        $earnedTotal = (float) (clone $paidQuery)->sum('amount');
-        $earnedPlatform = (float) (clone $paidQuery)->sum(DB::raw('COALESCE(platform_amount, amount)'));
-
         return Inertia::render('platform/payments/index', [
             'payments' => $payments,
             'filters' => [
@@ -157,23 +165,45 @@ class PlatformPaymentController extends Controller
                 'status' => $status,
                 'provider' => $provider,
                 'channel' => $channel,
+                'desde' => $desde,
+                'hasta' => $hasta,
+            ],
+            'date_defaults' => [
+                'desde' => $range['default_desde'],
+                'hasta' => $range['default_hasta'],
             ],
             'stats' => [
-                'total' => RegistrationPayment::query()->count(),
-                'pending' => RegistrationPayment::query()->where('status', RegistrationPayment::STATUS_PENDING)->count(),
-                'paid' => RegistrationPayment::query()->where('status', RegistrationPayment::STATUS_PAID)->count(),
+                'total' => RegistrationPayment::query()
+                    ->whereBetween(DB::raw('DATE(COALESCE(paid_at, created_at))'), [$desde, $hasta])
+                    ->count(),
+                'pending' => RegistrationPayment::query()
+                    ->where('status', RegistrationPayment::STATUS_PENDING)
+                    ->whereBetween(DB::raw('DATE(COALESCE(paid_at, created_at))'), [$desde, $hasta])
+                    ->count(),
+                'paid' => RegistrationPayment::query()
+                    ->where('status', RegistrationPayment::STATUS_PAID)
+                    ->whereBetween(DB::raw('DATE(COALESCE(paid_at, created_at))'), [$desde, $hasta])
+                    ->count(),
                 'registrations' => ChipRegistration::query()
                     ->whereIn('status', [
                         ChipRegistration::STATUS_ACTIVE,
                         ChipRegistration::STATUS_LOST,
                         ChipRegistration::STATUS_PENDING_PAYMENT,
                     ])
+                    ->whereBetween(DB::raw('DATE(COALESCE(registered_at, created_at))'), [$desde, $hasta])
                     ->count(),
                 'registrations_active' => ChipRegistration::query()
                     ->where('status', ChipRegistration::STATUS_ACTIVE)
+                    ->whereBetween(DB::raw('DATE(COALESCE(registered_at, created_at))'), [$desde, $hasta])
                     ->count(),
-                'earned_total' => round($earnedTotal, 2),
-                'earned_platform' => round($earnedPlatform, 2),
+                'earned_total' => round((float) RegistrationPayment::query()
+                    ->where('status', RegistrationPayment::STATUS_PAID)
+                    ->whereBetween(DB::raw('DATE(COALESCE(paid_at, created_at))'), [$desde, $hasta])
+                    ->sum('amount'), 2),
+                'earned_platform' => round((float) RegistrationPayment::query()
+                    ->where('status', RegistrationPayment::STATUS_PAID)
+                    ->whereBetween(DB::raw('DATE(COALESCE(paid_at, created_at))'), [$desde, $hasta])
+                    ->sum(DB::raw('COALESCE(platform_amount, amount)')), 2),
                 'currency' => 'PEN',
                 'coincidencias' => $payments->total(),
             ],

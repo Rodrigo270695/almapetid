@@ -143,6 +143,11 @@ export function AppSidebar() {
                         href: platformPayments(),
                         icon: Banknote,
                     },
+                    {
+                        title: t('items.clientes'),
+                        href: '/platform/clients',
+                        icon: Users,
+                    },
                 ],
             },
             {

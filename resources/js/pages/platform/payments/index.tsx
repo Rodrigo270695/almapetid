@@ -19,6 +19,7 @@ import {
     PageHeader,
 } from '@/components/data-page';
 import type { DataTableColumn, FilterChip } from '@/components/data-page';
+import { DateRangeFilter } from '@/components/date-range-filter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useDataTablePage } from '@/hooks/use-data-table-page';
@@ -41,6 +42,7 @@ type PaymentsIndexProps = {
     payments: Paginated<RegistrationPayment>;
     filters: PaymentFilters;
     stats: PaymentStats;
+    date_defaults: { desde: string; hasta: string };
     plans_catalog: readonly PlanCatalogItem[];
     users_catalog: readonly UserCatalogItem[];
 };
@@ -142,6 +144,7 @@ export default function Index({
     payments: paginated,
     filters,
     stats,
+    date_defaults,
     plans_catalog,
     users_catalog,
 }: PaymentsIndexProps) {
@@ -169,10 +172,12 @@ export default function Index({
         status: string | null;
         provider: string | null;
         channel: string | null;
+        desde: string | null;
+        hasta: string | null;
     }>({
         routeUrl: payments.index().url,
         initialFilters: filters,
-        only: ['payments', 'filters', 'stats'],
+        only: ['payments', 'filters', 'stats', 'date_defaults'],
         errorMessage: t('payments:toast.load_error'),
         storageKey: 'almapetid.payments.prefs',
         defaults: {
@@ -228,9 +233,15 @@ export default function Index({
         if (filters.status !== DEFAULT_STATUS) count += 1;
         if (filters.provider !== DEFAULT_PROVIDER) count += 1;
         if ((filters.channel ?? DEFAULT_CHANNEL) !== DEFAULT_CHANNEL) count += 1;
+        if (
+            filters.desde !== date_defaults.desde ||
+            filters.hasta !== date_defaults.hasta
+        ) {
+            count += 1;
+        }
         if (filters.per_page !== DEFAULT_PER_PAGE) count += 1;
         return count;
-    }, [filters]);
+    }, [filters, date_defaults]);
 
     const columns: DataTableColumn<RegistrationPayment>[] = useMemo(() => {
         const base: DataTableColumn<RegistrationPayment>[] = [
@@ -503,6 +514,16 @@ export default function Index({
                             isSearching={isLoading}
                             placeholder={t('payments:search_placeholder')}
                         >
+                            <DateRangeFilter
+                                desde={filters.desde}
+                                hasta={filters.hasta}
+                                defaultDesde={date_defaults.desde}
+                                defaultHasta={date_defaults.hasta}
+                                disabled={isLoading}
+                                onApply={(desde, hasta) =>
+                                    applyFilter({ desde, hasta })
+                                }
+                            />
                             <FilterChips
                                 ariaLabel={t('payments:filter_status_label')}
                                 value={filters.status}
@@ -566,6 +587,8 @@ export default function Index({
                                     DEFAULT_CHANNEL
                                         ? filters.channel
                                         : undefined,
+                                desde: filters.desde,
+                                hasta: filters.hasta,
                             }}
                         />
                     }

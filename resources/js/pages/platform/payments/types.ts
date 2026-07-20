@@ -96,6 +96,8 @@ export type PaymentFilters = {
     status: 'todos' | PaymentStatus;
     provider: 'todos' | PaymentProvider;
     channel: 'todos' | PaymentChannel;
+    desde: string;
+    hasta: string;
 };
 
 export type PaymentStats = {

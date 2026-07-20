@@ -1,0 +1,28 @@
+{
+    "title": "Registered clients",
+    "description": "Owners with their pets and AlmaPet microchips, grouped by client.",
+    "search_placeholder": "Search by name, ID, email, pet or chip...",
+    "stats": {
+        "clients": "Clients",
+        "pets": "Pets",
+        "active": "Active",
+        "matches": "Matches"
+    },
+    "pets_count": "{{count}} pet",
+    "pets_count_plural": "{{count}} pets",
+    "registered_at": "Registered",
+    "chip_status": {
+        "active": "Active",
+        "pending_payment": "Pending payment",
+        "lost": "Lost"
+    },
+    "empty": {
+        "no_records_title": "No clients in this period",
+        "no_records_description": "When chips are registered in the date range, they will show up here.",
+        "no_results_title": "No results",
+        "no_results_description": "No clients match the search or date range."
+    },
+    "toast": {
+        "load_error": "Could not load clients."
+    }
+}

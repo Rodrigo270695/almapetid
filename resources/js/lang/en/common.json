@@ -57,5 +57,20 @@
         "selected_plural": "selected",
         "select_all": "Select all rows",
         "select_row": "Select row"
+    },
+    "date_range": {
+        "preset_this_month": "This month",
+        "preset_last_month": "Last month",
+        "preset_last_7_days": "Last 7 days",
+        "preset_last_30_days": "Last 30 days",
+        "preset_this_quarter": "This quarter",
+        "preset_this_year": "This year",
+        "custom": "Custom",
+        "from": "From",
+        "to": "To",
+        "apply": "Apply range",
+        "clear": "Clear range",
+        "all_dates": "All dates",
+        "aria": "Filter by date range"
     }
 }
