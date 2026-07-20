@@ -214,13 +214,19 @@ export default function HandoffCheckout({ payment, culqi }: Props) {
                     <p className="mt-1 text-3xl font-semibold tabular-nums">
                         {money(payment.amount, payment.currency)}
                     </p>
-                    <p className="mt-3 text-xs text-muted-foreground">
-                        AlmaPet{' '}
-                        {money(payment.platform_amount, payment.currency)}
-                        {' · '}
-                        Clínica{' '}
-                        {money(payment.clinic_commission, payment.currency)}
-                    </p>
+                    {payment.clinic_commission > 0 ? (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                            AlmaPet{' '}
+                            {money(payment.platform_amount, payment.currency)}
+                            {' · '}
+                            Clínica{' '}
+                            {money(payment.clinic_commission, payment.currency)}
+                        </p>
+                    ) : (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                            Precio especial por convenio VetSaaS.
+                        </p>
+                    )}
                     {payment.microchip ? (
                         <p className="mt-2 font-mono text-xs text-muted-foreground">
                             Chip {payment.microchip}

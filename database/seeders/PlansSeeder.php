@@ -17,9 +17,9 @@ class PlansSeeder extends Seeder
                 'billing_period' => Plan::PERIOD_REGISTRATION,
                 'duration_months' => null,
                 'amount' => 25.00,
-                // VetSaaS: dueño paga 25 → AlmaPet 15 + clínica 10
-                'vetsaas_amount' => 25.00,
-                'vetsaas_clinic_commission' => 10.00,
+                // VetSaaS: precio especial 15 (todo AlmaPet; sin comisión en Culqi)
+                'vetsaas_amount' => 15.00,
+                'vetsaas_clinic_commission' => 0.00,
                 // Partner externo: dueño paga 25 → AlmaPet 20 + clínica 5
                 'partner_amount' => 25.00,
                 'partner_clinic_commission' => 5.00,
@@ -35,9 +35,9 @@ class PlansSeeder extends Seeder
                 'billing_period' => Plan::PERIOD_ANNUAL,
                 'duration_months' => 12,
                 'amount' => 40.00,
-                // VetSaaS: precio convenio 30 → AlmaPet 20 + clínica 10
+                // VetSaaS: precio convenio anual (ajustar según negocio)
                 'vetsaas_amount' => 30.00,
-                'vetsaas_clinic_commission' => 10.00,
+                'vetsaas_clinic_commission' => 0.00,
                 // Partner: mantiene 40 → AlmaPet 35 + clínica 5
                 'partner_amount' => 40.00,
                 'partner_clinic_commission' => 5.00,

@@ -100,12 +100,22 @@ export default function HandoffConfirm({
                         <p className="mt-1 text-2xl font-semibold tabular-nums">
                             {money(pricing.amount, pricing.currency)}
                         </p>
-                        <p className="mt-2 text-xs text-muted-foreground">
-                            AlmaPet {money(pricing.platform_amount, pricing.currency)}
-                            {' · '}
-                            Clínica{' '}
-                            {money(pricing.clinic_commission, pricing.currency)}
-                        </p>
+                        {pricing.clinic_commission > 0 ? (
+                            <p className="mt-2 text-xs text-muted-foreground">
+                                AlmaPet{' '}
+                                {money(pricing.platform_amount, pricing.currency)}
+                                {' · '}
+                                Clínica{' '}
+                                {money(
+                                    pricing.clinic_commission,
+                                    pricing.currency,
+                                )}
+                            </p>
+                        ) : (
+                            <p className="mt-2 text-xs text-muted-foreground">
+                                Precio especial por convenio VetSaaS.
+                            </p>
+                        )}
                     </div>
                 ) : null}
 
