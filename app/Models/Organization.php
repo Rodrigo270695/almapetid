@@ -27,6 +27,7 @@ class Organization extends Model
         'show_on_network',
         'vetsaas_tenant_id',
         'vetsaas_slug',
+        'embed_registration_token',
     ];
 
     protected function casts(): array
@@ -36,6 +37,35 @@ class Organization extends Model
             'show_on_network' => 'boolean',
             'distrito_id' => 'integer',
         ];
+    }
+
+    public function ensureEmbedRegistrationToken(): string
+    {
+        if (filled($this->embed_registration_token)) {
+            return (string) $this->embed_registration_token;
+        }
+
+        $token = $this->generateUniqueEmbedToken();
+        $this->forceFill(['embed_registration_token' => $token])->save();
+
+        return $token;
+    }
+
+    public function regenerateEmbedRegistrationToken(): string
+    {
+        $token = $this->generateUniqueEmbedToken();
+        $this->forceFill(['embed_registration_token' => $token])->save();
+
+        return $token;
+    }
+
+    private function generateUniqueEmbedToken(): string
+    {
+        do {
+            $token = bin2hex(random_bytes(24));
+        } while (self::query()->where('embed_registration_token', $token)->exists());
+
+        return $token;
     }
 
     public function logoUrl(): ?string

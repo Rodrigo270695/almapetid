@@ -1,14 +1,18 @@
-import { Form, Head, setLayoutProps } from '@inertiajs/react';
-import { Building2, Check, Code2, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { Form, Head, router, setLayoutProps } from '@inertiajs/react';
+import { Building2, Check, Code2, Copy, RefreshCw } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { sanitizePhoneDigits } from '@/lib/phone';
-import { edit as clinicSettings } from '@/routes/clinic/settings';
-import { update } from '@/routes/clinic/settings';
+import { edit as clinicSettings, update } from '@/routes/clinic/settings';
+
+type EmbedSnippet = {
+    url: string;
+    snippet: string;
+};
 
 type Props = {
     organization: {
@@ -25,17 +29,21 @@ type Props = {
         show_on_network: boolean;
         active: boolean;
     };
-    embed: {
-        url: string;
-        snippet: string;
-    };
+    embed: EmbedSnippet;
+    embed_register: EmbedSnippet & { token: string };
 };
 
-export default function ClinicSettings({ organization, embed }: Props) {
+export default function ClinicSettings({
+    organization,
+    embed,
+    embed_register,
+}: Props) {
     const [phone, setPhone] = useState(
         sanitizePhoneDigits(organization.contact_phone ?? ''),
     );
-    const [copied, setCopied] = useState(false);
+    const [copiedSearch, setCopiedSearch] = useState(false);
+    const [copiedRegister, setCopiedRegister] = useState(false);
+    const [regenerating, setRegenerating] = useState(false);
 
     setLayoutProps({
         breadcrumbs: [
@@ -44,15 +52,42 @@ export default function ClinicSettings({ organization, embed }: Props) {
         ],
     });
 
-    const copySnippet = async () => {
+    const copySnippet = async (
+        snippet: string,
+        which: 'search' | 'register',
+    ) => {
         try {
-            await navigator.clipboard.writeText(embed.snippet);
-            setCopied(true);
+            await navigator.clipboard.writeText(snippet);
+            if (which === 'search') {
+                setCopiedSearch(true);
+                window.setTimeout(() => setCopiedSearch(false), 2000);
+            } else {
+                setCopiedRegister(true);
+                window.setTimeout(() => setCopiedRegister(false), 2000);
+            }
             toast.success('Código iframe copiado');
-            window.setTimeout(() => setCopied(false), 2000);
         } catch {
             toast.error('No se pudo copiar. Selecciona el código manualmente.');
         }
+    };
+
+    const regenerateToken = () => {
+        if (
+            !window.confirm(
+                '¿Regenerar el token? El iframe anterior dejará de funcionar hasta que pegues el nuevo código.',
+            )
+        ) {
+            return;
+        }
+        setRegenerating(true);
+        router.post(
+            '/clinic/settings/embed-register-token',
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => setRegenerating(false),
+            },
+        );
     };
 
     return (
@@ -72,53 +107,39 @@ export default function ClinicSettings({ organization, embed }: Props) {
                     </p>
                 </div>
 
-                <section className="max-w-2xl space-y-4 rounded-2xl border border-border/70 bg-card/40 p-5">
-                    <div className="flex items-start gap-3">
-                        <div className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand-sky/12 text-brand-sky">
-                            <Code2 className="size-5" />
-                        </div>
-                        <div className="min-w-0">
-                            <h2 className="font-heading text-lg font-semibold tracking-tight">
-                                Buscador para tu web
-                            </h2>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Copia este iframe y pégalo en tu landing o
-                                página web. Tus visitantes buscan el microchip y
-                                ven el perfil público sin salir de tu sitio.
-                            </p>
-                        </div>
-                    </div>
+                <EmbedCard
+                    title="Buscador para tu web"
+                    description="Iframe general: tus visitantes buscan cualquier microchip y ven el perfil público."
+                    snippet={embed.snippet}
+                    url={embed.url}
+                    copied={copiedSearch}
+                    onCopy={() => void copySnippet(embed.snippet, 'search')}
+                />
 
-                    <div className="overflow-hidden rounded-xl border border-border/60 bg-[#0A1A24]/95">
-                        <pre className="max-h-56 overflow-auto p-4 text-xs leading-relaxed break-all whitespace-pre-wrap text-white/85">
-                            {embed.snippet}
-                        </pre>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
+                <EmbedCard
+                    title="Formulario de registro"
+                    description={`Iframe exclusivo de ${organization.name}: cada chip queda registrado a nombre de esta veterinaria. El dueño paga/activa después (S/ 20 digital).`}
+                    snippet={embed_register.snippet}
+                    url={embed_register.url}
+                    copied={copiedRegister}
+                    onCopy={() =>
+                        void copySnippet(embed_register.snippet, 'register')
+                    }
+                    footer={
                         <Button
                             type="button"
-                            onClick={() => void copySnippet()}
-                            className="cursor-pointer gap-2 bg-brand-sky text-white hover:bg-brand-sky/90"
+                            variant="outline"
+                            disabled={regenerating}
+                            onClick={regenerateToken}
+                            className="cursor-pointer gap-2"
                         >
-                            {copied ? (
-                                <Check className="size-4" />
-                            ) : (
-                                <Copy className="size-4" />
-                            )}
-                            {copied ? 'Copiado' : 'Copiar iframe'}
+                            <RefreshCw
+                                className={`size-4 ${regenerating ? 'animate-spin' : ''}`}
+                            />
+                            Regenerar token
                         </Button>
-                        <Button type="button" variant="outline" asChild>
-                            <a
-                                href={embed.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                Vista previa
-                            </a>
-                        </Button>
-                    </div>
-                </section>
+                    }
+                />
 
                 <Form
                     {...update.form()}
@@ -276,5 +297,68 @@ export default function ClinicSettings({ organization, embed }: Props) {
                 </Form>
             </div>
         </>
+    );
+}
+
+function EmbedCard({
+    title,
+    description,
+    snippet,
+    url,
+    copied,
+    onCopy,
+    footer,
+}: {
+    title: string;
+    description: string;
+    snippet: string;
+    url: string;
+    copied: boolean;
+    onCopy: () => void;
+    footer?: ReactNode;
+}) {
+    return (
+        <section className="max-w-2xl space-y-4 rounded-2xl border border-border/70 bg-card/40 p-5">
+            <div className="flex items-start gap-3">
+                <div className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand-sky/12 text-brand-sky">
+                    <Code2 className="size-5" />
+                </div>
+                <div className="min-w-0">
+                    <h2 className="font-heading text-lg font-semibold tracking-tight">
+                        {title}
+                    </h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {description}
+                    </p>
+                </div>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-border/60 bg-[#0A1A24]/95">
+                <pre className="max-h-56 overflow-auto p-4 text-xs leading-relaxed break-all whitespace-pre-wrap text-white/85">
+                    {snippet}
+                </pre>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+                <Button
+                    type="button"
+                    onClick={onCopy}
+                    className="cursor-pointer gap-2 bg-brand-sky text-white hover:bg-brand-sky/90"
+                >
+                    {copied ? (
+                        <Check className="size-4" />
+                    ) : (
+                        <Copy className="size-4" />
+                    )}
+                    {copied ? 'Copiado' : 'Copiar iframe'}
+                </Button>
+                <Button type="button" variant="outline" asChild>
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                        Vista previa
+                    </a>
+                </Button>
+                {footer}
+            </div>
+        </section>
     );
 }

@@ -117,7 +117,7 @@ final class ClinicRegistrationService
      * }  $data
      */
     public function registerOwnerAnimalChip(
-        User $staff,
+        ?User $staff,
         Organization $organization,
         array $data,
     ): ChipRegistration {
@@ -138,7 +138,7 @@ final class ClinicRegistrationService
             $owner = $this->owners->upsertFromClinic(
                 $data['owner'],
                 $organization->id,
-                $staff->id,
+                $staff?->id,
             );
 
             $animal = Animal::query()->create([
@@ -160,7 +160,7 @@ final class ClinicRegistrationService
                 'public_code' => ChipRegistration::makePublicCode(),
                 'animal_id' => $animal->id,
                 'organization_id' => $organization->id,
-                'registered_by_user_id' => $staff->id,
+                'registered_by_user_id' => $staff?->id,
                 'status' => ChipRegistration::STATUS_PENDING_PAYMENT,
                 'registered_at' => null,
                 'implant_date' => $data['chip']['implant_date'] ?? null,

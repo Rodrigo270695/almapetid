@@ -24,6 +24,7 @@ use App\Http\Controllers\PublicSite\HandoffCheckoutController;
 use App\Http\Controllers\PublicSite\HandoffController;
 use App\Http\Controllers\Public\PublicLostWallController;
 use App\Http\Controllers\Public\PublicPetProfileController;
+use App\Http\Controllers\Public\EmbedRegisterController;
 use App\Http\Controllers\Public\EmbedSearchController;
 use App\Http\Controllers\Public\PublicSearchController;
 use App\Http\Controllers\Platform\PlatformSponsorController;
@@ -67,6 +68,16 @@ Route::get('/buscar', PublicSearchController::class)
 Route::get('/embed/buscar', EmbedSearchController::class)
     ->middleware(['throttle:30,1', 'embed.frame'])
     ->name('embed.search');
+
+Route::get('/embed/registrar/{token}', [EmbedRegisterController::class, 'show'])
+    ->middleware(['throttle:30,1', 'embed.frame'])
+    ->where('token', '[A-Za-z0-9]+')
+    ->name('embed.register.show');
+
+Route::post('/embed/registrar/{token}', [EmbedRegisterController::class, 'store'])
+    ->middleware(['throttle:8,1', 'embed.frame'])
+    ->where('token', '[A-Za-z0-9]+')
+    ->name('embed.register.store');
 
 Route::get('/certificado/{code}', [CertificateController::class, 'show'])
     ->middleware('throttle:20,1')
@@ -261,6 +272,8 @@ Route::middleware(['auth', 'verified', 'document.complete', 'clinic'])->prefix('
             ->name('settings.edit');
         Route::match(['put', 'patch'], 'settings', [ClinicOrganizationController::class, 'update'])
             ->name('settings.update');
+        Route::post('settings/embed-register-token', [ClinicOrganizationController::class, 'regenerateEmbedToken'])
+            ->name('settings.embed-register-token');
     });
 });
 

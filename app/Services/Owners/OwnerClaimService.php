@@ -110,7 +110,7 @@ final class OwnerClaimService
     public function upsertFromClinic(
         array $data,
         int $organizationId,
-        int $createdByUserId,
+        ?int $createdByUserId = null,
     ): Owner {
         $type = $data['document_type'] instanceof DocumentType
             ? $data['document_type']->value
