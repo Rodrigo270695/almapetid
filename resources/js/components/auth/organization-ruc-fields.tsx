@@ -4,6 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authFieldClassName } from '@/lib/auth-field-styles';
@@ -23,8 +31,28 @@ type Props = {
     tabIndexStart?: number;
 };
 
+type LookupBody = {
+    success?: boolean;
+    message?: string;
+    code?: string;
+    data?: { name?: string; address?: string | null };
+};
+
 function onlyDigits(value: string, max: number): string {
     return value.replace(/\D+/g, '').slice(0, max);
+}
+
+async function readLookupBody(res: Response): Promise<LookupBody> {
+    const text = await res.text();
+    if (!text) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(text) as LookupBody;
+    } catch {
+        return {};
+    }
 }
 
 export default function OrganizationRucFields({
@@ -37,12 +65,36 @@ export default function OrganizationRucFields({
     const { t } = useTranslation('auth');
     const [consultando, setConsultando] = useState(false);
     const [lockedFromLookup, setLockedFromLookup] = useState(false);
+    const [lookupError, setLookupError] = useState<string | null>(null);
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
     const lastLookedUp = useRef<string | null>(null);
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
 
     const canLookup = values.ruc.length === 11;
     const counterLabel = `${values.ruc.length}/11`;
+
+    const resolveErrorMessage = (res: Response, body: LookupBody): string => {
+        if (res.status === 429 || body.code === 'rate_limit') {
+            return t('clinic.lookup_rate_limit');
+        }
+
+        if (
+            res.status === 503 ||
+            body.code === 'service_unavailable' ||
+            body.code === 'not_configured'
+        ) {
+            return body.message?.trim() || t('clinic.lookup_unavailable');
+        }
+
+        return body.message?.trim() || t('clinic.lookup_error');
+    };
+
+    const showLookupFailure = (message: string) => {
+        setLookupError(message);
+        setErrorModalOpen(true);
+        toast.error(message);
+    };
 
     const consultarRuc = async (ruc: string) => {
         if (ruc.length !== 11 || consultando) {
@@ -54,6 +106,7 @@ export default function OrganizationRucFields({
         }
 
         setConsultando(true);
+        setLookupError(null);
         lastLookedUp.current = ruc;
 
         try {
@@ -65,15 +118,11 @@ export default function OrganizationRucFields({
                 },
                 credentials: 'same-origin',
             });
-            const json = (await res.json()) as {
-                success?: boolean;
-                message?: string;
-                data?: { name?: string; address?: string | null };
-            };
+            const json = await readLookupBody(res);
 
             if (!res.ok || !json.success || !json.data) {
                 lastLookedUp.current = null;
-                toast.error(json.message || t('clinic.lookup_error'));
+                showLookupFailure(resolveErrorMessage(res, json));
                 return;
             }
 
@@ -82,10 +131,11 @@ export default function OrganizationRucFields({
                 address: json.data.address ?? '',
             });
             setLockedFromLookup(true);
+            setLookupError(null);
             toast.success(t('clinic.lookup_success'));
         } catch {
             lastLookedUp.current = null;
-            toast.error(t('clinic.lookup_error'));
+            showLookupFailure(t('clinic.lookup_error'));
         } finally {
             setConsultando(false);
         }
@@ -114,9 +164,13 @@ export default function OrganizationRucFields({
                             value={values.ruc}
                             placeholder={t('clinic.ruc_placeholder')}
                             className={cn(authFieldClassName, 'pr-14')}
+                            aria-invalid={
+                                Boolean(errors.ruc || lookupError) || undefined
+                            }
                             onChange={(e) => {
                                 const ruc = onlyDigits(e.target.value, 11);
                                 setLockedFromLookup(false);
+                                setLookupError(null);
                                 lastLookedUp.current = null;
                                 onChange({
                                     ruc,
@@ -137,7 +191,10 @@ export default function OrganizationRucFields({
                         tabIndex={tabIndexStart + 1}
                         disabled={!canLookup || consultando}
                         aria-label={t('clinic.lookup_aria')}
-                        onClick={() => void consultarRuc(values.ruc)}
+                        onClick={() => {
+                            lastLookedUp.current = null;
+                            void consultarRuc(values.ruc);
+                        }}
                     >
                         {consultando ? (
                             <LoaderCircle className="size-4 animate-spin" />
@@ -146,7 +203,7 @@ export default function OrganizationRucFields({
                         )}
                     </Button>
                 </div>
-                <InputError message={errors.ruc} />
+                <InputError message={errors.ruc || lookupError || undefined} />
             </div>
 
             <div className="grid gap-2">
@@ -185,6 +242,25 @@ export default function OrganizationRucFields({
                 />
                 <InputError message={errors.address} />
             </div>
+
+            <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>{t('clinic.lookup_error_title')}</DialogTitle>
+                        <DialogDescription>
+                            {lookupError || t('clinic.lookup_error')}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            onClick={() => setErrorModalOpen(false)}
+                        >
+                            {t('clinic.lookup_error_close')}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

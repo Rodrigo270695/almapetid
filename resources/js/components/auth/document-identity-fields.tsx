@@ -4,6 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -35,8 +43,32 @@ type Props = {
     namePrefix?: string;
 };
 
+type LookupBody = {
+    success?: boolean;
+    message?: string;
+    code?: string;
+    data?: {
+        dni?: string;
+        name?: string;
+        lastname?: string;
+    };
+};
+
 function onlyDigits(value: string, max: number): string {
     return value.replace(/\D+/g, '').slice(0, max);
+}
+
+async function readLookupBody(res: Response): Promise<LookupBody> {
+    const text = await res.text();
+    if (!text) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(text) as LookupBody;
+    } catch {
+        return {};
+    }
 }
 
 export default function DocumentIdentityFields({
@@ -51,6 +83,8 @@ export default function DocumentIdentityFields({
     const { t } = useTranslation('auth');
     const [consultando, setConsultando] = useState(false);
     const [lockedFromLookup, setLockedFromLookup] = useState(false);
+    const [lookupError, setLookupError] = useState<string | null>(null);
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
     const lastLookedUp = useRef<string | null>(null);
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
@@ -70,6 +104,28 @@ export default function DocumentIdentityFields({
         return `${values.document_number.length}/8`;
     }, [isDni, values.document_number.length]);
 
+    const resolveErrorMessage = (res: Response, body: LookupBody): string => {
+        if (res.status === 429 || body.code === 'rate_limit') {
+            return t('document.lookup_rate_limit');
+        }
+
+        if (
+            res.status === 503 ||
+            body.code === 'service_unavailable' ||
+            body.code === 'not_configured'
+        ) {
+            return body.message?.trim() || t('document.lookup_unavailable');
+        }
+
+        return body.message?.trim() || t('document.lookup_error');
+    };
+
+    const showLookupFailure = (message: string) => {
+        setLookupError(message);
+        setErrorModalOpen(true);
+        toast.error(message);
+    };
+
     const consultarDni = async (dni: string) => {
         if (dni.length !== 8 || consultando) {
             return;
@@ -80,6 +136,7 @@ export default function DocumentIdentityFields({
         }
 
         setConsultando(true);
+        setLookupError(null);
         lastLookedUp.current = dni;
 
         try {
@@ -93,24 +150,11 @@ export default function DocumentIdentityFields({
                 credentials: 'same-origin',
             });
 
-            const body = (await res.json()) as {
-                success?: boolean;
-                message?: string;
-                code?: string;
-                data?: {
-                    dni?: string;
-                    name?: string;
-                    lastname?: string;
-                };
-            };
+            const body = await readLookupBody(res);
 
             if (!res.ok || !body.success || !body.data) {
                 lastLookedUp.current = null;
-                toast.error(
-                    res.status === 429 || body.code === 'rate_limit'
-                        ? t('document.lookup_rate_limit')
-                        : (body.message ?? t('document.lookup_error')),
-                );
+                showLookupFailure(resolveErrorMessage(res, body));
 
                 return;
             }
@@ -121,10 +165,11 @@ export default function DocumentIdentityFields({
                 lastname: body.data.lastname ?? '',
             });
             setLockedFromLookup(nameReadOnlyAfterLookup);
+            setLookupError(null);
             toast.success(t('document.lookup_success'));
         } catch {
             lastLookedUp.current = null;
-            toast.error(t('document.lookup_error'));
+            showLookupFailure(t('document.lookup_error'));
         } finally {
             setConsultando(false);
         }
@@ -141,6 +186,7 @@ export default function DocumentIdentityFields({
 
     const onTipoChange = (type: DocumentType) => {
         setLockedFromLookup(false);
+        setLookupError(null);
         lastLookedUp.current = null;
         const numero =
             type === 'dni'
@@ -155,6 +201,7 @@ export default function DocumentIdentityFields({
 
     const onNumeroChange = (raw: string) => {
         setLockedFromLookup(false);
+        setLookupError(null);
         const next = isDni ? onlyDigits(raw, 8) : raw.slice(0, 64);
         if (next !== values.document_number) {
             lastLookedUp.current = null;
@@ -236,6 +283,10 @@ export default function DocumentIdentityFields({
                                     authFieldClassName,
                                     isDni && 'pr-12',
                                 )}
+                                aria-invalid={
+                                    Boolean(errors.document_number || lookupError) ||
+                                    undefined
+                                }
                             />
                             {counterLabel ? (
                                 <span
@@ -272,7 +323,9 @@ export default function DocumentIdentityFields({
                             </Button>
                         ) : null}
                     </div>
-                    <InputError message={errors.document_number} />
+                    <InputError
+                        message={errors.document_number || lookupError || undefined}
+                    />
                 </div>
             </div>
 
@@ -323,6 +376,27 @@ export default function DocumentIdentityFields({
                     <InputError message={errors.lastname} />
                 </div>
             </div>
+
+            <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {t('document.lookup_error_title')}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {lookupError || t('document.lookup_error')}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            onClick={() => setErrorModalOpen(false)}
+                        >
+                            {t('document.lookup_error_close')}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
