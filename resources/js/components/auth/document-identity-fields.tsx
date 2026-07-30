@@ -43,6 +43,8 @@ type Props = {
     namePrefix?: string;
     /** Si false, no envía name= (el padre manda hidden). */
     submitNames?: boolean;
+    /** Asterisco rojo en labels obligatorios. */
+    showRequiredMarks?: boolean;
 };
 
 type LookupBody = {
@@ -82,6 +84,7 @@ export default function DocumentIdentityFields({
     tabIndexStart = 1,
     namePrefix,
     submitNames = true,
+    showRequiredMarks = false,
 }: Props) {
     const { t } = useTranslation('auth');
     const [consultando, setConsultando] = useState(false);
@@ -91,6 +94,10 @@ export default function DocumentIdentityFields({
     const lastLookedUp = useRef<string | null>(null);
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
+
+    const req = showRequiredMarks ? (
+        <span className="ml-0.5 font-semibold text-red-500">*</span>
+    ) : null;
 
     const fieldName = (key: string) => {
         if (!submitNames) {
@@ -223,6 +230,7 @@ export default function DocumentIdentityFields({
                 <div className="grid gap-2">
                     <Label htmlFor="document_type">
                         {t('common.document_type')}
+                        {req}
                     </Label>
                     <input
                         type="hidden"
@@ -266,6 +274,7 @@ export default function DocumentIdentityFields({
                 <div className="grid gap-2">
                     <Label htmlFor="document_number">
                         {t('common.document_number')}
+                        {req}
                     </Label>
                     <div className="flex items-stretch gap-2">
                         <div className="relative min-w-0 flex-1">
@@ -340,7 +349,10 @@ export default function DocumentIdentityFields({
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                    <Label htmlFor="name">{t('common.name')}</Label>
+                    <Label htmlFor="name">
+                        {t('common.name')}
+                        {req}
+                    </Label>
                     <Input
                         id="name"
                         name={fieldName('name')}
@@ -363,7 +375,10 @@ export default function DocumentIdentityFields({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="lastname">{t('common.lastname')}</Label>
+                    <Label htmlFor="lastname">
+                        {t('common.lastname')}
+                        {req}
+                    </Label>
                     <Input
                         id="lastname"
                         name={fieldName('lastname')}

@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Services\Owners\OwnerClaimService;
 use App\Support\Auth\Roles;
+use App\Support\Catalog\SpeciesCatalog;
 use App\Support\Geo\GeoDefaults;
 use App\Support\Geo\LocationHydrator;
 use Illuminate\Support\Facades\DB;
@@ -99,9 +100,10 @@ final class ClinicRegistrationService
      *     },
      *     animal: array{
      *         name: string,
-     *         species: string,
-     *         breed?: string|null,
+     *         species_id: int,
+     *         breed_id?: int|null,
      *         sex?: string|null,
+     *         is_sterilized?: bool|null,
      *         color?: string|null,
      *         birth_date?: string|null,
      *         notes?: string|null,
@@ -126,7 +128,12 @@ final class ClinicRegistrationService
             ]);
         }
 
-        return DB::transaction(function () use ($staff, $organization, $data, $microchip): ChipRegistration {
+        [$speciesName, $breedName] = SpeciesCatalog::resolveNames(
+            (int) $data['animal']['species_id'],
+            isset($data['animal']['breed_id']) ? (int) $data['animal']['breed_id'] : null,
+        );
+
+        return DB::transaction(function () use ($staff, $organization, $data, $microchip, $speciesName, $breedName): ChipRegistration {
             $owner = $this->owners->upsertFromClinic(
                 $data['owner'],
                 $organization->id,
@@ -136,9 +143,12 @@ final class ClinicRegistrationService
             $animal = Animal::query()->create([
                 'owner_id' => $owner->id,
                 'name' => $data['animal']['name'],
-                'species' => $data['animal']['species'],
-                'breed' => $data['animal']['breed'] ?? null,
+                'species' => $speciesName,
+                'breed' => $breedName,
                 'sex' => $data['animal']['sex'] ?? null,
+                'is_sterilized' => array_key_exists('is_sterilized', $data['animal'])
+                    ? $data['animal']['is_sterilized']
+                    : null,
                 'color' => $data['animal']['color'] ?? null,
                 'birth_date' => $data['animal']['birth_date'] ?? null,
                 'notes' => $data['animal']['notes'] ?? null,

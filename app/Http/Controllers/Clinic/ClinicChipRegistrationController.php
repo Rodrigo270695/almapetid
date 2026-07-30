@@ -6,6 +6,7 @@ use App\Enums\DocumentType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Clinic\StoreChipRegistrationRequest;
 use App\Services\Clinics\ClinicRegistrationService;
+use App\Support\Catalog\SpeciesCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,6 +26,7 @@ class ClinicChipRegistrationController extends Controller
                 'ruc' => $organization->ruc,
             ],
             'documentTypes' => DocumentType::values(),
+            'species_catalog' => SpeciesCatalog::activeTree(),
         ]);
     }
 

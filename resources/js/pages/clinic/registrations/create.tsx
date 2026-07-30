@@ -1,23 +1,26 @@
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
-import { useState } from 'react';
+import { Cpu, PawPrint, UserRound } from 'lucide-react';
+import { useMemo, useState, type ReactNode } from 'react';
 import DocumentIdentityFields from '@/components/auth/document-identity-fields';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { authFieldClassName, authSubmitClassName } from '@/lib/auth-field-styles';
 import { sanitizePhoneDigits } from '@/lib/phone';
+import { cn } from '@/lib/utils';
 import { dashboard as clinicDashboard } from '@/routes/clinic';
 import { store } from '@/routes/clinic/registrations';
 import type { DocumentType } from '@/types';
+
+type BreedOption = { id: number; name: string };
+type SpeciesOption = {
+    id: number;
+    name: string;
+    breeds: BreedOption[];
+};
 
 type Props = {
     organization: {
@@ -25,6 +28,7 @@ type Props = {
         name: string;
         ruc: string;
     };
+    species_catalog: SpeciesOption[];
 };
 
 type OwnerState = {
@@ -34,15 +38,82 @@ type OwnerState = {
     lastname: string;
 };
 
-export default function CreateChipRegistration({ organization }: Props) {
+const fieldClass = cn(authFieldClassName, 'h-11');
+const comboClass = cn(
+    fieldClass,
+    'px-3 hover:bg-background/50 data-[state=open]:border-brand-sky data-[state=open]:ring-2 data-[state=open]:ring-brand-sky/35',
+);
+
+function RequiredMark() {
+    return <span className="ml-0.5 font-semibold text-red-500">*</span>;
+}
+
+function FieldLabel({
+    htmlFor,
+    children,
+    required,
+}: {
+    htmlFor?: string;
+    children: ReactNode;
+    required?: boolean;
+}) {
+    return (
+        <Label htmlFor={htmlFor} className="text-sm font-medium">
+            {children}
+            {required ? <RequiredMark /> : null}
+        </Label>
+    );
+}
+
+function SectionCard({
+    icon,
+    title,
+    hint,
+    children,
+}: {
+    icon: ReactNode;
+    title: string;
+    hint?: string;
+    children: ReactNode;
+}) {
+    return (
+        <section className="overflow-hidden rounded-3xl border border-border/70 bg-card/80 shadow-sm backdrop-blur-sm">
+            <div className="flex items-start gap-3 border-b border-border/60 bg-brand-sky/[0.04] px-5 py-4">
+                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-sky/12 text-brand-sky">
+                    {icon}
+                </span>
+                <div className="min-w-0">
+                    <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">
+                        {title}
+                    </h2>
+                    {hint ? (
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                            {hint}
+                        </p>
+                    ) : null}
+                </div>
+            </div>
+            <div className="grid gap-4 p-5 sm:gap-5">{children}</div>
+        </section>
+    );
+}
+
+export default function CreateChipRegistration({
+    organization,
+    species_catalog,
+}: Props) {
     const [owner, setOwner] = useState<OwnerState>({
         document_type: 'dni',
         document_number: '',
         name: '',
         lastname: '',
     });
-    const [species, setSpecies] = useState('dog');
     const [ownerPhone, setOwnerPhone] = useState('');
+    const [speciesId, setSpeciesId] = useState<string | null>(null);
+    const [breedId, setBreedId] = useState<string | null>(null);
+    const [sex, setSex] = useState<string | null>(null);
+    const [sterilized, setSterilized] = useState<string | null>(null);
+    const [microchip, setMicrochip] = useState('');
 
     setLayoutProps({
         breadcrumbs: [
@@ -54,12 +125,48 @@ export default function CreateChipRegistration({ organization }: Props) {
         ],
     });
 
+    const speciesOptions = useMemo<ComboboxOption[]>(
+        () =>
+            species_catalog.map((s) => ({
+                value: String(s.id),
+                label: s.name,
+            })),
+        [species_catalog],
+    );
+
+    const breedOptions = useMemo<ComboboxOption[]>(() => {
+        const species = species_catalog.find((s) => String(s.id) === speciesId);
+        return (species?.breeds ?? []).map((b) => ({
+            value: String(b.id),
+            label: b.name,
+        }));
+    }, [species_catalog, speciesId]);
+
+    const sexOptions: ComboboxOption[] = [
+        { value: 'macho', label: 'Macho' },
+        { value: 'hembra', label: 'Hembra' },
+    ];
+
+    const sterilizedOptions: ComboboxOption[] = [
+        { value: '1', label: 'Sí, esterilizada/castrada' },
+        { value: '0', label: 'No' },
+        { value: 'unknown', label: 'No sé / no indica' },
+    ];
+
     return (
         <>
             <Head title="Registrar chip" />
-            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-4 md:p-6">
+            <div className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 p-4 md:p-6">
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-56 bg-[radial-gradient(ellipse_at_top,_color-mix(in_oklch,var(--brand-sky)_16%,transparent),_transparent_70%)]"
+                />
+
                 <div>
-                    <h1 className="font-heading text-2xl font-semibold tracking-tight">
+                    <div className="mb-3 inline-flex size-11 items-center justify-center rounded-2xl bg-brand-sky text-white shadow-lg shadow-brand-sky/25">
+                        <PawPrint className="size-5" />
+                    </div>
+                    <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
                         Registrar microchip
                     </h1>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -70,15 +177,17 @@ export default function CreateChipRegistration({ organization }: Props) {
                 <Form
                     action={store.url()}
                     method="post"
-                    className="flex flex-col gap-6"
+                    className="flex flex-col gap-5"
                     disableWhileProcessing
+                    noValidate
                 >
                     {({ processing, errors }) => (
                         <>
-                            <section className="grid gap-4">
-                                <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-                                    Propietario
-                                </h2>
+                            <SectionCard
+                                icon={<UserRound className="size-4" />}
+                                title="Propietario"
+                                hint="Datos del tutor. El celular es clave para contactarlo."
+                            >
                                 <DocumentIdentityFields
                                     namePrefix="owner"
                                     values={owner}
@@ -89,6 +198,7 @@ export default function CreateChipRegistration({ organization }: Props) {
                                         }))
                                     }
                                     lookupUrl="/document/lookup-dni"
+                                    showRequiredMarks
                                     errors={{
                                         document_type:
                                             errors['owner.document_type'],
@@ -99,25 +209,29 @@ export default function CreateChipRegistration({ organization }: Props) {
                                     }}
                                 />
 
-                                <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="grid items-start gap-4 sm:grid-cols-2">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="owner_email">
-                                            Correo (opcional)
-                                        </Label>
+                                        <FieldLabel htmlFor="owner_email">
+                                            Correo
+                                        </FieldLabel>
                                         <Input
                                             id="owner_email"
                                             type="email"
                                             name="owner[email]"
-                                            className={authFieldClassName}
+                                            placeholder="opcional"
+                                            className={fieldClass}
                                         />
                                         <InputError
                                             message={errors['owner.email']}
                                         />
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="owner_phone">
-                                            Celular *
-                                        </Label>
+                                        <FieldLabel
+                                            htmlFor="owner_phone"
+                                            required
+                                        >
+                                            Celular
+                                        </FieldLabel>
                                         <Input
                                             id="owner_phone"
                                             type="tel"
@@ -134,149 +248,253 @@ export default function CreateChipRegistration({ organization }: Props) {
                                                 )
                                             }
                                             placeholder="Ej. 999888777"
-                                            className={authFieldClassName}
+                                            className={fieldClass}
                                         />
                                         <InputError
                                             message={errors['owner.phone']}
                                         />
                                     </div>
                                 </div>
-                            </section>
+                            </SectionCard>
 
-                            <section className="grid gap-4">
-                                <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-                                    Mascota
-                                </h2>
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="animal_name">
+                            <SectionCard
+                                icon={<PawPrint className="size-4" />}
+                                title="Mascota"
+                                hint="Especie y raza desde el catálogo AlmaPet."
+                            >
+                                <div className="grid items-start gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-2 sm:col-span-2">
+                                        <FieldLabel
+                                            htmlFor="animal_name"
+                                            required
+                                        >
                                             Nombre
-                                        </Label>
+                                        </FieldLabel>
                                         <Input
                                             id="animal_name"
                                             name="animal[name]"
                                             required
-                                            className={authFieldClassName}
+                                            placeholder="Nombre de la mascota"
+                                            className={fieldClass}
                                         />
                                         <InputError
                                             message={errors['animal.name']}
                                         />
                                     </div>
+
                                     <div className="grid gap-2">
-                                        <Label>Especie</Label>
-                                        <Select
-                                            value={species}
-                                            onValueChange={setSpecies}
+                                        <FieldLabel
+                                            htmlFor="animal_species"
+                                            required
                                         >
-                                            <SelectTrigger
-                                                className={authFieldClassName}
-                                            >
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="dog">
-                                                    Perro
-                                                </SelectItem>
-                                                <SelectItem value="cat">
-                                                    Gato
-                                                </SelectItem>
-                                                <SelectItem value="other">
-                                                    Otro
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <input
-                                            type="hidden"
-                                            name="animal[species]"
-                                            value={species}
+                                            Especie
+                                        </FieldLabel>
+                                        <Combobox
+                                            id="animal_species"
+                                            name="animal[species_id]"
+                                            options={speciesOptions}
+                                            value={speciesId}
+                                            onChange={(value) => {
+                                                setSpeciesId(value);
+                                                setBreedId(null);
+                                            }}
+                                            placeholder="Selecciona especie"
+                                            searchPlaceholder="Buscar especie..."
+                                            emptyMessage="Sin especies en el catálogo."
+                                            clearable={false}
+                                            className={comboClass}
+                                            aria-invalid={Boolean(
+                                                errors['animal.species_id'],
+                                            )}
                                         />
                                         <InputError
-                                            message={errors['animal.species']}
+                                            message={
+                                                errors['animal.species_id']
+                                            }
                                         />
                                     </div>
-                                </div>
-                                <div className="grid gap-4 sm:grid-cols-2">
+
                                     <div className="grid gap-2">
-                                        <Label htmlFor="animal_breed">
+                                        <FieldLabel htmlFor="animal_breed">
                                             Raza
-                                        </Label>
-                                        <Input
+                                        </FieldLabel>
+                                        <Combobox
                                             id="animal_breed"
-                                            name="animal[breed]"
-                                            className={authFieldClassName}
+                                            name="animal[breed_id]"
+                                            options={breedOptions}
+                                            value={breedId}
+                                            onChange={setBreedId}
+                                            placeholder={
+                                                speciesId
+                                                    ? 'Selecciona raza'
+                                                    : 'Primero elige especie'
+                                            }
+                                            searchPlaceholder="Buscar raza..."
+                                            emptyMessage="Sin razas para esta especie."
+                                            disabled={!speciesId}
+                                            className={comboClass}
+                                            aria-invalid={Boolean(
+                                                errors['animal.breed_id'],
+                                            )}
+                                        />
+                                        <InputError
+                                            message={errors['animal.breed_id']}
                                         />
                                     </div>
+
                                     <div className="grid gap-2">
-                                        <Label htmlFor="animal_sex">Sexo</Label>
-                                        <Input
+                                        <FieldLabel htmlFor="animal_sex">
+                                            Sexo
+                                        </FieldLabel>
+                                        <Combobox
                                             id="animal_sex"
                                             name="animal[sex]"
-                                            placeholder="macho / hembra"
-                                            className={authFieldClassName}
+                                            options={sexOptions}
+                                            value={sex}
+                                            onChange={setSex}
+                                            placeholder="Selecciona"
+                                            searchPlaceholder="Buscar..."
+                                            emptyMessage="Sin opciones."
+                                            className={comboClass}
+                                        />
+                                        <InputError
+                                            message={errors['animal.sex']}
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <FieldLabel htmlFor="animal_sterilized">
+                                            ¿Esterilizada / castrada?
+                                        </FieldLabel>
+                                        <Combobox
+                                            id="animal_sterilized"
+                                            options={sterilizedOptions}
+                                            value={sterilized}
+                                            onChange={setSterilized}
+                                            placeholder="Selecciona"
+                                            searchPlaceholder="Buscar..."
+                                            emptyMessage="Sin opciones."
+                                            className={comboClass}
+                                        />
+                                        <input
+                                            type="hidden"
+                                            name="animal[is_sterilized]"
+                                            value={
+                                                sterilized === 'unknown' ||
+                                                sterilized === null
+                                                    ? ''
+                                                    : sterilized
+                                            }
+                                        />
+                                        <InputError
+                                            message={
+                                                errors['animal.is_sterilized']
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2 sm:col-span-2">
+                                        <FieldLabel htmlFor="animal_color">
+                                            Color
+                                        </FieldLabel>
+                                        <Input
+                                            id="animal_color"
+                                            name="animal[color]"
+                                            placeholder="Ej. marrón, atigrado"
+                                            className={fieldClass}
+                                        />
+                                        <InputError
+                                            message={errors['animal.color']}
                                         />
                                     </div>
                                 </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="animal_color">Color</Label>
-                                    <Input
-                                        id="animal_color"
-                                        name="animal[color]"
-                                        className={authFieldClassName}
-                                    />
-                                </div>
-                            </section>
+                            </SectionCard>
 
-                            <section className="grid gap-4">
-                                <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-                                    Microchip
-                                </h2>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="microchip">
-                                        Número (15 dígitos)
-                                    </Label>
-                                    <Input
-                                        id="microchip"
-                                        name="chip[microchip]"
-                                        inputMode="numeric"
-                                        required
-                                        maxLength={15}
-                                        placeholder="15 dígitos ISO"
-                                        className={authFieldClassName}
-                                    />
-                                    <InputError
-                                        message={errors['chip.microchip']}
-                                    />
-                                </div>
-                                <div className="grid gap-4 sm:grid-cols-2">
+                            <SectionCard
+                                icon={<Cpu className="size-4" />}
+                                title="Microchip"
+                                hint="Número ISO de 15 dígitos."
+                            >
+                                <div className="grid items-start gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-2 sm:col-span-2">
+                                        <FieldLabel
+                                            htmlFor="microchip"
+                                            required
+                                        >
+                                            Número de microchip
+                                        </FieldLabel>
+                                        <Input
+                                            id="microchip"
+                                            name="chip[microchip]"
+                                            inputMode="numeric"
+                                            required
+                                            maxLength={15}
+                                            value={microchip}
+                                            onChange={(e) =>
+                                                setMicrochip(
+                                                    e.target.value.replace(
+                                                        /\D+/g,
+                                                        '',
+                                                    ),
+                                                )
+                                            }
+                                            placeholder="15 dígitos ISO"
+                                            className={cn(
+                                                fieldClass,
+                                                'font-mono tracking-wide',
+                                            )}
+                                        />
+                                        <p className="text-xs text-muted-foreground tabular-nums">
+                                            {microchip.length}/15
+                                        </p>
+                                        <InputError
+                                            message={errors['chip.microchip']}
+                                        />
+                                    </div>
+
                                     <div className="grid gap-2">
-                                        <Label htmlFor="implant_date">
+                                        <FieldLabel htmlFor="implant_date">
                                             Fecha de implante
-                                        </Label>
+                                        </FieldLabel>
                                         <Input
                                             id="implant_date"
                                             type="date"
                                             name="chip[implant_date]"
-                                            className={authFieldClassName}
+                                            className={fieldClass}
+                                        />
+                                        <InputError
+                                            message={
+                                                errors['chip.implant_date']
+                                            }
                                         />
                                     </div>
+
                                     <div className="grid gap-2">
-                                        <Label htmlFor="implant_site">
+                                        <FieldLabel htmlFor="implant_site">
                                             Sitio de implante
-                                        </Label>
+                                        </FieldLabel>
                                         <Input
                                             id="implant_site"
                                             name="chip[implant_site]"
                                             placeholder="Ej. cuello izquierdo"
-                                            className={authFieldClassName}
+                                            className={fieldClass}
+                                        />
+                                        <InputError
+                                            message={
+                                                errors['chip.implant_site']
+                                            }
                                         />
                                     </div>
                                 </div>
-                            </section>
+                            </SectionCard>
 
-                            <div className="flex flex-col gap-3 sm:flex-row">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                                 <Button
                                     type="submit"
-                                    className={authSubmitClassName}
+                                    className={cn(
+                                        authSubmitClassName,
+                                        'mt-0 bg-brand-sky text-white hover:bg-brand-sky/90 sm:w-auto sm:min-w-52',
+                                    )}
                                     disabled={processing}
                                 >
                                     {processing && <Spinner />}

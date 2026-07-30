@@ -14,6 +14,7 @@ class Animal extends Model
         'species',
         'breed',
         'sex',
+        'is_sterilized',
         'color',
         'birth_date',
         'notes',
@@ -24,6 +25,7 @@ class Animal extends Model
     {
         return [
             'birth_date' => 'date',
+            'is_sterilized' => 'boolean',
         ];
     }
 
