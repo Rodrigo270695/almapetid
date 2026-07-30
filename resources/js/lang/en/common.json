@@ -72,5 +72,26 @@
         "clear": "Clear range",
         "all_dates": "All dates",
         "aria": "Filter by date range"
+    },
+    "http_errors": {
+        "cta_home": "Go home",
+        "cta_dashboard": "Go to dashboard",
+        "cta_back": "Go back",
+        "attempted_path": "Requested path",
+        "forbidden": {
+            "title": "Access denied",
+            "description": "You don’t have permission to view this page, or your session can’t open it.",
+            "helper": "If you think you should have access, sign in with another account or contact AlmaPet support."
+        },
+        "not_found": {
+            "title": "Page not found",
+            "description": "The path you’re looking for doesn’t exist or is no longer available on AlmaPet ID.",
+            "helper": "Check the link or go home to search a microchip or your pet."
+        },
+        "server_error": {
+            "title": "Server error",
+            "description": "Something unexpected went wrong while processing your request.",
+            "helper": "Try again in a moment. If it keeps happening, reach us on support WhatsApp."
+        }
     }
 }

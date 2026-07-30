@@ -72,5 +72,26 @@
         "clear": "Quitar rango",
         "all_dates": "Todas las fechas",
         "aria": "Filtrar por rango de fechas"
+    },
+    "http_errors": {
+        "cta_home": "Ir al inicio",
+        "cta_dashboard": "Ir al panel",
+        "cta_back": "Volver atrás",
+        "attempted_path": "Ruta solicitada",
+        "forbidden": {
+            "title": "Acceso no permitido",
+            "description": "No tienes permiso para ver esta página o tu sesión no alcanza para abrirla.",
+            "helper": "Si crees que deberías entrar, inicia sesión con otra cuenta o contacta a soporte AlmaPet."
+        },
+        "not_found": {
+            "title": "Página no encontrada",
+            "description": "La ruta que buscas no existe o ya no está disponible en AlmaPet ID.",
+            "helper": "Revisa el enlace o vuelve al inicio para buscar el microchip o tu mascota."
+        },
+        "server_error": {
+            "title": "Error del servidor",
+            "description": "Ocurrió un problema inesperado al procesar tu solicitud.",
+            "helper": "Intenta de nuevo en unos momentos. Si continúa, escríbenos por WhatsApp de soporte."
+        }
     }
 }
