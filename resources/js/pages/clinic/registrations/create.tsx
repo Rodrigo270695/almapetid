@@ -393,7 +393,24 @@ export default function CreateChipRegistration({
                                         />
                                     </div>
 
-                                    <div className="grid gap-2 sm:col-span-2">
+                                    <div className="grid gap-2">
+                                        <FieldLabel htmlFor="animal_birth_date">
+                                            Fecha de nacimiento
+                                        </FieldLabel>
+                                        <Input
+                                            id="animal_birth_date"
+                                            type="date"
+                                            name="animal[birth_date]"
+                                            className={fieldClass}
+                                        />
+                                        <InputError
+                                            message={
+                                                errors['animal.birth_date']
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="grid gap-2">
                                         <FieldLabel htmlFor="animal_color">
                                             Color
                                         </FieldLabel>
