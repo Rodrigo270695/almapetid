@@ -127,47 +127,61 @@ class CertificatePdfService
         imagefilledrectangle($img, 12, 40, self::W - 12, 42, $line);
         imagefilledrectangle($img, (int) (self::W * 0.72), 40, self::W - 12, 42, imagecolorallocate($img, 245, 158, 11));
 
-        // Foto
+        // Foto + QR + código público debajo
         $photoX = 14;
-        $photoY = 50;
-        $photoW = 68;
-        $photoH = 82;
+        $photoY = 48;
+        $photoW = 66;
+        $photoH = 72;
         $this->drawPhotoBox($img, $photoX, $photoY, $photoW, $photoH, $animal?->photo_path);
 
-        // QR debajo de la foto
-        $qrBin = $this->qrPngBinary($profileUrl, 52);
+        $qrY = $photoY + $photoH + 3;
+        $qrBin = $this->qrPngBinary($profileUrl, 48);
         if ($qrBin !== null) {
             $qr = @imagecreatefromstring($qrBin);
             if ($qr !== false) {
-                $qw = 48;
-                $qh = 48;
-                imagecopyresampled($img, $qr, $photoX + 10, $photoY + $photoH + 4, 0, 0, $qw, $qh, imagesx($qr), imagesy($qr));
+                $qw = 44;
+                $qh = 44;
+                imagecopyresampled($img, $qr, $photoX + 11, $qrY, 0, 0, $qw, $qh, imagesx($qr), imagesy($qr));
                 imagedestroy($qr);
             }
         }
 
         if ($font) {
-            imagettftext($img, 5.5, 0, $photoX + 8, $photoY + $photoH + 60, $muted, $font, (string) $chip->public_code);
+            $pub = (string) $chip->public_code;
+            $bbox = imagettfbbox(5.5, 0, $font, $pub);
+            $tw = abs(($bbox[2] ?? 0) - ($bbox[0] ?? 0));
+            imagettftext($img, 5.5, 0, $photoX + (int) (($photoW - $tw) / 2), $qrY + 54, $muted, $font, $pub);
         }
 
         // Datos
-        $dx = 96;
-        $dy = 52;
+        $dx = 94;
+        $dy = 50;
         $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy, 'Apellido del titular', mb_strtoupper((string) ($owner?->lastname ?: '—')));
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy + 28, 'Nombre de la mascota', mb_strtoupper((string) ($animal?->name ?? '—')));
+        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy + 26, 'Nombre de la mascota', mb_strtoupper((string) ($animal?->name ?? '—')));
 
-        // Fila sexo / nac / nacimiento
-        $rowY = $dy + 58;
+        // Fila sexo / nac / nacimiento — bandera a la derecha de PER
+        $rowY = $dy + 54;
         $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY, 'Sexo', $this->sexShort($animal?->sex), 7.5);
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx + 48, $rowY, 'Nacionalidad', $this->nationalityCode($chip->country_code), 7.5);
-        $this->drawMiniFlag($img, $dx + 48, $rowY + 20);
+
+        $natX = $dx + 46;
+        $natCode = $this->nationalityCode($chip->country_code);
+        if ($font) {
+            imagettftext($img, 5.5, 0, $natX, $rowY, $sky, $font, 'NACIONALIDAD');
+            imagettftext($img, 7.5, 0, $natX, $rowY + 14, $ink, $fontBold ?: $font, $natCode);
+            $natBox = imagettfbbox(7.5, 0, $fontBold ?: $font, $natCode);
+            $natW = abs(($natBox[2] ?? 0) - ($natBox[0] ?? 0));
+            $this->drawMiniFlag($img, $natX + $natW + 5, $rowY + 6);
+        } else {
+            $this->field($img, $font, $fontBold, $sky, $ink, $natX, $rowY, 'Nacionalidad', $natCode, 7.5);
+        }
+
         $this->field(
             $img,
             $font,
             $fontBold,
             $sky,
             $ink,
-            $dx + 120,
+            $dx + 118,
             $rowY,
             'Fecha de nacimiento',
             $animal?->birth_date?->format('d  m  Y') ?? '—',
@@ -181,23 +195,27 @@ class CertificatePdfService
             $sky,
             $ink,
             $dx,
-            $rowY + 32,
+            $rowY + 30,
             'Raza / especie',
             mb_strtoupper((string) ($animal?->breed ?: ($animal?->species ?? '—'))),
         );
 
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY + 58, 'Fecha de emisión', $issuedAt->format('d  m  Y'), 7.5);
-        $this->field($img, $font, $fontBold, $sky, $red, $dx + 110, $rowY + 58, 'Fecha de caducidad', $expiresAt->format('d  m  Y'), 7.5);
+        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY + 54, 'Fecha de emisión', $issuedAt->format('d  m  Y'), 7.5);
+        $this->field($img, $font, $fontBold, $sky, $red, $dx + 108, $rowY + 54, 'Fecha de caducidad', $expiresAt->format('d  m  Y'), 7.5);
 
-        // Footer
-        imagefilledrectangle($img, 12, self::H - 18, self::W - 12, self::H - 17, imagecolorallocate($img, 186, 230, 253));
+        // Footer más arriba (legible, sin cortar el nombre de la clínica)
+        $clinic = (string) ($org?->name ?? 'AlmaPet ID');
+        if (mb_strlen($clinic) > 36) {
+            $clinic = mb_substr($clinic, 0, 34).'…';
+        }
+        imagefilledrectangle($img, 12, self::H - 26, self::W - 10, self::H - 25, imagecolorallocate($img, 186, 230, 253));
         if ($font) {
             $foot = sprintf(
                 'Microchip %s  ·  Vigencia 3 años  ·  %s',
                 (string) $chip->microchip,
-                (string) ($org?->name ?? 'AlmaPet ID'),
+                $clinic,
             );
-            imagettftext($img, 5, 0, 12, self::H - 7, $muted, $font, $foot);
+            imagettftext($img, 5.2, 0, 12, self::H - 12, $muted, $font, $foot);
         }
 
         // Franja lateral ámbar (detalle de seguridad)
