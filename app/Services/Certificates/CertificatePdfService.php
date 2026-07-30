@@ -161,8 +161,13 @@ class CertificatePdfService
         $rightEdge = self::W - 10;
         $colW = $rightEdge - $dx;
         $col1 = $dx;
-        $col2 = $dx + 72;
-        $col3 = $dx + 144;
+        $col2 = $dx + 68;   // esterilizado
+        $col3 = $dx + 148;  // nacionalidad
+        // Nacimiento vs raza: columnas bien separadas (la etiqueta de nacimiento es larga)
+        $birthX = $col1;
+        $breedX = 198;
+        $issueX = $col1;
+        $expiryX = 198;
 
         $titular = trim((string) (($owner?->name ?? '').' '.($owner?->lastname ?? '')));
         if ($titular === '') {
@@ -224,9 +229,9 @@ class CertificatePdfService
             $fontBold,
             $sky,
             $ink,
-            $col1,
+            $birthX,
             $row2,
-            'Fecha de nacimiento',
+            'Nacimiento',
             $animal?->birth_date?->format('d  m  Y') ?? '—',
             7.0,
         );
@@ -234,12 +239,12 @@ class CertificatePdfService
         $breed = mb_strtoupper((string) ($animal?->breed ?: ($animal?->species ?? '—')));
         $breedFace = $fontBold ?: $font;
         if ($font && $breedFace) {
-            $breed = $this->truncateToWidth($breed, $breedFace, 7.0, $rightEdge - $col2 - 2);
+            $breed = $this->truncateToWidth($breed, $breedFace, 7.0, $rightEdge - $breedX - 2);
         }
-        $this->field($img, $font, $fontBold, $sky, $ink, $col2, $row2, 'Raza / especie', $breed, 7.0);
+        $this->field($img, $font, $fontBold, $sky, $ink, $breedX, $row2, 'Raza / especie', $breed, 7.0);
 
-        $this->field($img, $font, $fontBold, $sky, $ink, $col1, $row3, 'Fecha de emisión', $issuedAt->format('d  m  Y'), 7.0);
-        $this->field($img, $font, $fontBold, $sky, $red, $col2, $row3, 'Fecha de caducidad', $expiresAt->format('d  m  Y'), 7.0);
+        $this->field($img, $font, $fontBold, $sky, $ink, $issueX, $row3, 'Emisión', $issuedAt->format('d  m  Y'), 7.0);
+        $this->field($img, $font, $fontBold, $sky, $red, $expiryX, $row3, 'Caducidad', $expiresAt->format('d  m  Y'), 7.0);
 
         // Pie (zona reservada)
         $clinic = (string) ($org?->name ?? 'AlmaPet ID');
