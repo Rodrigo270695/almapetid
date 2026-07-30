@@ -61,16 +61,18 @@ class HandleInertiaRequests extends Middleware
                     'info' => $session->get('info'),
                     'warning' => $session->get('warning'),
                     'catalog_created' => $session->get('catalog_created'),
+                    'whatsapp_url' => $session->get('whatsapp_url'),
                 ];
 
                 $hasMessage = collect($payload)
-                    ->except('catalog_created')
+                    ->except(['catalog_created', 'whatsapp_url'])
                     ->filter(fn ($v) => is_string($v) && $v !== '')
                     ->isNotEmpty();
 
                 $hasCatalog = is_array($payload['catalog_created']);
+                $hasWhatsapp = is_string($payload['whatsapp_url']) && $payload['whatsapp_url'] !== '';
 
-                if (! $hasMessage && ! $hasCatalog) {
+                if (! $hasMessage && ! $hasCatalog && ! $hasWhatsapp) {
                     return null;
                 }
 

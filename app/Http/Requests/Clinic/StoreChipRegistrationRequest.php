@@ -51,6 +51,10 @@ class StoreChipRegistrationRequest extends FormRequest
             'chip' => array_merge((array) $this->input('chip', []), [
                 'microchip' => $microchip,
             ]),
+            'include_physical' => filter_var(
+                $this->input('include_physical', false),
+                FILTER_VALIDATE_BOOLEAN,
+            ),
         ]);
     }
 
@@ -93,6 +97,9 @@ class StoreChipRegistrationRequest extends FormRequest
             'chip.microchip' => ['required', 'string', 'regex:/^[0-9]{15}$/', 'unique:chip_registrations,microchip'],
             'chip.implant_date' => ['nullable', 'date'],
             'chip.implant_site' => ['nullable', 'string', 'max:80'],
+
+            'payment_mode' => ['required', 'string', Rule::in(['clinic_now', 'owner_whatsapp'])],
+            'include_physical' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -108,6 +115,8 @@ class StoreChipRegistrationRequest extends FormRequest
             'animal.breed_id' => 'raza',
             'animal.is_sterilized' => 'esterilización',
             'chip.microchip' => 'microchip',
+            'payment_mode' => 'modo de pago',
+            'include_physical' => 'carnet físico',
         ];
     }
 

@@ -53,6 +53,12 @@ class CheckoutCulqiController extends Controller
 
         if ($payment->status === RegistrationPayment::STATUS_PAID) {
             if ($payment->chip_registration_id) {
+                if ($user->isClinicUser()) {
+                    return redirect()
+                        ->route('clinic.registrations.index')
+                        ->with('success', 'Este pago ya está confirmado.');
+                }
+
                 $animalId = $payment->chipRegistration?->animal_id
                     ?? $payment->load('chipRegistration')->chipRegistration?->animal_id;
 
@@ -186,11 +192,17 @@ class CheckoutCulqiController extends Controller
 
         $payments->markPaid($payment, $chargeId, $charge);
 
-        // Activación VetSaaS: el pago ya está vinculado al chip pending.
+        // Activación VetSaaS / clínica externa: el pago ya está vinculado al chip pending.
         if ($payment->chip_registration_id) {
             $payment = $payment->fresh(['chipRegistration']) ?? $payment;
             app(\App\Services\Integrations\HandoffRegistrationService::class)
                 ->activateAfterPayment($payment);
+
+            if ($user->isClinicUser()) {
+                return redirect()
+                    ->route('clinic.registrations.index')
+                    ->with('success', 'Pago confirmado. El carnet digital quedó activado.');
+            }
 
             $animalId = $payment->chipRegistration?->animal_id;
 

@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\Owner;
 use App\Models\Plan;
 use App\Models\RegistrationPayment;
+use App\Support\AnimalSex;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -114,7 +115,10 @@ final class HandoffRegistrationService
                 'name' => (string) ($animalPayload['name'] ?? 'Mascota'),
                 'species' => (string) ($animalPayload['species'] ?? 'otro'),
                 'breed' => $animalPayload['breed'] ?? null,
-                'sex' => $this->mapSex($animalPayload['sex'] ?? null),
+                'sex' => AnimalSex::normalize($animalPayload['sex'] ?? null),
+                'is_sterilized' => array_key_exists('is_sterilized', $animalPayload)
+                    ? filter_var($animalPayload['is_sterilized'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+                    : null,
                 'color' => $animalPayload['color'] ?? null,
                 'birth_date' => $animalPayload['birth_date'] ?? null,
                 'notes' => $animalPayload['notes'] ?? null,
@@ -419,18 +423,6 @@ final class HandoffRegistrationService
             'ce', 'carné', 'carne', 'foreign_id', 'extranjeria' => DocumentType::ForeignId->value,
             'ruc', 'national_id' => DocumentType::NationalId->value,
             default => DocumentType::Other->value,
-        };
-    }
-
-    private function mapSex(mixed $raw): ?string
-    {
-        $value = strtoupper(trim((string) $raw));
-
-        return match ($value) {
-            'M', 'MACHO', 'MALE' => 'M',
-            'H', 'F', 'HEMBRA', 'FEMALE' => 'H',
-            'U', 'UNKNOWN', 'I' => 'U',
-            default => null,
         };
     }
 

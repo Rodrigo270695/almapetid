@@ -3,6 +3,7 @@
 namespace App\Services\Certificates;
 
 use App\Models\ChipRegistration;
+use App\Support\AnimalSex;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\QrCode;
@@ -161,14 +162,38 @@ class CertificatePdfService
         if ($titular === '') {
             $titular = '—';
         }
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy, 'Titular', mb_strtoupper($titular));
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy + 26, 'Nombre de la mascota', mb_strtoupper((string) ($animal?->name ?? '—')));
+        $titularY = $this->fieldFit(
+            $img,
+            $font,
+            $fontBold,
+            $sky,
+            $ink,
+            $dx,
+            $dy,
+            'Titular',
+            mb_strtoupper($titular),
+            self::W - $dx - 12,
+        );
+        $petY = $titularY + 22;
+        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $petY, 'Nombre de la mascota', mb_strtoupper((string) ($animal?->name ?? '—')));
 
-        // Fila sexo / nac / nacimiento — bandera a la derecha de PER
-        $rowY = $dy + 54;
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY, 'Sexo', $this->sexShort($animal?->sex), 7.5);
+        // Fila sexo / esterilizado / nacimiento — bandera a la derecha de PER (si cabe)
+        $rowY = $petY + 28;
+        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY, 'Sexo', AnimalSex::short($animal?->sex), 7.5);
+        $this->field(
+            $img,
+            $font,
+            $fontBold,
+            $sky,
+            $ink,
+            $dx + 42,
+            $rowY,
+            'Esterilizado',
+            AnimalSex::sterilizedLabel($animal?->is_sterilized),
+            7.5,
+        );
 
-        $natX = $dx + 46;
+        $natX = $dx + 108;
         $natCode = $this->nationalityCode($chip->country_code);
         if ($font) {
             imagettftext($img, 5.5, 0, $natX, $rowY, $sky, $font, 'NACIONALIDAD');
@@ -186,8 +211,8 @@ class CertificatePdfService
             $fontBold,
             $sky,
             $ink,
-            $dx + 118,
-            $rowY,
+            $dx,
+            $rowY + 28,
             'Fecha de nacimiento',
             $animal?->birth_date?->format('d  m  Y') ?? '—',
             7.5,
@@ -199,14 +224,15 @@ class CertificatePdfService
             $fontBold,
             $sky,
             $ink,
-            $dx,
-            $rowY + 30,
+            $dx + 118,
+            $rowY + 28,
             'Raza / especie',
             mb_strtoupper((string) ($animal?->breed ?: ($animal?->species ?? '—'))),
+            7.5,
         );
 
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY + 54, 'Fecha de emisión', $issuedAt->format('d  m  Y'), 7.5);
-        $this->field($img, $font, $fontBold, $sky, $red, $dx + 108, $rowY + 54, 'Fecha de caducidad', $expiresAt->format('d  m  Y'), 7.5);
+        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY + 52, 'Fecha de emisión', $issuedAt->format('d  m  Y'), 7.5);
+        $this->field($img, $font, $fontBold, $sky, $red, $dx + 108, $rowY + 52, 'Fecha de caducidad', $expiresAt->format('d  m  Y'), 7.5);
 
         // Footer más arriba (legible, sin cortar el nombre de la clínica)
         $clinic = (string) ($org?->name ?? 'AlmaPet ID');
@@ -622,6 +648,89 @@ class CertificatePdfService
         imagettftext($img, $valueSize, 0, $x, $y + 14, $valueColor, $fontBold ?: $font, $value);
     }
 
+    /**
+     * Valor largo: reduce tamaño y envuelve hasta 2 líneas.
+     *
+     * @return int Y baseline de la última línea del valor
+     */
+    private function fieldFit(
+        \GdImage $img,
+        ?string $font,
+        ?string $fontBold,
+        int $labelColor,
+        int $valueColor,
+        int $x,
+        int $y,
+        string $label,
+        string $value,
+        int $maxWidth,
+    ): int {
+        if (! $font) {
+            $this->field($img, $font, $fontBold, $labelColor, $valueColor, $x, $y, $label, $value, 7.0);
+
+            return $y + 14;
+        }
+
+        imagettftext($img, 5.5, 0, $x, $y, $labelColor, $font, mb_strtoupper($label));
+
+        $size = 8.5;
+        $face = $fontBold ?: $font;
+        $len = mb_strlen($value);
+        if ($len > 42) {
+            $size = 5.8;
+        } elseif ($len > 32) {
+            $size = 6.5;
+        } elseif ($len > 24) {
+            $size = 7.2;
+        }
+
+        $lines = $this->wrapTextToWidth($value, $face, $size, $maxWidth);
+        if (count($lines) > 2) {
+            $lines = array_slice($lines, 0, 2);
+            $lines[1] = mb_substr($lines[1], 0, max(1, mb_strlen($lines[1]) - 1)).'…';
+        }
+
+        $lineY = $y + 13;
+        $step = (int) round($size + 3);
+        foreach ($lines as $i => $line) {
+            imagettftext($img, $size, 0, $x, $lineY + ($i * $step), $valueColor, $face, $line);
+        }
+
+        return $lineY + (max(count($lines) - 1, 0) * $step);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function wrapTextToWidth(string $text, string $font, float $size, int $maxWidth): array
+    {
+        $words = preg_split('/\s+/u', trim($text)) ?: [];
+        if ($words === []) {
+            return ['—'];
+        }
+
+        $lines = [];
+        $current = '';
+        foreach ($words as $word) {
+            $trial = $current === '' ? $word : $current.' '.$word;
+            $box = imagettfbbox($size, 0, $font, $trial);
+            $w = abs(($box[2] ?? 0) - ($box[0] ?? 0));
+            if ($w <= $maxWidth) {
+                $current = $trial;
+                continue;
+            }
+            if ($current !== '') {
+                $lines[] = $current;
+            }
+            $current = $word;
+        }
+        if ($current !== '') {
+            $lines[] = $current;
+        }
+
+        return $lines !== [] ? $lines : ['—'];
+    }
+
     private function drawPhotoBox(\GdImage $img, int $x, int $y, int $w, int $h, ?string $photoPath): void
     {
         $border = imagecolorallocate($img, 71, 85, 105);
@@ -719,14 +828,5 @@ class CertificatePdfService
         $code = strtoupper(trim((string) $countryCode));
 
         return ($code === '' || $code === 'PE') ? 'PER' : substr($code, 0, 3);
-    }
-
-    private function sexShort(?string $sex): string
-    {
-        return match (strtoupper(trim((string) $sex))) {
-            'M' => 'M',
-            'H', 'F' => 'H',
-            default => '—',
-        };
     }
 }

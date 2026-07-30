@@ -7,6 +7,7 @@ use App\Models\Organization;
 use App\Models\Plan;
 use App\Models\RegistrationPayment;
 use App\Models\User;
+use App\Support\RegistrationPricing;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -62,9 +63,10 @@ final class RegistrationPaymentService
             ]);
         }
 
-        $pricing = $plan->pricingFor($channel);
+        $pricing = RegistrationPricing::forActivation($registration, $plan);
+
         $physical = $includePhysicalCarnet
-            ? (float) config('almapet.physical_carnet_amount', 30)
+            ? (float) ($pricing['physical_amount'] ?? config('almapet.physical_carnet_amount', 30))
             : 0.0;
         $amount = round((float) $pricing['amount'] + $physical, 2);
         $platform = round((float) $pricing['platform_amount'] + $physical, 2);

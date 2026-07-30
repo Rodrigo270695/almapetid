@@ -11,6 +11,7 @@ use App\Http\Controllers\Clinic\ClinicDashboardController;
 use App\Http\Controllers\Clinic\ClinicOrganizationController;
 use App\Http\Controllers\Clinic\ClinicRegisterController;
 use App\Http\Controllers\Clinic\ClinicRegistrationIndexController;
+use App\Http\Controllers\Clinic\ClinicRegistrationPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Clinic\ClinicLostFoundController;
 use App\Http\Controllers\GeoController;
@@ -248,6 +249,12 @@ Route::middleware(['auth', 'verified', 'document.complete', 'clinic'])->prefix('
     Route::post('registrations/{registration}/recover', [ClinicLostFoundController::class, 'recover'])
         ->middleware('permission:lost.recover')
         ->name('registrations.recover');
+    Route::post('registrations/{registration}/pay', [ClinicRegistrationPaymentController::class, 'pay'])
+        ->middleware('permission:registrations.create')
+        ->name('registrations.pay');
+    Route::post('registrations/{registration}/resend-whatsapp', [ClinicRegistrationPaymentController::class, 'resendWhatsApp'])
+        ->middleware('permission:registrations.create')
+        ->name('registrations.resend-whatsapp');
 
     Route::middleware('permission:organizations.update')->group(function () {
         Route::get('settings', [ClinicOrganizationController::class, 'edit'])

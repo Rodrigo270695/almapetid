@@ -20,9 +20,9 @@ class PlansSeeder extends Seeder
                 // VetSaaS: mismo precio de carnet digital (activa el dueño)
                 'vetsaas_amount' => 25.00,
                 'vetsaas_clinic_commission' => 0.00,
-                // Partner externo: dueño paga 25 → AlmaPet 20 + clínica 5
-                'partner_amount' => 25.00,
-                'partner_clinic_commission' => 5.00,
+                // Partner externo: fee digital S/ 20
+                'partner_amount' => 20.00,
+                'partner_clinic_commission' => 0.00,
                 'currency' => 'PEN',
                 'active' => true,
                 'is_default' => true,

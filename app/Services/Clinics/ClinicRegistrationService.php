@@ -7,6 +7,7 @@ use App\Models\ChipRegistration;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\Owners\OwnerClaimService;
+use App\Support\AnimalSex;
 use App\Support\Auth\Roles;
 use App\Support\Catalog\SpeciesCatalog;
 use App\Support\Geo\GeoDefaults;
@@ -145,7 +146,7 @@ final class ClinicRegistrationService
                 'name' => $data['animal']['name'],
                 'species' => $speciesName,
                 'breed' => $breedName,
-                'sex' => $data['animal']['sex'] ?? null,
+                'sex' => AnimalSex::normalize($data['animal']['sex'] ?? null),
                 'is_sterilized' => array_key_exists('is_sterilized', $data['animal'])
                     ? $data['animal']['is_sterilized']
                     : null,
@@ -160,8 +161,8 @@ final class ClinicRegistrationService
                 'animal_id' => $animal->id,
                 'organization_id' => $organization->id,
                 'registered_by_user_id' => $staff->id,
-                'status' => 'active',
-                'registered_at' => now(),
+                'status' => ChipRegistration::STATUS_PENDING_PAYMENT,
+                'registered_at' => null,
                 'implant_date' => $data['chip']['implant_date'] ?? null,
                 'implant_site' => $data['chip']['implant_site'] ?? null,
                 'certificate_code' => ChipRegistration::makeCertificateCode(),

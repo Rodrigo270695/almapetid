@@ -1,6 +1,6 @@
-import { Head, Link, router, setLayoutProps, useForm } from '@inertiajs/react';
-import { Loader2, Plus, Search } from 'lucide-react';
-import { useState } from 'react';
+import { Head, Link, router, setLayoutProps, useForm, usePage } from '@inertiajs/react';
+import { Loader2, MessageCircle, Plus, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     GeoCascadeFields,
@@ -30,7 +30,9 @@ import {
     create as createRegistration,
     index as registrationsIndex,
     lost as clinicLost,
+    pay as clinicPay,
     recover as clinicRecover,
+    resendWhatsapp as clinicResendWhatsapp,
 } from '@/routes/clinic/registrations';
 
 type Row = {
@@ -40,6 +42,8 @@ type Row = {
     certificate_code: string | null;
     status: string;
     registered_at: string | null;
+    activate_url: string | null;
+    whatsapp_url: string | null;
     animal: {
         id: number | null;
         name: string | null;
@@ -57,10 +61,20 @@ type Props = {
     organization: { id: number; name: string };
     registrations: Paginated<Row>;
     filters: { search: string };
+    pricing?: { digital_amount: number; physical_amount: number };
+    culqi_ready?: boolean;
     can_declare_lost?: boolean;
     can_recover?: boolean;
     departamentos?: GeoOption[];
+    flash_whatsapp_url?: string | null;
 };
+
+function statusLabel(status: string): string {
+    if (status === 'pending_payment') return 'Pendiente pago';
+    if (status === 'lost') return 'Perdido';
+    if (status === 'active') return 'Activo';
+    return status;
+}
 
 function toLocalDatetimeValue(): string {
     return nowDatetimeLocalPeru();
@@ -70,11 +84,15 @@ export default function ClinicRegistrationsIndex({
     organization,
     registrations,
     filters,
+    pricing = { digital_amount: 20, physical_amount: 30 },
+    culqi_ready = false,
     can_declare_lost = false,
     can_recover = false,
     departamentos = [],
+    flash_whatsapp_url = null,
 }: Props) {
     const { t } = useTranslation('lost');
+    const page = usePage();
     const [search, setSearch] = useState(filters.search ?? '');
     const [declareRow, setDeclareRow] = useState<Row | null>(null);
     const [geo, setGeo] = useState<GeoCascadeValue>({
@@ -90,6 +108,17 @@ export default function ClinicRegistrationsIndex({
         distrito_id: null as number | null,
         public_notes: '',
     });
+
+    useEffect(() => {
+        const flash = page.props.flash as
+            | { whatsapp_url?: string | null }
+            | null
+            | undefined;
+        const url = flash_whatsapp_url || flash?.whatsapp_url || null;
+        if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    }, [flash_whatsapp_url, page.props.flash]);
 
     setLayoutProps({
         breadcrumbs: [
@@ -151,6 +180,21 @@ export default function ClinicRegistrationsIndex({
         router.post(clinicRecover(row.id).url, {}, { preserveScroll: true });
     };
 
+    const onPay = (row: Row) => {
+        router.post(clinicPay(row.id).url, {}, { preserveScroll: true });
+    };
+
+    const onResendWhatsApp = (row: Row) => {
+        if (row.whatsapp_url) {
+            window.open(row.whatsapp_url, '_blank', 'noopener,noreferrer');
+        }
+        router.post(
+            clinicResendWhatsapp(row.id).url,
+            {},
+            { preserveScroll: true },
+        );
+    };
+
     return (
         <>
             <Head title="Registros de mascotas" />
@@ -161,7 +205,8 @@ export default function ClinicRegistrationsIndex({
                             Registros
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Mascotas y chips inscritos por {organization.name}
+                            Mascotas y chips inscritos por {organization.name}.
+                            Fee digital S/ {pricing.digital_amount}.
                         </p>
                     </div>
                     <Button
@@ -224,7 +269,9 @@ export default function ClinicRegistrationsIndex({
                                             </p>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <p>{row.owner.name}</p>
+                                            <p className="max-w-[14rem] break-words">
+                                                {row.owner.name}
+                                            </p>
                                             <p className="text-xs text-muted-foreground">
                                                 Doc. {row.owner.document_number}
                                                 {row.owner.phone
@@ -244,16 +291,53 @@ export default function ClinicRegistrationsIndex({
                                                     'inline-flex rounded-md px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide',
                                                     row.status === 'lost'
                                                         ? 'bg-red-500/15 text-red-700 dark:text-red-300'
-                                                        : 'bg-brand-sky/10 text-brand-sky',
+                                                        : row.status ===
+                                                            'pending_payment'
+                                                          ? 'bg-amber-500/15 text-amber-800 dark:text-amber-200'
+                                                          : 'bg-brand-sky/10 text-brand-sky',
                                                 )}
                                             >
-                                                {row.status === 'lost'
-                                                    ? t('status.lost')
-                                                    : row.status}
+                                                {statusLabel(row.status)}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex flex-wrap gap-1.5">
+                                                {row.status ===
+                                                'pending_payment' ? (
+                                                    <>
+                                                        {row.whatsapp_url ? (
+                                                            <Button
+                                                                type="button"
+                                                                size="sm"
+                                                                variant="outline"
+                                                                className="h-8 cursor-pointer gap-1 border-emerald-500/40 text-emerald-700 hover:bg-emerald-500/10"
+                                                                onClick={() =>
+                                                                    onResendWhatsApp(
+                                                                        row,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <MessageCircle className="size-3.5" />
+                                                                WhatsApp
+                                                            </Button>
+                                                        ) : null}
+                                                        {culqi_ready ? (
+                                                            <Button
+                                                                type="button"
+                                                                size="sm"
+                                                                className="h-8 cursor-pointer bg-brand-sky text-white hover:bg-brand-sky/90"
+                                                                onClick={() =>
+                                                                    onPay(row)
+                                                                }
+                                                            >
+                                                                Pagar S/{' '}
+                                                                {
+                                                                    pricing.digital_amount
+                                                                }
+                                                            </Button>
+                                                        ) : null}
+                                                    </>
+                                                ) : null}
                                                 {can_declare_lost &&
                                                 row.status === 'active' ? (
                                                     <Button

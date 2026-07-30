@@ -7,6 +7,7 @@ use App\Models\ChipRegistration;
 use App\Models\Plan;
 use App\Services\Owners\OwnerClaimService;
 use App\Services\Payments\RegistrationPaymentService;
+use App\Support\RegistrationPricing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -72,8 +73,12 @@ final class ActivateRegistrationController extends Controller
             ->orderByDesc('is_default')
             ->first();
 
-        $digital = $plan?->pricingFor(Plan::CHANNEL_VETSAAS)['amount'] ?? 25.0;
-        $physical = (float) config('almapet.physical_carnet_amount', 30);
+        $pricing = $plan !== null
+            ? RegistrationPricing::forActivation($registration, $plan)
+            : [
+                'amount' => (float) config('almapet.clinic_external_digital_amount', 20),
+                'physical_amount' => (float) config('almapet.physical_carnet_amount', 30),
+            ];
 
         return Inertia::render('public/activate/show', [
             'public_code' => $registration->public_code,
@@ -86,8 +91,8 @@ final class ActivateRegistrationController extends Controller
             'microchip' => $registration->microchip,
             'clinic_name' => $registration->organization?->name,
             'pricing' => [
-                'digital_amount' => (float) $digital,
-                'physical_amount' => $physical,
+                'digital_amount' => (float) $pricing['amount'],
+                'physical_amount' => (float) $pricing['physical_amount'],
                 'currency' => 'PEN',
             ],
             'support_phone' => (string) config('almapet.support_phone_display', '976 809 804'),
@@ -142,7 +147,7 @@ final class ActivateRegistrationController extends Controller
             $plan,
             $registration,
             (bool) ($data['include_physical'] ?? false),
-            Plan::CHANNEL_VETSAAS,
+            RegistrationPricing::channelFor($registration),
         );
 
         return redirect()->route('checkout.culqi.show', $payment);

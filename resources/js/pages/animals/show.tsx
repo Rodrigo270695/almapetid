@@ -67,6 +67,7 @@ type Props = {
         species: string;
         breed: string | null;
         sex: string | null;
+        is_sterilized: boolean | null;
         color: string | null;
         birth_date: string | null;
         notes: string | null;
@@ -377,11 +378,29 @@ export default function AnimalShow({
                                 <Field
                                     label={t('animals:fields.sex')}
                                     value={
-                                        animal.sex === 'male'
+                                        animal.sex === 'male' ||
+                                        animal.sex === 'M' ||
+                                        animal.sex === 'macho'
                                             ? t('animals:sex.male')
-                                            : animal.sex === 'female'
+                                            : animal.sex === 'female' ||
+                                                animal.sex === 'H' ||
+                                                animal.sex === 'F' ||
+                                                animal.sex === 'hembra'
                                               ? t('animals:sex.female')
                                               : animal.sex
+                                    }
+                                />
+                                <Field
+                                    label={t(
+                                        'animals:fields.is_sterilized',
+                                        'Esterilizada',
+                                    )}
+                                    value={
+                                        animal.is_sterilized === true
+                                            ? t('animals:sterilized.yes', 'Sí')
+                                            : animal.is_sterilized === false
+                                              ? t('animals:sterilized.no', 'No')
+                                              : '—'
                                     }
                                 />
                                 <Field

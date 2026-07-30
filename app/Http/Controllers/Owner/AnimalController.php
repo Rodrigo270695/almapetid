@@ -379,6 +379,7 @@ class AnimalController extends Controller
             'species' => $animal->species,
             'breed' => $animal->breed,
             'sex' => $animal->sex,
+            'is_sterilized' => $animal->is_sterilized,
             'color' => $animal->color,
             'photo_url' => $animal->photoUrl(),
             'chip' => $animal->chipRegistration ? [
@@ -405,6 +406,7 @@ class AnimalController extends Controller
             'species' => $animal->species,
             'breed' => $animal->breed,
             'sex' => $animal->sex,
+            'is_sterilized' => $animal->is_sterilized,
             'color' => $animal->color,
             'birth_date' => $animal->birth_date?->toDateString(),
             'notes' => $animal->notes,

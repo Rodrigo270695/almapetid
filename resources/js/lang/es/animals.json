@@ -66,11 +66,16 @@
         "male": "Macho",
         "female": "Hembra"
     },
+    "sterilized": {
+        "yes": "Sí",
+        "no": "No"
+    },
     "fields": {
         "name": "Nombre",
         "species": "Especie",
         "breed": "Raza",
         "sex": "Sexo",
+        "is_sterilized": "Esterilizada",
         "color": "Color",
         "birth_date": "Fecha de nacimiento",
         "notes": "Notas",

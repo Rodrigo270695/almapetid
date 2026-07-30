@@ -1,5 +1,5 @@
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
-import { Cpu, PawPrint, UserRound } from 'lucide-react';
+import { Cpu, CreditCard, PawPrint, UserRound } from 'lucide-react';
 import { useMemo, useState, type ReactNode } from 'react';
 import DocumentIdentityFields from '@/components/auth/document-identity-fields';
 import InputError from '@/components/input-error';
@@ -29,6 +29,13 @@ type Props = {
         ruc: string;
     };
     species_catalog: SpeciesOption[];
+    pricing: {
+        digital_amount: number;
+        physical_amount: number;
+        currency: string;
+    };
+    culqi_ready: boolean;
+    support_phone: string;
 };
 
 type OwnerState = {
@@ -101,6 +108,8 @@ function SectionCard({
 export default function CreateChipRegistration({
     organization,
     species_catalog,
+    pricing,
+    culqi_ready,
 }: Props) {
     const [owner, setOwner] = useState<OwnerState>({
         document_type: 'dni',
@@ -114,6 +123,10 @@ export default function CreateChipRegistration({
     const [sex, setSex] = useState<string | null>(null);
     const [sterilized, setSterilized] = useState<string | null>(null);
     const [microchip, setMicrochip] = useState('');
+    const [paymentMode, setPaymentMode] = useState<'clinic_now' | 'owner_whatsapp'>(
+        culqi_ready ? 'clinic_now' : 'owner_whatsapp',
+    );
+    const [includePhysical, setIncludePhysical] = useState(false);
 
     setLayoutProps({
         breadcrumbs: [
@@ -505,6 +518,109 @@ export default function CreateChipRegistration({
                                 </div>
                             </SectionCard>
 
+                            <SectionCard
+                                icon={<CreditCard className="size-4" />}
+                                title="Pago y activación"
+                                hint={`Carnet digital S/ ${pricing.digital_amount}. Físico opcional +S/ ${pricing.physical_amount}.`}
+                            >
+                                <input
+                                    type="hidden"
+                                    name="payment_mode"
+                                    value={paymentMode}
+                                />
+                                <input
+                                    type="hidden"
+                                    name="include_physical"
+                                    value={includePhysical ? '1' : '0'}
+                                />
+
+                                <div className="grid gap-3">
+                                    <label
+                                        className={cn(
+                                            'flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors',
+                                            paymentMode === 'clinic_now'
+                                                ? 'border-brand-sky bg-brand-sky/5'
+                                                : 'border-border/70 hover:border-brand-sky/40',
+                                            !culqi_ready && 'opacity-50',
+                                        )}
+                                    >
+                                        <input
+                                            type="radio"
+                                            className="mt-1"
+                                            checked={paymentMode === 'clinic_now'}
+                                            disabled={!culqi_ready}
+                                            onChange={() =>
+                                                setPaymentMode('clinic_now')
+                                            }
+                                        />
+                                        <span className="min-w-0">
+                                            <span className="block text-sm font-semibold">
+                                                Pagar desde la clínica
+                                            </span>
+                                            <span className="mt-0.5 block text-xs text-muted-foreground">
+                                                Culqi ahora (S/{' '}
+                                                {pricing.digital_amount}
+                                                {includePhysical
+                                                    ? ` + S/ ${pricing.physical_amount}`
+                                                    : ''}
+                                                ). Activa el carnet al confirmar.
+                                            </span>
+                                        </span>
+                                    </label>
+
+                                    <label
+                                        className={cn(
+                                            'flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-colors',
+                                            paymentMode === 'owner_whatsapp'
+                                                ? 'border-brand-sky bg-brand-sky/5'
+                                                : 'border-border/70 hover:border-brand-sky/40',
+                                        )}
+                                    >
+                                        <input
+                                            type="radio"
+                                            className="mt-1"
+                                            checked={
+                                                paymentMode === 'owner_whatsapp'
+                                            }
+                                            onChange={() =>
+                                                setPaymentMode('owner_whatsapp')
+                                            }
+                                        />
+                                        <span className="min-w-0">
+                                            <span className="block text-sm font-semibold">
+                                                Que pague el propietario
+                                            </span>
+                                            <span className="mt-0.5 block text-xs text-muted-foreground">
+                                                Envía WhatsApp con link de
+                                                activación, precio y soporte.
+                                                Queda pendiente de pago.
+                                            </span>
+                                        </span>
+                                    </label>
+                                </div>
+
+                                {paymentMode === 'clinic_now' ? (
+                                    <label className="flex cursor-pointer items-center gap-2 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={includePhysical}
+                                            onChange={(e) =>
+                                                setIncludePhysical(
+                                                    e.target.checked,
+                                                )
+                                            }
+                                        />
+                                        Incluir carnet físico (+S/{' '}
+                                        {pricing.physical_amount})
+                                    </label>
+                                ) : null}
+
+                                <InputError message={errors.payment_mode} />
+                                <InputError
+                                    message={errors.include_physical}
+                                />
+                            </SectionCard>
+
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                                 <Button
                                     type="submit"
@@ -515,7 +631,9 @@ export default function CreateChipRegistration({
                                     disabled={processing}
                                 >
                                     {processing && <Spinner />}
-                                    Guardar registro
+                                    {paymentMode === 'clinic_now'
+                                        ? 'Registrar y pagar'
+                                        : 'Registrar y avisar por WhatsApp'}
                                 </Button>
                                 <Button
                                     type="button"
