@@ -29,6 +29,8 @@ type Props = {
     lookupUrl: string;
     errors?: Partial<Record<keyof OrgValues, string>>;
     tabIndexStart?: number;
+    /** Si false, no envía name= (el padre manda hidden). */
+    submitNames?: boolean;
 };
 
 type LookupBody = {
@@ -61,6 +63,7 @@ export default function OrganizationRucFields({
     lookupUrl,
     errors = {},
     tabIndexStart = 1,
+    submitNames = true,
 }: Props) {
     const { t } = useTranslation('auth');
     const [consultando, setConsultando] = useState(false);
@@ -156,10 +159,10 @@ export default function OrganizationRucFields({
                     <div className="relative min-w-0 flex-1">
                         <Input
                             id="ruc"
-                            name="ruc"
+                            name={submitNames ? 'ruc' : undefined}
                             inputMode="numeric"
                             autoComplete="off"
-                            required
+                            required={submitNames}
                             tabIndex={tabIndexStart}
                             value={values.ruc}
                             placeholder={t('clinic.ruc_placeholder')}
@@ -212,8 +215,8 @@ export default function OrganizationRucFields({
                 </Label>
                 <Input
                     id="organization_name"
-                    name="organization_name"
-                    required
+                    name={submitNames ? 'organization_name' : undefined}
+                    required={submitNames}
                     tabIndex={tabIndexStart + 2}
                     value={values.organization_name}
                     readOnly={lockedFromLookup}
@@ -233,7 +236,7 @@ export default function OrganizationRucFields({
                 <Label htmlFor="address">{t('clinic.address')}</Label>
                 <Input
                     id="address"
-                    name="address"
+                    name={submitNames ? 'address' : undefined}
                     tabIndex={tabIndexStart + 3}
                     value={values.address}
                     placeholder={t('clinic.address_placeholder')}

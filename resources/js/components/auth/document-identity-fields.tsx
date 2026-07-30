@@ -41,6 +41,8 @@ type Props = {
     tabIndexStart?: number;
     /** Prefijo para names anidados, p.ej. "owner" → owner[document_type] */
     namePrefix?: string;
+    /** Si false, no envía name= (el padre manda hidden). */
+    submitNames?: boolean;
 };
 
 type LookupBody = {
@@ -79,6 +81,7 @@ export default function DocumentIdentityFields({
     nameReadOnlyAfterLookup = true,
     tabIndexStart = 1,
     namePrefix,
+    submitNames = true,
 }: Props) {
     const { t } = useTranslation('auth');
     const [consultando, setConsultando] = useState(false);
@@ -89,8 +92,13 @@ export default function DocumentIdentityFields({
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
 
-    const fieldName = (key: string) =>
-        namePrefix ? `${namePrefix}[${key}]` : key;
+    const fieldName = (key: string) => {
+        if (!submitNames) {
+            return undefined;
+        }
+
+        return namePrefix ? `${namePrefix}[${key}]` : key;
+    };
 
     const isDni = values.document_type === 'dni';
     const docMax = isDni ? 8 : 64;
@@ -220,6 +228,7 @@ export default function DocumentIdentityFields({
                         type="hidden"
                         name={fieldName('document_type')}
                         value={values.document_type}
+                        disabled={!submitNames}
                     />
                     <Select
                         value={values.document_type}
@@ -265,7 +274,7 @@ export default function DocumentIdentityFields({
                                 name={fieldName('document_number')}
                                 value={values.document_number}
                                 onChange={(e) => onNumeroChange(e.target.value)}
-                                required
+                                required={submitNames}
                                 tabIndex={tabIndexStart + 1}
                                 inputMode={isDni ? 'numeric' : 'text'}
                                 autoComplete="off"
@@ -340,7 +349,7 @@ export default function DocumentIdentityFields({
                             setLockedFromLookup(false);
                             onChange({ name: e.target.value });
                         }}
-                        required
+                        required={submitNames}
                         tabIndex={tabIndexStart + 3}
                         autoComplete="given-name"
                         readOnly={lockedFromLookup}
@@ -363,7 +372,7 @@ export default function DocumentIdentityFields({
                             setLockedFromLookup(false);
                             onChange({ lastname: e.target.value });
                         }}
-                        required
+                        required={submitNames}
                         tabIndex={tabIndexStart + 4}
                         autoComplete="family-name"
                         readOnly={lockedFromLookup}

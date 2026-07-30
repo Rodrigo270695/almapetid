@@ -143,6 +143,40 @@ export default function ClinicRegister({
         passwordsMatch(password, passwordConfirmation) &&
         geo.distrito_id !== null;
 
+    const explainCannotSubmit = () => {
+        if (geo.distrito_id === null) {
+            toast.error(
+                t(
+                    'clinic.validation.location',
+                    'Selecciona departamento, provincia y distrito.',
+                ),
+            );
+            setStep(1);
+            return;
+        }
+        if (!email.trim()) {
+            toast.error(t('clinic.validation.email', 'Ingresa un correo válido.'));
+            return;
+        }
+        if (!isPasswordStrong(password)) {
+            toast.error(
+                t(
+                    'clinic.validation.password',
+                    'La contraseña aún no cumple todos los requisitos.',
+                ),
+            );
+            return;
+        }
+        if (!passwordsMatch(password, passwordConfirmation)) {
+            toast.error(
+                t(
+                    'clinic.validation.password_match',
+                    'Las contraseñas no coinciden.',
+                ),
+            );
+        }
+    };
+
     return (
         <>
             <Head title={t('clinic.head_title')} />
@@ -150,12 +184,29 @@ export default function ClinicRegister({
             <AuthWizardSteps steps={wizardSteps} current={step} />
 
             <Form
-                action={store.url()}
-                method="post"
+                {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
+                // Evita que el navegador bloquee el envío por inputs required ocultos
+                // de pasos anteriores sin mostrar ningún mensaje.
+                noValidate
                 className="flex flex-col gap-5"
                 onError={(formErrors) => {
+                    const first = Object.values(formErrors).find(
+                        (value): value is string =>
+                            typeof value === 'string' && value.length > 0,
+                    );
+                    if (first) {
+                        toast.error(first);
+                    } else {
+                        toast.error(
+                            t(
+                                'clinic.validation.failed',
+                                'No se pudo registrar. Revisa los datos e intenta de nuevo.',
+                            ),
+                        );
+                    }
+
                     if (
                         formErrors.ruc ||
                         formErrors.organization_name ||
@@ -201,6 +252,7 @@ export default function ClinicRegister({
                         errors={errors}
                         goNext={goNext}
                         canSubmit={canSubmit}
+                        onBlockedSubmit={explainCannotSubmit}
                     />
                 )}
             </Form>
@@ -231,6 +283,7 @@ type BodyProps = {
     errors: Record<string, string>;
     goNext: () => void;
     canSubmit: boolean;
+    onBlockedSubmit: () => void;
 };
 
 function ClinicFormBody({
@@ -256,6 +309,7 @@ function ClinicFormBody({
     errors,
     goNext,
     canSubmit,
+    onBlockedSubmit,
 }: BodyProps) {
     const { t } = useTranslation('auth');
 
@@ -286,6 +340,26 @@ function ClinicFormBody({
 
     return (
         <>
+            {/* Siempre en el POST: evita perder datos de pasos ocultos. */}
+            <input type="hidden" name="ruc" value={org.ruc} />
+            <input
+                type="hidden"
+                name="organization_name"
+                value={org.organization_name}
+            />
+            <input type="hidden" name="address" value={org.address} />
+            <input
+                type="hidden"
+                name="document_type"
+                value={identity.document_type}
+            />
+            <input
+                type="hidden"
+                name="document_number"
+                value={identity.document_number}
+            />
+            <input type="hidden" name="name" value={identity.name} />
+            <input type="hidden" name="lastname" value={identity.lastname} />
             <input
                 type="hidden"
                 name="departamento_id"
@@ -309,6 +383,7 @@ function ClinicFormBody({
                         setOrg((prev) => ({ ...prev, ...next }))
                     }
                     lookupUrl="/clinic/lookup-ruc"
+                    submitNames={false}
                     errors={{
                         ruc: errors.ruc,
                         organization_name: errors.organization_name,
@@ -342,6 +417,7 @@ function ClinicFormBody({
                         setIdentity((prev) => ({ ...prev, ...next }))
                     }
                     lookupUrl="/register/lookup-dni"
+                    submitNames={false}
                     errors={{
                         document_type: errors.document_type,
                         document_number: errors.document_number,
@@ -411,7 +487,13 @@ function ClinicFormBody({
                     <Button
                         type="submit"
                         className={authSubmitClassName}
-                        disabled={processing || !canSubmit}
+                        disabled={processing}
+                        onClick={(e) => {
+                            if (!canSubmit) {
+                                e.preventDefault();
+                                onBlockedSubmit();
+                            }
+                        }}
                     >
                         {processing && <Spinner />}
                         {t('clinic.submit')}
