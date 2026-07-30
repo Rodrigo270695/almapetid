@@ -62,10 +62,20 @@ Route::get('/buscar', PublicSearchController::class)
     ->middleware('throttle:30,1')
     ->name('public.search');
 
-Route::get('/certificado/{code}', CertificateController::class)
+Route::get('/certificado/{code}', [CertificateController::class, 'show'])
     ->middleware('throttle:20,1')
     ->where('code', '[A-Za-z0-9\\-]+')
     ->name('public.certificate');
+
+Route::get('/certificado/{code}/pdf', [CertificateController::class, 'pdf'])
+    ->middleware('throttle:30,1')
+    ->where('code', '[A-Za-z0-9\\-]+')
+    ->name('public.certificate.pdf');
+
+Route::get('/certificado/{code}/descargar', [CertificateController::class, 'download'])
+    ->middleware('throttle:20,1')
+    ->where('code', '[A-Za-z0-9\\-]+')
+    ->name('public.certificate.download');
 
 Route::get('/handoff', [HandoffController::class, 'show'])
     ->middleware('throttle:30,1')

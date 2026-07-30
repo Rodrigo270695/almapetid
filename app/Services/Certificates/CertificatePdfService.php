@@ -7,6 +7,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class CertificatePdfService
 {
@@ -24,14 +25,38 @@ class CertificatePdfService
             ->first();
     }
 
+    /**
+     * PDF para ver en el navegador (no fuerza descarga).
+     */
+    public function stream(ChipRegistration $chip): SymfonyResponse
+    {
+        return $this->buildPdf($chip)->stream($this->filename($chip));
+    }
+
+    /**
+     * PDF con descarga explícita (botón "Descargar").
+     */
     public function download(ChipRegistration $chip): Response
+    {
+        $binary = $this->buildPdf($chip)->output();
+        $filename = $this->filename($chip);
+
+        return response($binary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Length' => (string) strlen($binary),
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
+        ]);
+    }
+
+    private function buildPdf(ChipRegistration $chip)
     {
         $chip->loadMissing(['animal.owner', 'organization']);
 
         $profileUrl = url('/p/'.$chip->public_code);
         $qrPng = $this->qrPngDataUri($profileUrl);
 
-        $pdf = Pdf::loadView('certificates.almapet', [
+        return Pdf::loadView('certificates.almapet', [
             'chip' => $chip,
             'animal' => $chip->animal,
             'owner' => $chip->animal?->owner,
@@ -40,16 +65,11 @@ class CertificatePdfService
             'qrPng' => $qrPng,
             'issuedAt' => now('America/Lima'),
         ])->setPaper('a4', 'landscape');
+    }
 
-        $filename = 'almapet-'.$chip->certificate_code.'.pdf';
-        $binary = $pdf->output();
-
-        return response($binary, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-            'Content-Length' => (string) strlen($binary),
-            'Cache-Control' => 'private, max-age=0, must-revalidate',
-        ]);
+    private function filename(ChipRegistration $chip): string
+    {
+        return 'almapet-'.$chip->certificate_code.'.pdf';
     }
 
     public function qrPngDataUri(string $url): string
