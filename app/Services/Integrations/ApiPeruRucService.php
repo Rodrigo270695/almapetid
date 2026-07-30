@@ -3,14 +3,22 @@
 namespace App\Services\Integrations;
 
 use App\Exceptions\ApiPeruConsultaException;
+use App\Services\Integrations\Concerns\FallsBackToApisunatLookup;
 use Illuminate\Support\Facades\Cache;
 use RuntimeException;
+use Throwable;
 
 /**
- * Consulta RUC vía apiperu.dev (POST /ruc).
+ * Consulta RUC vía apiperu.dev, con respaldo APISUNAT si falla.
  */
 final class ApiPeruRucService
 {
+    use FallsBackToApisunatLookup;
+
+    public function __construct(
+        private readonly ApisunatLookupService $apisunatLookup,
+    ) {}
+
     /**
      * @return array{
      *     ruc: string,
@@ -29,7 +37,10 @@ final class ApiPeruRucService
         $cacheKey = "almapet:documento:ruc:{$ruc}";
 
         return Cache::remember($cacheKey, now()->addDays(30), function () use ($ruc): array {
-            return $this->fetchFromApiPeru($ruc);
+            return $this->consultarConFallbackApisunat(
+                fn (): array => $this->fetchFromApiPeru($ruc),
+                fn (): array => $this->apisunatLookup->consultarRuc($ruc),
+            );
         });
     }
 
@@ -42,7 +53,18 @@ final class ApiPeruRucService
      */
     private function fetchFromApiPeru(string $ruc): array
     {
-        $response = ApiPeruHttp::client()->post('/ruc', ['ruc' => $ruc]);
+        try {
+            $response = ApiPeruHttp::client()->post('/ruc', ['ruc' => $ruc]);
+        } catch (ApiPeruConsultaException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            throw new ApiPeruConsultaException(
+                __('El servicio de consulta no está disponible.'),
+                503,
+                'service_unavailable',
+                $e,
+            );
+        }
 
         ApiPeruHttp::assertSuccessful($response);
 

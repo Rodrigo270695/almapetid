@@ -11,8 +11,9 @@ class ApiPeruConsultaException extends Exception
         string $message,
         private readonly int $status = 422,
         private readonly string $codeKey = 'api_error',
+        ?\Throwable $previous = null,
     ) {
-        parent::__construct($message, $status);
+        parent::__construct($message, $status, $previous);
     }
 
     public function status(): int

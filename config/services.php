@@ -51,4 +51,14 @@ return [
         'token' => env('APIPERU_TOKEN'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | APISUNAT / Lucode (respaldo DNI/RUC)
+    |--------------------------------------------------------------------------
+    */
+    'apisunat_lookup' => [
+        'base_url' => env('APISUNAT_LOOKUP_BASE_URL', 'https://dev.apisunat.pe/api/v1'),
+        'token' => env('APISUNAT_LOOKUP_TOKEN'),
+    ],
+
 ];

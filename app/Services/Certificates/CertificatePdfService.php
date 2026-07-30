@@ -157,7 +157,11 @@ class CertificatePdfService
         // Datos
         $dx = 94;
         $dy = 50;
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy, 'Apellido del titular', mb_strtoupper((string) ($owner?->lastname ?: '—')));
+        $titular = trim((string) (($owner?->name ?? '').' '.($owner?->lastname ?? '')));
+        if ($titular === '') {
+            $titular = '—';
+        }
+        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy, 'Titular', mb_strtoupper($titular));
         $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy + 26, 'Nombre de la mascota', mb_strtoupper((string) ($animal?->name ?? '—')));
 
         // Fila sexo / nac / nacimiento — bandera a la derecha de PER
