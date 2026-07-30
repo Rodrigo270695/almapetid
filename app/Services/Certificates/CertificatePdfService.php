@@ -97,8 +97,8 @@ class CertificatePdfService
         imagealphablending($img, true);
         $this->paintFrontBackground($img);
 
-        // Marca de agua: logo circular AlmaPet (celeste, sutil, centrado)
-        $this->blitLogoIcon($img, self::W / 2, (int) (self::H * 0.55), 130, 0.14);
+        // Marca de agua sutil
+        $this->blitLogoIcon($img, self::W / 2, (int) (self::H * 0.55), 120, 0.12);
 
         $animal = $chip->animal;
         $owner = $animal?->owner;
@@ -107,102 +107,115 @@ class CertificatePdfService
         $font = $this->fontRegular();
         $fontBold = $this->fontBold();
 
-        $sky = imagecolorallocate($img, 3, 105, 161);      // #0369a1
-        $ink = imagecolorallocate($img, 15, 23, 42);       // #0f172a
-        $muted = imagecolorallocate($img, 71, 85, 105);    // #475569
-        $red = imagecolorallocate($img, 185, 28, 28);      // caducidad
-        $line = imagecolorallocate($img, 56, 189, 248);    // celeste
+        $sky = imagecolorallocate($img, 3, 105, 161);
+        $ink = imagecolorallocate($img, 15, 23, 42);
+        $muted = imagecolorallocate($img, 71, 85, 105);
+        $red = imagecolorallocate($img, 185, 28, 28);
+        $line = imagecolorallocate($img, 56, 189, 248);
 
-        // Header wordmark pequeño
-        $this->blitWordmark($img, 72, 16, 118, 1.0, false);
-
-        // Subtítulo
+        // Header
+        $this->blitWordmark($img, 72, 15, 112, 1.0, false);
         if ($font) {
-            imagettftext($img, 5.2, 0, 12, 33, $muted, $font, 'REGISTRO NACIONAL DE IDENTIFICACIÓN ANIMAL');
-            imagettftext($img, 5.5, 0, 228, 14, $muted, $font, 'CÓDIGO');
-            $code = (string) $chip->certificate_code;
-            imagettftext($img, 7.5, 0, 218, 28, $sky, $fontBold ?: $font, $code);
+            imagettftext($img, 5.0, 0, 12, 31, $muted, $font, 'REGISTRO NACIONAL DE IDENTIFICACIÓN ANIMAL');
+            imagettftext($img, 5.0, 0, 232, 13, $muted, $font, 'CÓDIGO');
+            imagettftext($img, 7.0, 0, 220, 26, $sky, $fontBold ?: $font, (string) $chip->certificate_code);
         }
+        imagefilledrectangle($img, 12, 36, self::W - 12, 37, $line);
 
-        // Línea institucional
-        imagefilledrectangle($img, 12, 40, self::W - 12, 42, $line);
-        imagefilledrectangle($img, (int) (self::W * 0.72), 40, self::W - 12, 42, imagecolorallocate($img, 245, 158, 11));
-
-        // Foto + QR + código público debajo
-        $photoX = 14;
-        $photoY = 48;
-        $photoW = 66;
-        $photoH = 72;
+        // Columna izquierda: foto + QR
+        $photoX = 12;
+        $photoY = 44;
+        $photoW = 58;
+        $photoH = 62;
         $this->drawPhotoBox($img, $photoX, $photoY, $photoW, $photoH, $animal?->photo_path);
 
-        $qrY = $photoY + $photoH + 3;
+        $qrSize = 40;
+        $qrX = $photoX + (int) (($photoW - $qrSize) / 2);
+        $qrY = $photoY + $photoH + 4;
         $qrBin = $this->qrPngBinary($profileUrl, 48);
         if ($qrBin !== null) {
             $qr = @imagecreatefromstring($qrBin);
             if ($qr !== false) {
-                $qw = 44;
-                $qh = 44;
-                imagecopyresampled($img, $qr, $photoX + 11, $qrY, 0, 0, $qw, $qh, imagesx($qr), imagesy($qr));
+                imagecopyresampled($img, $qr, $qrX, $qrY, 0, 0, $qrSize, $qrSize, imagesx($qr), imagesy($qr));
                 imagedestroy($qr);
             }
         }
-
         if ($font) {
             $pub = (string) $chip->public_code;
-            $bbox = imagettfbbox(5.5, 0, $font, $pub);
+            $bbox = imagettfbbox(5.0, 0, $font, $pub);
             $tw = abs(($bbox[2] ?? 0) - ($bbox[0] ?? 0));
-            // Más cerca del QR (más arriba), lejos de la línea del pie
-            imagettftext($img, 5.5, 0, $photoX + (int) (($photoW - $tw) / 2), $qrY + 48, $muted, $font, $pub);
+            imagettftext(
+                $img,
+                5.0,
+                0,
+                $photoX + (int) (($photoW - $tw) / 2),
+                $qrY + $qrSize + 10,
+                $muted,
+                $font,
+                $pub,
+            );
         }
 
-        // Datos
-        $dx = 94;
-        $dy = 50;
+        // Columna derecha — grilla fija (evita solapes con el pie)
+        $dx = 82;
+        $rightEdge = self::W - 10;
+        $colW = $rightEdge - $dx;
+        $col1 = $dx;
+        $col2 = $dx + 72;
+        $col3 = $dx + 144;
+
         $titular = trim((string) (($owner?->name ?? '').' '.($owner?->lastname ?? '')));
         if ($titular === '') {
             $titular = '—';
         }
-        $titularY = $this->fieldFit(
+
+        // Bloque identidad (titular + mascota) compacto
+        $titularEnd = $this->fieldFit(
             $img,
             $font,
             $fontBold,
             $sky,
             $ink,
             $dx,
-            $dy,
+            44,
             'Titular',
             mb_strtoupper($titular),
-            self::W - $dx - 12,
+            $colW,
+            2,
+            6.8,
         );
-        $petY = $titularY + 22;
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $petY, 'Nombre de la mascota', mb_strtoupper((string) ($animal?->name ?? '—')));
+        $petY = min($titularEnd + 12, 72);
+        $petName = mb_strtoupper((string) ($animal?->name ?? '—'));
+        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $petY, 'Nombre de la mascota', $petName, 8.0);
 
-        // Fila sexo / esterilizado / nacimiento — bandera a la derecha de PER (si cabe)
-        $rowY = $petY + 28;
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY, 'Sexo', AnimalSex::short($animal?->sex), 7.5);
+        // Filas de datos ancladas (siempre sobre el pie)
+        $row1 = 96;
+        $row2 = 122;
+        $row3 = 148;
+
+        $this->field($img, $font, $fontBold, $sky, $ink, $col1, $row1, 'Sexo', AnimalSex::short($animal?->sex), 7.0);
         $this->field(
             $img,
             $font,
             $fontBold,
             $sky,
             $ink,
-            $dx + 42,
-            $rowY,
+            $col2,
+            $row1,
             'Esterilizado',
             AnimalSex::sterilizedLabel($animal?->is_sterilized),
-            7.5,
+            7.0,
         );
 
-        $natX = $dx + 108;
         $natCode = $this->nationalityCode($chip->country_code);
         if ($font) {
-            imagettftext($img, 5.5, 0, $natX, $rowY, $sky, $font, 'NACIONALIDAD');
-            imagettftext($img, 7.5, 0, $natX, $rowY + 14, $ink, $fontBold ?: $font, $natCode);
-            $natBox = imagettfbbox(7.5, 0, $fontBold ?: $font, $natCode);
+            imagettftext($img, 5.0, 0, $col3, $row1, $sky, $font, 'NACIONALIDAD');
+            imagettftext($img, 7.0, 0, $col3, $row1 + 13, $ink, $fontBold ?: $font, $natCode);
+            $natBox = imagettfbbox(7.0, 0, $fontBold ?: $font, $natCode);
             $natW = abs(($natBox[2] ?? 0) - ($natBox[0] ?? 0));
-            $this->drawMiniFlag($img, $natX + $natW + 5, $rowY + 6);
+            $this->drawMiniFlag($img, $col3 + $natW + 4, $row1 + 5);
         } else {
-            $this->field($img, $font, $fontBold, $sky, $ink, $natX, $rowY, 'Nacionalidad', $natCode, 7.5);
+            $this->field($img, $font, $fontBold, $sky, $ink, $col3, $row1, 'Nacionalidad', $natCode, 7.0);
         }
 
         $this->field(
@@ -211,46 +224,38 @@ class CertificatePdfService
             $fontBold,
             $sky,
             $ink,
-            $dx,
-            $rowY + 28,
+            $col1,
+            $row2,
             'Fecha de nacimiento',
             $animal?->birth_date?->format('d  m  Y') ?? '—',
-            7.5,
+            7.0,
         );
 
-        $this->field(
-            $img,
-            $font,
-            $fontBold,
-            $sky,
-            $ink,
-            $dx + 118,
-            $rowY + 28,
-            'Raza / especie',
-            mb_strtoupper((string) ($animal?->breed ?: ($animal?->species ?? '—'))),
-            7.5,
-        );
-
-        $this->field($img, $font, $fontBold, $sky, $ink, $dx, $rowY + 52, 'Fecha de emisión', $issuedAt->format('d  m  Y'), 7.5);
-        $this->field($img, $font, $fontBold, $sky, $red, $dx + 108, $rowY + 52, 'Fecha de caducidad', $expiresAt->format('d  m  Y'), 7.5);
-
-        // Footer más arriba (legible, sin cortar el nombre de la clínica)
-        $clinic = (string) ($org?->name ?? 'AlmaPet ID');
-        if (mb_strlen($clinic) > 36) {
-            $clinic = mb_substr($clinic, 0, 34).'…';
+        $breed = mb_strtoupper((string) ($animal?->breed ?: ($animal?->species ?? '—')));
+        $breedFace = $fontBold ?: $font;
+        if ($font && $breedFace) {
+            $breed = $this->truncateToWidth($breed, $breedFace, 7.0, $rightEdge - $col2 - 2);
         }
-        imagefilledrectangle($img, 12, self::H - 28, self::W - 10, self::H - 27, imagecolorallocate($img, 186, 230, 253));
+        $this->field($img, $font, $fontBold, $sky, $ink, $col2, $row2, 'Raza / especie', $breed, 7.0);
+
+        $this->field($img, $font, $fontBold, $sky, $ink, $col1, $row3, 'Fecha de emisión', $issuedAt->format('d  m  Y'), 7.0);
+        $this->field($img, $font, $fontBold, $sky, $red, $col2, $row3, 'Fecha de caducidad', $expiresAt->format('d  m  Y'), 7.0);
+
+        // Pie (zona reservada)
+        $clinic = (string) ($org?->name ?? 'AlmaPet ID');
+        if (mb_strlen($clinic) > 28) {
+            $clinic = mb_substr($clinic, 0, 26).'…';
+        }
+        imagefilledrectangle($img, 12, self::H - 22, self::W - 12, self::H - 21, imagecolorallocate($img, 186, 230, 253));
         if ($font) {
             $foot = sprintf(
                 'Microchip %s  ·  Vigencia 3 años  ·  %s',
                 (string) $chip->microchip,
                 $clinic,
             );
-            imagettftext($img, 5.2, 0, 12, self::H - 14, $muted, $font, $foot);
+            $foot = $this->truncateToWidth($foot, $font, 4.8, self::W - 28);
+            imagettftext($img, 4.8, 0, 12, self::H - 10, $muted, $font, $foot);
         }
-
-        // Franja lateral ámbar (detalle de seguridad)
-        imagefilledrectangle($img, self::W - 5, 0, self::W - 1, self::H - 1, imagecolorallocate($img, 245, 158, 11));
 
         return $this->jpeg($img, 86);
     }
@@ -644,12 +649,12 @@ class CertificatePdfService
 
             return;
         }
-        imagettftext($img, 5.5, 0, $x, $y, $labelColor, $font, mb_strtoupper($label));
-        imagettftext($img, $valueSize, 0, $x, $y + 14, $valueColor, $fontBold ?: $font, $value);
+        imagettftext($img, 4.8, 0, $x, $y, $labelColor, $font, mb_strtoupper($label));
+        imagettftext($img, $valueSize, 0, $x, $y + 12, $valueColor, $fontBold ?: $font, $value);
     }
 
     /**
-     * Valor largo: reduce tamaño y envuelve hasta 2 líneas.
+     * Valor largo: reduce tamaño y envuelve hasta N líneas.
      *
      * @return int Y baseline de la última línea del valor
      */
@@ -664,39 +669,65 @@ class CertificatePdfService
         string $label,
         string $value,
         int $maxWidth,
+        int $maxLines = 2,
+        float $baseSize = 7.5,
     ): int {
         if (! $font) {
-            $this->field($img, $font, $fontBold, $labelColor, $valueColor, $x, $y, $label, $value, 7.0);
+            $this->field($img, $font, $fontBold, $labelColor, $valueColor, $x, $y, $label, $value, 6.5);
 
-            return $y + 14;
+            return $y + 12;
         }
 
-        imagettftext($img, 5.5, 0, $x, $y, $labelColor, $font, mb_strtoupper($label));
+        imagettftext($img, 4.8, 0, $x, $y, $labelColor, $font, mb_strtoupper($label));
 
-        $size = 8.5;
+        $size = $baseSize;
         $face = $fontBold ?: $font;
         $len = mb_strlen($value);
-        if ($len > 42) {
-            $size = 5.8;
-        } elseif ($len > 32) {
-            $size = 6.5;
-        } elseif ($len > 24) {
-            $size = 7.2;
+        if ($len > 40) {
+            $size = max(5.2, $baseSize - 1.6);
+        } elseif ($len > 28) {
+            $size = max(5.6, $baseSize - 1.0);
+        } elseif ($len > 20) {
+            $size = max(6.0, $baseSize - 0.5);
         }
 
         $lines = $this->wrapTextToWidth($value, $face, $size, $maxWidth);
-        if (count($lines) > 2) {
-            $lines = array_slice($lines, 0, 2);
-            $lines[1] = mb_substr($lines[1], 0, max(1, mb_strlen($lines[1]) - 1)).'…';
+        if (count($lines) > $maxLines) {
+            $lines = array_slice($lines, 0, $maxLines);
+            $last = $lines[$maxLines - 1];
+            $lines[$maxLines - 1] = $this->truncateToWidth($last.'…', $face, $size, $maxWidth);
         }
 
-        $lineY = $y + 13;
-        $step = (int) round($size + 3);
+        $lineY = $y + 11;
+        $step = (int) round($size + 2.5);
         foreach ($lines as $i => $line) {
             imagettftext($img, $size, 0, $x, $lineY + ($i * $step), $valueColor, $face, $line);
         }
 
         return $lineY + (max(count($lines) - 1, 0) * $step);
+    }
+
+    private function truncateToWidth(string $text, string $font, float $size, int $maxWidth): string
+    {
+        $box = imagettfbbox($size, 0, $font, $text);
+        $w = abs(($box[2] ?? 0) - ($box[0] ?? 0));
+        if ($w <= $maxWidth) {
+            return $text;
+        }
+
+        $ellipsis = '…';
+        $cut = mb_strlen($text);
+        while ($cut > 1) {
+            $cut--;
+            $trial = mb_substr($text, 0, $cut).$ellipsis;
+            $box = imagettfbbox($size, 0, $font, $trial);
+            $w = abs(($box[2] ?? 0) - ($box[0] ?? 0));
+            if ($w <= $maxWidth) {
+                return $trial;
+            }
+        }
+
+        return $ellipsis;
     }
 
     /**
@@ -722,7 +753,12 @@ class CertificatePdfService
             if ($current !== '') {
                 $lines[] = $current;
             }
-            $current = $word;
+            // Palabra sola más ancha que el ancho: truncar
+            $boxWord = imagettfbbox($size, 0, $font, $word);
+            $wordW = abs(($boxWord[2] ?? 0) - ($boxWord[0] ?? 0));
+            $current = $wordW > $maxWidth
+                ? $this->truncateToWidth($word, $font, $size, $maxWidth)
+                : $word;
         }
         if ($current !== '') {
             $lines[] = $current;
