@@ -65,6 +65,7 @@ final class HandoffApiController extends Controller
         $data = $request->validate([
             'vetsaas_tenant_id' => ['required', 'string', 'max:36'],
             'vetsaas_paciente_id' => ['required', 'string', 'max:36'],
+            'public_code' => ['nullable', 'string', 'max:32'],
             'animal' => ['required', 'array'],
             'animal.photo_base64' => ['required', 'string'],
             'animal.photo_mime' => ['nullable', 'string', 'max:40'],

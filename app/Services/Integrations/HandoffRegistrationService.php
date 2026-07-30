@@ -310,18 +310,38 @@ final class HandoffRegistrationService
     {
         $tenantId = (string) ($payload['vetsaas_tenant_id'] ?? '');
         $pacienteId = (string) ($payload['vetsaas_paciente_id'] ?? '');
+        $publicCode = strtoupper(trim((string) ($payload['public_code'] ?? '')));
 
-        $chip = ChipRegistration::query()
-            ->where('vetsaas_tenant_id', $tenantId)
-            ->where('vetsaas_paciente_id', $pacienteId)
-            ->with('animal')
-            ->latest('id')
-            ->first();
+        $chip = null;
+        if ($tenantId !== '' && $pacienteId !== '') {
+            $chip = ChipRegistration::query()
+                ->where('vetsaas_tenant_id', $tenantId)
+                ->where('vetsaas_paciente_id', $pacienteId)
+                ->with('animal')
+                ->latest('id')
+                ->first();
+        }
+
+        if ($chip === null && $publicCode !== '') {
+            $chip = ChipRegistration::query()
+                ->whereRaw('UPPER(public_code) = ?', [$publicCode])
+                ->with('animal')
+                ->latest('id')
+                ->first();
+        }
 
         if ($chip === null) {
             throw ValidationException::withMessages([
                 'vetsaas_paciente_id' => 'No hay registro AlmaPet para este paciente.',
             ]);
+        }
+
+        // Completar vínculo VetSaaS si faltaba (registros antiguos).
+        if ($tenantId !== '' && blank($chip->vetsaas_tenant_id)) {
+            $chip->forceFill([
+                'vetsaas_tenant_id' => $tenantId,
+                'vetsaas_paciente_id' => $pacienteId !== '' ? $pacienteId : $chip->vetsaas_paciente_id,
+            ])->save();
         }
 
         $animalPayload = is_array($payload['animal'] ?? null) ? $payload['animal'] : $payload;

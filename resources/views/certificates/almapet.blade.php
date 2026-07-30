@@ -2,161 +2,122 @@
 <html lang="es">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Carnet AlmaPet ID</title>
     <style>
         @page { margin: 0; }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: DejaVu Sans, sans-serif;
-            color: #0f172a;
-            background: #fff;
-        }
+        body { margin: 0; padding: 0; font-family: DejaVu Sans, sans-serif; color: #0f172a; }
         table { border-collapse: collapse; }
-        .outer {
-            width: 242.65pt;
-            border: 0.7pt solid #94a3b8;
+        .card {
+            width: 240pt;
+            background: #e7f3f9;
+            border: 0.7pt solid #64748b;
         }
-        .pad { padding: 6pt 6pt 4pt 7pt; }
-        .logo { height: 13pt; }
-        .icon { height: 13pt; width: 13pt; }
-        .band td { height: 2.5pt; font-size: 1pt; line-height: 1pt; }
-        .ba { width: 58%; }
-        .bb { width: 26%; background: #dbeafe; }
-        .bc { width: 16%; background: #ffedd5; }
-        .lbl {
-            font-size: 4.2pt;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.3pt;
-            line-height: 1;
-            margin: 0;
-            padding: 0;
-        }
-        .val {
-            font-size: 6.2pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            line-height: 1.1;
-            margin: 0 0 3pt 0;
-            padding: 0;
-        }
-        .photo {
-            width: 48pt;
-            height: 58pt;
-            border: 0.5pt solid #64748b;
-        }
-        .nophoto {
-            width: 48pt;
-            height: 58pt;
-            border: 0.5pt solid #94a3b8;
-            background: #f1f5f9;
-            color: #94a3b8;
-            font-size: 5pt;
-            text-align: center;
-        }
-        .qr { width: 38pt; height: 38pt; }
-        .code {
-            font-size: 4pt;
-            font-family: DejaVu Sans Mono, monospace;
-            color: #475569;
-            text-align: center;
-            margin-top: 1.5pt;
-        }
-        .flag td { width: 3.5pt; height: 5pt; padding: 0; }
-        .fr { background: #D91023; }
-        .fw { background: #fff; border-top: 0.3pt solid #cbd5e1; border-bottom: 0.3pt solid #cbd5e1; }
-        .foot {
-            font-size: 3.8pt;
-            color: #64748b;
-            border-top: 0.4pt solid #e2e8f0;
-            padding-top: 2pt;
-            margin-top: 1pt;
-        }
+        .pad { padding: 4pt 5pt 3pt 5pt; }
+        .brand { font-size: 8pt; font-weight: bold; color: #0e7490; letter-spacing: 0.35pt; }
+        .sub { font-size: 3.3pt; color: #475569; text-transform: uppercase; letter-spacing: 0.15pt; }
+        .cui { font-size: 4pt; color: #334155; text-align: right; }
+        .cui b { font-size: 5.5pt; font-family: DejaVu Sans Mono, monospace; }
+        .lbl { font-size: 3.3pt; color: #0369a1; text-transform: uppercase; }
+        .val { font-size: 5.8pt; font-weight: bold; text-transform: uppercase; }
+        .cad { font-size: 5.6pt; font-weight: bold; color: #b91c1c; }
+        .foot { font-size: 3pt; color: #475569; border-top: 0.35pt solid #94a3b8; padding-top: 1.5pt; margin-top: 2pt; }
         .mono { font-family: DejaVu Sans Mono, monospace; }
-        .stripe { width: 3.5pt; background: #f59e0b; }
+        .bar { height: 1.8pt; background: #0e7490; margin: 2pt 0; font-size: 1pt; line-height: 1pt; }
+        .back {
+            page-break-before: always;
+            width: 240pt;
+            background: #0e7490;
+            border: 0.7pt solid #155e75;
+        }
+        .back-inner {
+            color: #ffffff;
+            text-align: center;
+            padding: 32pt 10pt;
+        }
+        .btitle { font-size: 14pt; font-weight: bold; letter-spacing: 1pt; color: #ffffff; }
+        .bsub { font-size: 4.8pt; color: #cffafe; letter-spacing: 0.5pt; text-transform: uppercase; margin-top: 4pt; }
+        .bcode { font-size: 4.2pt; font-family: DejaVu Sans Mono, monospace; color: #e0f2fe; margin-top: 8pt; }
+        .pc { font-size: 3pt; font-family: DejaVu Sans Mono, monospace; color: #475569; }
     </style>
 </head>
 <body>
-<table class="outer">
-    <tr>
-        <td class="pad" style="width:239pt; vertical-align:top;">
-            <table style="width:100%;">
-                <tr>
-                    <td style="width:82%; vertical-align:middle;">
-                        @if (!empty($logoDataUri))
-                            <img class="logo" src="{{ $logoDataUri }}" alt="AlmaPet ID">
-                        @else
-                            <span style="font-size:9pt;font-weight:bold;color:#0369a1;">ALMAPET ID</span>
-                        @endif
-                    </td>
-                    <td style="width:18%; text-align:right; vertical-align:middle;">
-                        @if (!empty($iconDataUri))
-                            <img class="icon" src="{{ $iconDataUri }}" alt="">
-                        @endif
-                    </td>
-                </tr>
-            </table>
 
-            <table class="band" style="width:100%; margin:2pt 0 4pt 0;"><tr>
-                <td class="ba">&nbsp;</td>
-                <td class="bb">&nbsp;</td>
-                <td class="bc">&nbsp;</td>
-            </tr></table>
-
-            <table style="width:100%;">
-                <tr>
-                    <td style="width:27%; padding-right:3pt; vertical-align:top;">
-                        <p class="lbl">Nombre</p>
-                        <p class="val">{{ $animal?->name ?? '—' }}</p>
-                        <p class="lbl">Raza</p>
-                        <p class="val">{{ $animal?->breed ?: ($animal?->species ?? '—') }}</p>
-                        <p class="lbl">Sexo</p>
-                        <p class="val">{{ $sexLabel }}</p>
-                        <p class="lbl">Fecha de registro</p>
-                        <p class="val">{{ $issuedAt->format('Y-m-d') }}</p>
-                    </td>
-                    <td style="width:30%; padding-right:3pt; vertical-align:top;">
-                        <p class="lbl">Apellido</p>
-                        <p class="val">{{ $owner?->lastname ?: '—' }}</p>
-                        <p class="lbl">Fecha de nacimiento</p>
-                        <p class="val">{{ $animal?->birth_date?->format('Y-m-d') ?? '—' }}</p>
-                        <p class="lbl">Nacionalidad</p>
-                        <p class="val" style="margin-bottom:1pt;">{{ $nationality }}</p>
-                        <table style="margin-bottom:3pt;"><tr>
-                            <td><table class="flag"><tr>
-                                <td class="fr"></td><td class="fw"></td><td class="fr"></td>
-                            </tr></table></td>
-                        </tr></table>
-                        <p class="lbl">Fecha de vencimiento</p>
-                        <p class="val">{{ $expiresAt->format('Y-m-d') }}</p>
-                    </td>
-                    <td style="width:22%; text-align:center; vertical-align:top;">
-                        @if (!empty($photoDataUri))
-                            <img class="photo" src="{{ $photoDataUri }}" alt="Foto">
-                        @else
-                            <div class="nophoto"><br><br>SIN FOTO</div>
-                        @endif
-                    </td>
-                    <td style="width:21%; text-align:center; vertical-align:middle;">
-                        @if (!empty($qrPng))
-                            <img class="qr" src="{{ $qrPng }}" alt="QR">
-                        @endif
-                        <div class="code">{{ $chip->public_code }}</div>
-                        <div class="code" style="margin-top:2pt;">{{ $chip->certificate_code }}</div>
-                    </td>
-                </tr>
-            </table>
-
-            <div class="foot">
-                Microchip <span class="mono">{{ $chip->microchip }}</span>
-                · Vigencia 3 años
-                · {{ $organization?->name ?? 'AlmaPet ID' }}
-                · Formato DNI Perú 85,60 × 53,98 mm
-            </div>
+<table class="card"><tr><td class="pad">
+    <table width="100%"><tr>
+        <td width="14" valign="middle">
+            @if (!empty($iconDataUri))
+                <img src="{{ $iconDataUri }}" width="12" height="12" alt="">
+            @endif
         </td>
-        <td class="stripe">&nbsp;</td>
-    </tr>
-</table>
+        <td valign="middle">
+            <div class="brand">ALMAPET ID</div>
+            <div class="sub">Registro nacional de identificación animal</div>
+        </td>
+        <td width="88" class="cui" valign="middle">
+            CÓDIGO<br><b>{{ $chip->certificate_code }}</b>
+        </td>
+    </tr></table>
+
+    <div class="bar">&nbsp;</div>
+
+    <table width="100%"><tr>
+        <td width="50" valign="top" align="center">
+            @if (!empty($photoDataUri))
+                <img src="{{ $photoDataUri }}" width="42" height="50" alt="Foto">
+            @else
+                <table width="42" height="50" style="border:0.5pt solid #94a3b8;background:#f1f5f9;"><tr>
+                    <td align="center" valign="middle" style="font-size:3.5pt;color:#94a3b8;">SIN FOTO</td>
+                </tr></table>
+            @endif
+            @if (!empty($qrPng))
+                <img src="{{ $qrPng }}" width="32" height="32" alt="QR" style="margin-top:2pt;">
+            @endif
+            <div class="pc">{{ $chip->public_code }}</div>
+        </td>
+        <td valign="top" style="padding-left:5pt;">
+            <div class="lbl">Apellido del titular</div>
+            <div class="val">{{ $owner?->lastname ?: '—' }}</div>
+            <div style="height:2pt;"></div>
+            <div class="lbl">Nombre de la mascota</div>
+            <div class="val">{{ $animal?->name ?? '—' }}</div>
+            <div style="height:2pt;"></div>
+            <table width="100%"><tr>
+                <td width="18%"><div class="lbl">Sexo</div><div class="val">{{ $sexShort }}</div></td>
+                <td width="28%"><div class="lbl">Nacionalidad</div><div class="val">{{ $nationalityCode }}</div></td>
+                <td width="54%"><div class="lbl">Fecha de nacimiento</div><div class="val">{{ $animal?->birth_date?->format('d  m  Y') ?? '—' }}</div></td>
+            </tr></table>
+            <div style="height:2pt;"></div>
+            <div class="lbl">Raza / especie</div>
+            <div class="val">{{ $animal?->breed ?: ($animal?->species ?? '—') }}</div>
+            <div style="height:2pt;"></div>
+            <table width="100%"><tr>
+                <td width="50%"><div class="lbl">Fecha de emisión</div><div class="val">{{ $issuedAt->format('d  m  Y') }}</div></td>
+                <td width="50%"><div class="lbl">Fecha de caducidad</div><div class="cad">{{ $expiresAt->format('d  m  Y') }}</div></td>
+            </tr></table>
+        </td>
+        <td width="38" valign="middle" align="center">
+            @if (!empty($watermarkDataUri))
+                <img src="{{ $watermarkDataUri }}" width="34" height="34" alt="">
+            @endif
+        </td>
+    </tr></table>
+
+    <div class="foot">
+        Microchip <span class="mono">{{ $chip->microchip }}</span>
+        · Vigencia 3 años
+        · {{ $organization?->name ?? 'AlmaPet ID' }}
+        · Formato DNI Perú 85,60 × 53,98 mm
+    </div>
+</td></tr></table>
+
+<table class="back"><tr><td class="back-inner">
+    @if (!empty($iconBackDataUri))
+        <img src="{{ $iconBackDataUri }}" width="42" height="42" alt="">
+        <div style="height:6pt;"></div>
+    @endif
+    <div class="btitle">ALMAPET ID</div>
+    <div class="bsub">Identidad digital animal</div>
+    <div class="bcode">{{ $chip->certificate_code }} · {{ $chip->public_code }}</div>
+</td></tr></table>
+
 </body>
 </html>

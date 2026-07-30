@@ -65,16 +65,18 @@ class CertificatePdfService
             'organization' => $chip->organization,
             'profileUrl' => $profileUrl,
             'qrPng' => $this->qrPngDataUri($profileUrl),
-            'logoDataUri' => $this->resizedPublicImage('brand/almapet-id-wordmark-sky.png', 320, 48),
-            'iconDataUri' => $this->resizedPublicImage('icon-192.png', 48, 48),
+            'iconDataUri' => $this->brandIconDataUri(16, false),
+            'iconBackDataUri' => $this->brandIconDataUri(56, false),
+            'watermarkDataUri' => $this->brandIconDataUri(44, true),
             'photoDataUri' => $this->animalPhotoDataUri($chip),
             'issuedAt' => $issuedAt,
             'expiresAt' => $expiresAt,
             'nationality' => $this->nationalityLabel($chip->country_code),
+            'nationalityCode' => $this->nationalityCode($chip->country_code),
             'sexLabel' => $this->sexLabel($chip->animal?->sex),
+            'sexShort' => $this->sexShort($chip->animal?->sex),
         ])
             ->setPaper([0, 0, self::ID1_WIDTH_PT, self::ID1_HEIGHT_PT], 'portrait')
-            ->setOption('dpi', 72)
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isHtml5ParserEnabled', true)
             ->setOption('isRemoteEnabled', false)
@@ -88,22 +90,29 @@ class CertificatePdfService
 
     public function qrPngDataUri(string $url): string
     {
+        // Tamaño intrínseco ~32px; el HTML fija width/height en pt (DomPDF default ~96dpi).
         $qr = new QrCode(
             data: $url,
             errorCorrectionLevel: ErrorCorrectionLevel::Medium,
-            size: 120,
-            margin: 2,
+            size: 48,
+            margin: 0,
         );
-        $result = (new PngWriter)->write($qr);
 
-        return 'data:image/png;base64,'.base64_encode($result->getString());
+        return 'data:image/png;base64,'.base64_encode((new PngWriter)->write($qr)->getString());
     }
 
-    private function resizedPublicImage(string $relativePath, int $maxW, int $maxH): ?string
+    private function brandIconDataUri(int $size, bool $asWatermark): ?string
     {
-        $path = public_path($relativePath);
-        if (! is_file($path) || ! function_exists('imagecreatefromstring')) {
-            return $this->fileToDataUri($path);
+        if (! function_exists('imagecreatefromstring')) {
+            return $this->fileToDataUri(public_path('icon-192.png'));
+        }
+
+        $path = public_path('icon-192.png');
+        if (! is_file($path)) {
+            $path = public_path('logo.png');
+        }
+        if (! is_file($path)) {
+            return null;
         }
 
         $binary = file_get_contents($path);
@@ -111,7 +120,59 @@ class CertificatePdfService
             return null;
         }
 
-        return $this->resizeBinaryToJpegDataUri($binary, $maxW, $maxH);
+        $src = @imagecreatefromstring($binary);
+        if ($src === false) {
+            return null;
+        }
+
+        $sw = imagesx($src);
+        $sh = imagesy($src);
+        $dst = imagecreatetruecolor($size, $size);
+        $bgR = $asWatermark ? 231 : 255;
+        $bgG = $asWatermark ? 243 : 255;
+        $bgB = $asWatermark ? 249 : 255;
+        $bg = imagecolorallocate($dst, $bgR, $bgG, $bgB);
+        imagefilledrectangle($dst, 0, 0, $size, $size, $bg);
+
+        $clean = imagecreatetruecolor($sw, $sh);
+        imagecopy($clean, $src, 0, 0, 0, 0, $sw, $sh);
+        imagedestroy($src);
+
+        for ($y = 0; $y < $sh; $y++) {
+            for ($x = 0; $x < $sw; $x++) {
+                $rgb = imagecolorat($clean, $x, $y);
+                $r = ($rgb >> 16) & 0xFF;
+                $g = ($rgb >> 8) & 0xFF;
+                $b = $rgb & 0xFF;
+                if ($r < 40 && $g < 40 && $b < 40) {
+                    imagesetpixel($clean, $x, $y, imagecolorallocate($clean, $bgR, $bgG, $bgB));
+                } elseif ($asWatermark) {
+                    imagesetpixel(
+                        $clean,
+                        $x,
+                        $y,
+                        imagecolorallocate(
+                            $clean,
+                            (int) min(255, $r * 0.25 + 195),
+                            (int) min(255, $g * 0.35 + 215),
+                            (int) min(255, $b * 0.45 + 225),
+                        ),
+                    );
+                }
+            }
+        }
+
+        imagecopyresampled($dst, $clean, 0, 0, 0, 0, $size, $size, $sw, $sh);
+        imagedestroy($clean);
+
+        ob_start();
+        imagejpeg($dst, null, $asWatermark ? 70 : 90);
+        imagedestroy($dst);
+        $jpeg = ob_get_clean();
+
+        return is_string($jpeg) && $jpeg !== ''
+            ? 'data:image/jpeg;base64,'.base64_encode($jpeg)
+            : null;
     }
 
     private function animalPhotoDataUri(ChipRegistration $chip): ?string
@@ -126,7 +187,7 @@ class CertificatePdfService
             return null;
         }
 
-        return $this->resizeBinaryToJpegDataUri($binary, 140, 170);
+        return $this->resizeBinaryToJpegDataUri($binary, 56, 66);
     }
 
     private function resizeBinaryToJpegDataUri(string $binary, int $maxW, int $maxH): ?string
@@ -151,23 +212,19 @@ class CertificatePdfService
         $scale = min($maxW / $sw, $maxH / $sh, 1.0);
         $dw = max(1, (int) round($sw * $scale));
         $dh = max(1, (int) round($sh * $scale));
-
         $dst = imagecreatetruecolor($dw, $dh);
-        $white = imagecolorallocate($dst, 255, 255, 255);
-        imagefilledrectangle($dst, 0, 0, $dw, $dh, $white);
+        imagefilledrectangle($dst, 0, 0, $dw, $dh, imagecolorallocate($dst, 255, 255, 255));
         imagecopyresampled($dst, $src, 0, 0, 0, 0, $dw, $dh, $sw, $sh);
         imagedestroy($src);
 
         ob_start();
-        imagejpeg($dst, null, 82);
+        imagejpeg($dst, null, 84);
         imagedestroy($dst);
         $jpeg = ob_get_clean();
 
-        if (! is_string($jpeg) || $jpeg === '') {
-            return null;
-        }
-
-        return 'data:image/jpeg;base64,'.base64_encode($jpeg);
+        return is_string($jpeg) && $jpeg !== ''
+            ? 'data:image/jpeg;base64,'.base64_encode($jpeg)
+            : null;
     }
 
     private function fileToDataUri(?string $path): ?string
@@ -184,7 +241,6 @@ class CertificatePdfService
         $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
             'png' => 'image/png',
             'jpg', 'jpeg' => 'image/jpeg',
-            'webp' => 'image/webp',
             default => 'image/png',
         };
 
@@ -194,21 +250,15 @@ class CertificatePdfService
     private function nationalityLabel(?string $countryCode): string
     {
         $code = strtoupper(trim((string) $countryCode));
-        if ($code === '' || $code === 'PE') {
-            return 'PERU';
-        }
 
-        return match ($code) {
-            'AR' => 'ARGENTINA',
-            'BO' => 'BOLIVIANA',
-            'CL' => 'CHILENA',
-            'CO' => 'COLOMBIANA',
-            'EC' => 'ECUATORIANA',
-            'MX' => 'MEXICANA',
-            'US' => 'ESTADOUNIDENSE',
-            'ES' => 'ESPANOLA',
-            default => $code,
-        };
+        return ($code === '' || $code === 'PE') ? 'PERU' : $code;
+    }
+
+    private function nationalityCode(?string $countryCode): string
+    {
+        $code = strtoupper(trim((string) $countryCode));
+
+        return ($code === '' || $code === 'PE') ? 'PER' : substr($code, 0, 3);
     }
 
     private function sexLabel(?string $sex): string
@@ -216,6 +266,15 @@ class CertificatePdfService
         return match (strtoupper(trim((string) $sex))) {
             'M' => 'MACHO',
             'H', 'F' => 'HEMBRA',
+            default => '—',
+        };
+    }
+
+    private function sexShort(?string $sex): string
+    {
+        return match (strtoupper(trim((string) $sex))) {
+            'M' => 'M',
+            'H', 'F' => 'H',
             default => '—',
         };
     }
