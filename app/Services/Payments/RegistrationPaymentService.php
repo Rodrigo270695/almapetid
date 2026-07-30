@@ -41,7 +41,55 @@ final class RegistrationPaymentService
     }
 
     /**
-     * Pago guest del handoff VetSaaS (sin sesión de dueño).
+     * Pago del dueño para activar un chip ya creado (p. ej. handoff VetSaaS).
+     */
+    public function createActivationCulqiPayment(
+        User $user,
+        Plan $plan,
+        ChipRegistration $registration,
+        bool $includePhysicalCarnet = false,
+        string $channel = Plan::CHANNEL_VETSAAS,
+    ): RegistrationPayment {
+        if (! $plan->active) {
+            throw ValidationException::withMessages([
+                'plan_id' => 'Este plan no está disponible.',
+            ]);
+        }
+
+        if (! $registration->isPendingPayment()) {
+            throw ValidationException::withMessages([
+                'registration' => 'Este registro ya no está pendiente de activación.',
+            ]);
+        }
+
+        $pricing = $plan->pricingFor($channel);
+        $physical = $includePhysicalCarnet
+            ? (float) config('almapet.physical_carnet_amount', 30)
+            : 0.0;
+        $amount = round((float) $pricing['amount'] + $physical, 2);
+        $platform = round((float) $pricing['platform_amount'] + $physical, 2);
+
+        return RegistrationPayment::query()->create([
+            'plan_id' => $plan->id,
+            'chip_registration_id' => $registration->id,
+            'user_id' => $user->id,
+            'organization_id' => $registration->organization_id,
+            'amount' => $amount,
+            'currency' => $pricing['currency'],
+            'channel' => $pricing['channel'],
+            'platform_amount' => $platform,
+            'clinic_commission' => $pricing['clinic_commission'],
+            'includes_physical_carnet' => $includePhysicalCarnet,
+            'status' => RegistrationPayment::STATUS_PENDING,
+            'provider' => RegistrationPayment::PROVIDER_CULQI,
+            'created_by_user_id' => $user->id,
+            'notes' => 'Activación AlmaPet · '.$plan->code
+                .($includePhysicalCarnet ? ' + carnet físico' : ' (digital)'),
+        ]);
+    }
+
+    /**
+     * Pago guest del handoff VetSaaS (sin sesión de dueño) — legado.
      */
     public function createHandoffCulqiPayment(
         Plan $plan,

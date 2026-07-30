@@ -18,6 +18,7 @@ use App\Http\Controllers\Owner\AnimalController;
 use App\Http\Controllers\Owner\AnimalLostController;
 use App\Http\Controllers\Platform\PlatformCatalogController;
 use App\Http\Controllers\Public\CertificateController;
+use App\Http\Controllers\PublicSite\ActivateRegistrationController;
 use App\Http\Controllers\PublicSite\HandoffCheckoutController;
 use App\Http\Controllers\PublicSite\HandoffController;
 use App\Http\Controllers\Public\PublicLostWallController;
@@ -82,6 +83,16 @@ Route::get('/handoff/exito/{code}', [HandoffCheckoutController::class, 'success'
     ->middleware('throttle:60,1')
     ->where('code', '[A-Za-z0-9\\-]+')
     ->name('public.handoff.success');
+
+Route::get('/activar/{publicCode}', [ActivateRegistrationController::class, 'show'])
+    ->middleware('throttle:60,1')
+    ->where('publicCode', '[A-Za-z0-9]+')
+    ->name('public.activate.show');
+
+Route::post('/activar/{publicCode}/checkout', [ActivateRegistrationController::class, 'checkout'])
+    ->middleware(['auth', 'verified', 'document.complete', 'throttle:20,1'])
+    ->where('publicCode', '[A-Za-z0-9]+')
+    ->name('public.activate.checkout');
 
 Route::get('/perdidos', PublicLostWallController::class)
     ->middleware('throttle:60,1')

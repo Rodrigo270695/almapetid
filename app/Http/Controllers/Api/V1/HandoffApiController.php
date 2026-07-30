@@ -3,18 +3,64 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Integrations\HandoffRegistrationService;
 use App\Services\Integrations\HandoffTokenService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 final class HandoffApiController extends Controller
 {
     /**
-     * VetSaaS solicita un token one-time para redirigir al staff/dueño.
+     * VetSaaS solicita un token one-time (flujo legado / confirmación web).
      */
     public function store(Request $request, HandoffTokenService $handoff): JsonResponse
     {
-        $data = $request->validate([
+        $data = $this->validatedPayload($request);
+        $issued = $handoff->issue($data);
+
+        return response()->json($issued, 201);
+    }
+
+    /**
+     * Alta inmediata sin cobro: chip queda pending_payment.
+     * El dueño activa después en AlmaPet (login + pago S/25, opcional físico +S/30).
+     */
+    public function register(
+        Request $request,
+        HandoffRegistrationService $registration,
+    ): JsonResponse {
+        $data = $this->validatedPayload($request);
+
+        try {
+            $result = $registration->registerFromVetSaas($data);
+        } catch (ValidationException $e) {
+            throw $e;
+        }
+
+        $chip = $result['registration'];
+
+        return response()->json([
+            'ok' => true,
+            'registration_id' => $chip->id,
+            'public_code' => $chip->public_code,
+            'certificate_code' => $chip->certificate_code,
+            'status' => $chip->status,
+            'activate_url' => $result['activate_url'],
+            'pricing' => [
+                'digital_amount' => $result['pricing']['amount'],
+                'physical_amount' => $result['pricing']['physical_amount'] ?? 30.0,
+                'currency' => $result['pricing']['currency'],
+            ],
+        ], 201);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function validatedPayload(Request $request): array
+    {
+        return $request->validate([
             'vetsaas_tenant_id' => ['required', 'string', 'max:36'],
             'vetsaas_slug' => ['required', 'string', 'max:80'],
             'vetsaas_paciente_id' => ['required', 'string', 'max:36'],
@@ -46,9 +92,5 @@ final class HandoffApiController extends Controller
             'animal.birth_date' => ['nullable', 'date'],
             'animal.notes' => ['nullable', 'string', 'max:2000'],
         ]);
-
-        $issued = $handoff->issue($data);
-
-        return response()->json($issued, 201);
     }
 }

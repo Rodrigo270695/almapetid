@@ -208,6 +208,13 @@ export default function AnimalShow({
                         </Link>
                     </Button>
                     <div className="flex flex-wrap items-center gap-2">
+                        {animal.chip?.status === 'pending_payment' && animal.chip.public_code ? (
+                            <Button asChild>
+                                <Link href={`/activar/${animal.chip.public_code}`}>
+                                    Activar carnet digital (S/25)
+                                </Link>
+                            </Button>
+                        ) : null}
                         {animal.chip?.certificate_code ? (
                             <Button
                                 asChild

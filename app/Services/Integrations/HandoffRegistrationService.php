@@ -10,7 +10,6 @@ use App\Models\Organization;
 use App\Models\Owner;
 use App\Models\Plan;
 use App\Models\RegistrationPayment;
-use App\Services\Payments\RegistrationPaymentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,14 +19,13 @@ final class HandoffRegistrationService
     public function __construct(
         private readonly VetSaasWebhookDispatcher $webhooks,
         private readonly HandoffTokenService $tokens,
-        private readonly RegistrationPaymentService $payments,
     ) {}
 
     /**
      * Confirma el handoff: crea org + owner + animal + chip pending_payment
-     * y un pago Culqi con canal VetSaaS.
+     * SIN cobro. El dueño activa después en AlmaPet (login + pago).
      *
-     * @return array{registration: ChipRegistration, payment: RegistrationPayment, pricing: array{channel: string, amount: float, platform_amount: float, clinic_commission: float, currency: string}}
+     * @return array{registration: ChipRegistration, activate_url: string, pricing: array{channel: string, amount: float, platform_amount: float, clinic_commission: float, currency: string, physical_amount: float}}
      */
     public function confirm(HandoffToken $token): array
     {
@@ -38,6 +36,28 @@ final class HandoffRegistrationService
         }
 
         $payload = $token->payload;
+        $result = $this->registerPendingFromPayload($payload, markToken: $token);
+
+        return $result;
+    }
+
+    /**
+     * Alta directa desde API VetSaaS (sin token web ni Culqi).
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array{registration: ChipRegistration, activate_url: string, pricing: array{channel: string, amount: float, platform_amount: float, clinic_commission: float, currency: string, physical_amount: float}}
+     */
+    public function registerFromVetSaas(array $payload): array
+    {
+        return $this->registerPendingFromPayload($payload, markToken: null);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array{registration: ChipRegistration, activate_url: string, pricing: array{channel: string, amount: float, platform_amount: float, clinic_commission: float, currency: string, physical_amount: float}}
+     */
+    private function registerPendingFromPayload(array $payload, ?HandoffToken $markToken): array
+    {
         $microchip = preg_replace('/\D+/', '', (string) ($payload['microchip'] ?? '')) ?? '';
         $tenantId = (string) ($payload['vetsaas_tenant_id'] ?? '');
         $pacienteId = (string) ($payload['vetsaas_paciente_id'] ?? '');
@@ -55,9 +75,21 @@ final class HandoffRegistrationService
             ->latest('id')
             ->first();
 
+        $plan = $this->resolveRegistrationPlan();
+        $pricing = $plan->pricingFor(Plan::CHANNEL_VETSAAS);
+        $pricing['physical_amount'] = (float) config('almapet.physical_carnet_amount', 30);
+
         if ($existing !== null) {
             if ($existing->isPendingPayment()) {
-                return $this->resumePendingPayment($token, $existing, $payload);
+                if ($markToken !== null) {
+                    $this->tokens->markUsed($markToken);
+                }
+
+                return [
+                    'registration' => $existing,
+                    'activate_url' => $this->activateUrl($existing),
+                    'pricing' => $pricing,
+                ];
             }
 
             throw ValidationException::withMessages([
@@ -67,10 +99,7 @@ final class HandoffRegistrationService
             ]);
         }
 
-        $plan = $this->resolveRegistrationPlan();
-        $pricing = $plan->pricingFor(Plan::CHANNEL_VETSAAS);
-
-        $result = DB::transaction(function () use ($token, $payload, $microchip, $tenantId, $pacienteId, $plan, $pricing): array {
+        $registration = DB::transaction(function () use ($payload, $microchip, $tenantId, $pacienteId, $markToken): ChipRegistration {
             $org = $this->resolveOrganization($payload);
             $owner = $this->upsertOwner($payload['owner'] ?? [], $org->id);
 
@@ -103,89 +132,26 @@ final class HandoffRegistrationService
                 'vetsaas_paciente_id' => $pacienteId,
             ]);
 
-            $guestEmail = $this->guestEmail($owner, $payload);
+            if ($markToken !== null) {
+                $this->tokens->markUsed($markToken);
+            }
 
-            $payment = $this->payments->createHandoffCulqiPayment(
-                $plan,
-                $registration,
-                $org,
-                $guestEmail,
-                Plan::CHANNEL_VETSAAS,
-            );
-
-            $this->tokens->markUsed($token);
-
-            return [
-                'registration' => $registration,
-                'payment' => $payment,
-                'pricing' => $pricing,
-            ];
+            return $registration;
         });
 
-        return $result;
-    }
-
-    /**
-     * Reanuda checkout si el chip quedó pending_payment (p. ej. falló el redirect a Culqi).
-     *
-     * @param  array<string, mixed>  $payload
-     * @return array{registration: ChipRegistration, payment: RegistrationPayment, pricing: array{channel: string, amount: float, platform_amount: float, clinic_commission: float, currency: string}}
-     */
-    private function resumePendingPayment(HandoffToken $token, ChipRegistration $registration, array $payload): array
-    {
-        $plan = $this->resolveRegistrationPlan();
-        $pricing = $plan->pricingFor(Plan::CHANNEL_VETSAAS);
-
-        $registration->loadMissing(['organization', 'animal.owner']);
-
-        $org = $registration->organization;
-        if ($org === null) {
-            $org = $this->resolveOrganization($payload);
-            $registration->forceFill(['organization_id' => $org->id])->save();
-        }
-
-        $owner = $registration->animal?->owner;
-        $guestEmail = $owner !== null
-            ? $this->guestEmail($owner, $payload)
-            : 'handoff+'.$registration->id.'@almapetid.com';
-
-        $payment = RegistrationPayment::query()
-            ->where('chip_registration_id', $registration->id)
-            ->where('channel', Plan::CHANNEL_VETSAAS)
-            ->where('status', RegistrationPayment::STATUS_PENDING)
-            ->latest('id')
-            ->first();
-
-        if ($payment === null) {
-            $payment = $this->payments->createHandoffCulqiPayment(
-                $plan,
-                $registration,
-                $org,
-                $guestEmail,
-                Plan::CHANNEL_VETSAAS,
-            );
-        } else {
-            // Sincroniza monto con el plan actual (evita cobros viejos a S/25).
-            $payment->forceFill([
-                'plan_id' => $plan->id,
-                'organization_id' => $org->id,
-                'amount' => $pricing['amount'],
-                'currency' => $pricing['currency'],
-                'channel' => $pricing['channel'],
-                'platform_amount' => $pricing['platform_amount'],
-                'clinic_commission' => $pricing['clinic_commission'],
-                'notes' => 'Handoff VetSaaS · '.$plan->code.' · '.$guestEmail,
-            ])->save();
-            $payment = $payment->fresh() ?? $payment;
-        }
-
-        $this->tokens->markUsed($token);
+        $fresh = $registration->fresh(['animal.owner', 'organization']) ?? $registration;
+        $this->webhooks->dispatchPending($fresh);
 
         return [
-            'registration' => $registration,
-            'payment' => $payment,
+            'registration' => $fresh,
+            'activate_url' => $this->activateUrl($fresh),
             'pricing' => $pricing,
         ];
+    }
+
+    public function activateUrl(ChipRegistration $registration): string
+    {
+        return url('/activar/'.$registration->public_code);
     }
 
     /**
@@ -239,23 +205,6 @@ final class HandoffRegistrationService
         }
 
         return $plan;
-    }
-
-    /**
-     * @param  array<string, mixed>  $payload
-     */
-    private function guestEmail(Owner $owner, array $payload): string
-    {
-        if (filled($owner->email)) {
-            return (string) $owner->email;
-        }
-
-        $clinicEmail = $payload['clinic']['email'] ?? null;
-        if (filled($clinicEmail)) {
-            return (string) $clinicEmail;
-        }
-
-        return 'handoff+'.$owner->id.'@almapetid.com';
     }
 
     /**

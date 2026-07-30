@@ -12,6 +12,22 @@ use Illuminate\Support\Facades\Log;
  */
 final class VetSaasWebhookDispatcher
 {
+    public function dispatchPending(ChipRegistration $registration): void
+    {
+        $registration->loadMissing(['animal.owner', 'organization']);
+
+        $this->send('petpass.pending', [
+            'vetsaas_tenant_id' => $registration->vetsaas_tenant_id,
+            'vetsaas_paciente_id' => $registration->vetsaas_paciente_id,
+            'registration_id' => $registration->id,
+            'public_code' => $registration->public_code,
+            'certificate_code' => $registration->certificate_code,
+            'activate_url' => url('/activar/'.$registration->public_code),
+            'microchip' => $registration->microchip,
+            'status' => $registration->status,
+        ]);
+    }
+
     public function dispatchRegistered(ChipRegistration $registration): void
     {
         $registration->loadMissing(['animal.owner', 'organization']);

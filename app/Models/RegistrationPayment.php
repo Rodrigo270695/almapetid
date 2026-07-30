@@ -33,6 +33,7 @@ class RegistrationPayment extends Model
         'channel',
         'platform_amount',
         'clinic_commission',
+        'includes_physical_carnet',
         'status',
         'provider',
         'provider_reference',
@@ -47,6 +48,7 @@ class RegistrationPayment extends Model
             'amount' => 'decimal:2',
             'platform_amount' => 'decimal:2',
             'clinic_commission' => 'decimal:2',
+            'includes_physical_carnet' => 'boolean',
             'paid_at' => 'datetime',
         ];
     }

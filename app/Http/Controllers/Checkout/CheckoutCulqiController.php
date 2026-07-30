@@ -52,6 +52,15 @@ class CheckoutCulqiController extends Controller
         }
 
         if ($payment->status === RegistrationPayment::STATUS_PAID) {
+            if ($payment->chip_registration_id) {
+                $animalId = $payment->chipRegistration?->animal_id
+                    ?? $payment->load('chipRegistration')->chipRegistration?->animal_id;
+
+                return redirect()
+                    ->route($animalId ? 'animals.show' : 'animals.index', $animalId ? ['animal' => $animalId] : [])
+                    ->with('success', 'Este pago ya está confirmado.');
+            }
+
             return redirect()
                 ->route('animals.create', ['payment_id' => $payment->id])
                 ->with('success', 'Este pago ya está confirmado. Continúa con el registro.');
@@ -176,6 +185,25 @@ class CheckoutCulqiController extends Controller
         }
 
         $payments->markPaid($payment, $chargeId, $charge);
+
+        // Activación VetSaaS: el pago ya está vinculado al chip pending.
+        if ($payment->chip_registration_id) {
+            $payment = $payment->fresh(['chipRegistration']) ?? $payment;
+            app(\App\Services\Integrations\HandoffRegistrationService::class)
+                ->activateAfterPayment($payment);
+
+            $animalId = $payment->chipRegistration?->animal_id;
+
+            if ($animalId) {
+                return redirect()
+                    ->route('animals.show', $animalId)
+                    ->with('success', '¡Carnet digital activado! Tu mascota ya es buscable en AlmaPet ID.');
+            }
+
+            return redirect()
+                ->route('animals.index')
+                ->with('success', '¡Carnet digital activado!');
+        }
 
         return redirect()
             ->route('animals.create', ['payment_id' => $payment->id])

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\PublicSite;
 
 use App\Http\Controllers\Controller;
-use App\Models\Plan;
 use App\Services\Integrations\HandoffRegistrationService;
 use App\Services\Integrations\HandoffTokenService;
 use Illuminate\Database\QueryException;
@@ -34,7 +33,6 @@ final class HandoffController extends Controller
             $clinic = is_array($payload['clinic'] ?? null) ? $payload['clinic'] : [];
             $animal = is_array($payload['animal'] ?? null) ? $payload['animal'] : [];
             $owner = is_array($payload['owner'] ?? null) ? $payload['owner'] : [];
-            $pricing = $this->vetsaasPricing();
 
             return Inertia::render('public/handoff/confirm', [
                 'token' => $plain,
@@ -47,8 +45,13 @@ final class HandoffController extends Controller
                 ],
                 'owner_name' => $this->ownerDisplayName($owner),
                 'microchip' => $payload['microchip'] ?? null,
-                'pricing' => $pricing,
-                'culqi_ready' => $this->culqiEnabled(),
+                'pricing' => [
+                    'digital_amount' => 25.0,
+                    'physical_amount' => (float) config('almapet.physical_carnet_amount', 30),
+                    'currency' => 'PEN',
+                ],
+                'no_charge_at_clinic' => true,
+                'culqi_ready' => false,
             ]);
         } catch (Throwable $e) {
             report($e);
@@ -76,12 +79,6 @@ final class HandoffController extends Controller
             'accept_terms' => ['accepted'],
         ]);
 
-        if (! $this->culqiEnabled()) {
-            throw ValidationException::withMessages([
-                'token' => 'Culqi no está configurado. No se puede completar el registro con pago.',
-            ]);
-        }
-
         $token = $tokens->findConsumable($data['token']);
         if ($token === null) {
             throw ValidationException::withMessages([
@@ -98,57 +95,22 @@ final class HandoffController extends Controller
             Log::error('Handoff confirm database error', ['message' => $e->getMessage()]);
 
             throw ValidationException::withMessages([
-                'token' => 'Error de base de datos al preparar el pago. En el servidor ejecuta: php artisan migrate --force',
+                'token' => 'Error de base de datos al registrar. En el servidor ejecuta: php artisan migrate --force',
             ]);
         } catch (Throwable $e) {
             report($e);
             Log::error('Handoff confirm failed', ['message' => $e->getMessage()]);
 
             throw ValidationException::withMessages([
-                'token' => 'No se pudo preparar el pago. Intenta generar un nuevo enlace desde VetSaaS.',
+                'token' => 'No se pudo completar el registro. Intenta generar un nuevo enlace desde VetSaaS.',
             ]);
         }
 
-        $payment = $result['payment'];
-
-        $request->session()->put('handoff_payment_id', $payment->id);
+        $chip = $result['registration'];
 
         return redirect()
-            ->route('public.handoff.checkout', $payment)
-            ->with('success', 'Datos confirmados. Completa el pago para activar el registro.');
-    }
-
-    /**
-     * @return array{amount: float, currency: string, platform_amount: float, clinic_commission: float, plan_name: string|null}|null
-     */
-    private function vetsaasPricing(): ?array
-    {
-        $plan = Plan::query()
-            ->where('active', true)
-            ->where('billing_period', Plan::PERIOD_REGISTRATION)
-            ->orderByDesc('is_default')
-            ->orderBy('sort_order')
-            ->first();
-
-        if ($plan === null) {
-            return null;
-        }
-
-        $pricing = $plan->pricingFor(Plan::CHANNEL_VETSAAS);
-
-        return [
-            'amount' => $pricing['amount'],
-            'currency' => $pricing['currency'],
-            'platform_amount' => $pricing['platform_amount'],
-            'clinic_commission' => $pricing['clinic_commission'],
-            'plan_name' => $plan->name,
-        ];
-    }
-
-    private function culqiEnabled(): bool
-    {
-        return trim((string) config('culqi.public_key')) !== ''
-            && trim((string) config('culqi.secret_key')) !== '';
+            ->route('public.activate.show', $chip->public_code)
+            ->with('success', 'Registro creado. Inicia sesión o crea tu cuenta para activar el carnet digital (S/25).');
     }
 
     /**

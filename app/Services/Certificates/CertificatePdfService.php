@@ -39,7 +39,7 @@ class CertificatePdfService
             'profileUrl' => $profileUrl,
             'qrPng' => $qrPng,
             'issuedAt' => now('America/Lima'),
-        ])->setPaper('a4', 'portrait');
+        ])->setPaper('a4', 'landscape');
 
         $filename = 'almapet-'.$chip->certificate_code.'.pdf';
         $binary = $pdf->output();
