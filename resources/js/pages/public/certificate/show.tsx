@@ -68,7 +68,7 @@ export default function CertificateShow({
                             />
                         </div>
                         <p className="text-center text-[11px] text-muted-foreground">
-                            Anverso y reverso · formato DNI Perú (85,60 × 53,98 mm)
+                            Anverso y reverso · carnet AlmaPet ID
                         </p>
                     </div>
                 </div>

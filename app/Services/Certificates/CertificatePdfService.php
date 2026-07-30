@@ -12,8 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
- * Carnet digital AlmaPet ID — formato DNI Perú (ISO ID-1).
- * Anverso/reverso se componen con GD (ondas, marca de agua, tipografía).
+ * Carnet digital AlmaPet ID — ISO/IEC 7810 ID-1 (tarjeta estándar).
  */
 class CertificatePdfService
 {
@@ -97,8 +96,8 @@ class CertificatePdfService
         imagealphablending($img, true);
         $this->paintFrontBackground($img);
 
-        // Marca de agua central (wordmark celeste grande)
-        $this->blitWordmark($img, self::W / 2, (int) (self::H * 0.55), 240, 0.32, true);
+        // Marca de agua: logo circular AlmaPet (celeste, sutil, centrado)
+        $this->blitLogoIcon($img, self::W / 2, (int) (self::H * 0.55), 130, 0.14);
 
         $animal = $chip->animal;
         $owner = $animal?->owner;
@@ -151,7 +150,7 @@ class CertificatePdfService
             imagettftext($img, 5.5, 0, $photoX + 8, $photoY + $photoH + 60, $muted, $font, (string) $chip->public_code);
         }
 
-        // Datos (columna derecha, estilo DNI)
+        // Datos
         $dx = 96;
         $dy = 52;
         $this->field($img, $font, $fontBold, $sky, $ink, $dx, $dy, 'Apellido del titular', mb_strtoupper((string) ($owner?->lastname ?: '—')));
@@ -194,7 +193,7 @@ class CertificatePdfService
         imagefilledrectangle($img, 12, self::H - 18, self::W - 12, self::H - 17, imagecolorallocate($img, 186, 230, 253));
         if ($font) {
             $foot = sprintf(
-                'Microchip %s  ·  Vigencia 3 años  ·  %s  ·  Formato DNI Perú 85,60 × 53,98 mm',
+                'Microchip %s  ·  Vigencia 3 años  ·  %s',
                 (string) $chip->microchip,
                 (string) ($org?->name ?? 'AlmaPet ID'),
             );
@@ -215,8 +214,9 @@ class CertificatePdfService
         imagealphablending($img, true);
         $this->paintBackBackground($img);
 
-        // Wordmark centrado (protagonista del reverso)
-        $this->blitWordmark($img, self::W / 2, (int) (self::H * 0.45), 220, 1.0, false);
+        // Wordmark centrado + logo sutil detrás
+        $this->blitLogoIcon($img, self::W / 2, (int) (self::H * 0.42), 100, 0.12);
+        $this->blitWordmark($img, self::W / 2, (int) (self::H * 0.46), 200, 1.0, false);
 
         $font = $this->fontRegular();
         $skyDeep = imagecolorallocate($img, 7, 89, 133);
@@ -247,55 +247,26 @@ class CertificatePdfService
         $w = self::W;
         $h = self::H;
 
-        // Degradé crema → blanco → celeste (estilo DNI)
+        // Fondo casi blanco con toque celeste muy suave
         for ($y = 0; $y < $h; $y++) {
             $t = $y / max(1, $h - 1);
-            if ($t < 0.45) {
-                $u = $t / 0.45;
-                $r = (int) (255 - $u * 8);
-                $g = (int) (248 - $u * 4);
-                $b = (int) (230 + $u * 10);
-            } else {
-                $u = ($t - 0.45) / 0.55;
-                $r = (int) (247 - $u * 40);
-                $g = (int) (244 - $u * 10);
-                $b = (int) (240 + $u * 15);
-            }
-            $c = imagecolorallocate($img, $r, $g, $b);
-            imageline($img, 0, $y, $w, $y, $c);
+            $r = (int) (255 - $t * 12);
+            $g = (int) (255 - $t * 6);
+            $b = (int) (255 - $t * 2);
+            imageline($img, 0, $y, $w, $y, imagecolorallocate($img, $r, $g, $b));
         }
 
-        // Ondas / guilloche más densas (vida tipo DNI)
-        for ($i = 0; $i < 36; $i++) {
-            $phase = $i * 0.42;
-            $amp = 5 + ($i % 6);
-            $yBase = 18 + $i * 5;
-            $col = imagecolorallocatealpha(
-                $img,
-                14 + ($i % 4) * 15,
-                165 + ($i % 5) * 8,
-                233,
-                95 + ($i % 6) * 3,
-            );
+        // Olas apenas visibles
+        for ($i = 0; $i < 14; $i++) {
+            $phase = $i * 0.7;
+            $amp = 3 + ($i % 3);
+            $yBase = 28 + $i * 11;
+            // alpha alto = más transparente en GD
+            $col = imagecolorallocatealpha($img, 125, 211, 252, 118);
             for ($x = 0; $x < $w; $x++) {
-                $yy = (int) ($yBase + sin($x * 0.04 + $phase) * $amp + sin($x * 0.11 + $phase * 1.7) * 2.5);
+                $yy = (int) ($yBase + sin($x * 0.028 + $phase) * $amp);
                 if ($yy >= 0 && $yy < $h) {
                     imagesetpixel($img, $x, $yy, $col);
-                    if ($yy + 1 < $h) {
-                        imagesetpixel($img, $x, $yy + 1, $col);
-                    }
-                }
-            }
-        }
-
-        // Curvas diagonales suaves (derecha)
-        for ($i = 0; $i < 12; $i++) {
-            $col = imagecolorallocatealpha($img, 125, 211, 252, 105);
-            for ($t = 0; $t < 200; $t++) {
-                $x = (int) ($w * 0.55 + $t * 0.9);
-                $y = (int) (20 + $i * 12 + sin($t * 0.08) * 18);
-                if ($x >= 0 && $x < $w && $y >= 0 && $y < $h) {
-                    imagesetpixel($img, $x, $y, $col);
                 }
             }
         }
@@ -306,41 +277,113 @@ class CertificatePdfService
         $w = self::W;
         $h = self::H;
 
-        // Base blanca → celeste
         for ($y = 0; $y < $h; $y++) {
             $t = $y / max(1, $h - 1);
-            $r = (int) (255 - $t * 55);
-            $g = (int) (255 - $t * 35);
-            $b = (int) (255 - $t * 5);
+            $r = (int) (255 - $t * 22);
+            $g = (int) (255 - $t * 12);
+            $b = 255;
             imageline($img, 0, $y, $w, $y, imagecolorallocate($img, $r, $g, $b));
         }
 
-        // Olas densas blanco/celeste (reverso vivo)
-        for ($i = 0; $i < 40; $i++) {
-            $phase = $i * 0.55;
-            $amp = 10 + ($i % 7);
-            $yBase = 8 + $i * 5;
-            $alpha = 90 + ($i % 6) * 5;
-            $col = imagecolorallocatealpha($img, 14, 116, 144, $alpha);
-            $col2 = imagecolorallocatealpha($img, 186, 230, 253, $alpha);
+        // Olas suaves (reverso)
+        for ($i = 0; $i < 18; $i++) {
+            $phase = $i * 0.6;
+            $amp = 5 + ($i % 4);
+            $yBase = 16 + $i * 9;
+            $col = imagecolorallocatealpha($img, 56, 189, 248, 115);
             for ($x = 0; $x < $w; $x++) {
-                $yy = (int) ($yBase + sin($x * 0.035 + $phase) * $amp + cos($x * 0.09 + $phase) * 4);
+                $yy = (int) ($yBase + sin($x * 0.03 + $phase) * $amp);
                 if ($yy >= 0 && $yy < $h) {
-                    imagesetpixel($img, $x, $yy, $i % 2 === 0 ? $col : $col2);
-                    if ($yy + 1 < $h) {
-                        imagesetpixel($img, $x, $yy + 1, $i % 2 === 0 ? $col2 : $col);
-                    }
+                    imagesetpixel($img, $x, $yy, $col);
                 }
             }
         }
+    }
 
-        // Círculos concéntricos suaves (centro)
-        $cx = (int) ($w / 2);
-        $cy = (int) ($h / 2);
-        for ($r = 20; $r < 110; $r += 6) {
-            $col = imagecolorallocatealpha($img, 56, 189, 248, 110);
-            imageellipse($img, $cx, $cy, $r * 2, (int) ($r * 1.35), $col);
+    // ─── Logo circular (marca de agua) ─────────────────────────────────
+
+    /**
+     * Logo AlmaPet (ícono) en celeste, mezclado como marca de agua.
+     *
+     * @param  float  $opacity  0..1
+     */
+    private function blitLogoIcon(\GdImage $canvas, int $cx, int $cy, int $size, float $opacity): void
+    {
+        $path = public_path('icon-192.png');
+        if (! is_file($path)) {
+            $path = public_path('logo.png');
         }
+        if (! is_file($path) || ! function_exists('imagecreatefromstring')) {
+            return;
+        }
+
+        $bin = file_get_contents($path);
+        if ($bin === false) {
+            return;
+        }
+
+        $src = @imagecreatefromstring($bin);
+        if ($src === false) {
+            return;
+        }
+
+        $sw = imagesx($src);
+        $sh = imagesy($src);
+        $scaled = imagecreatetruecolor($size, $size);
+        imagealphablending($scaled, false);
+        imagesavealpha($scaled, true);
+        $transparent = imagecolorallocatealpha($scaled, 255, 255, 255, 127);
+        imagefilledrectangle($scaled, 0, 0, $size, $size, $transparent);
+        imagealphablending($scaled, true);
+        imagecopyresampled($scaled, $src, 0, 0, 0, 0, $size, $size, $sw, $sh);
+        imagedestroy($src);
+
+        $dx = (int) ($cx - $size / 2);
+        $dy = (int) ($cy - $size / 2);
+
+        // Celeste marca de agua
+        $cr = 56;
+        $cg = 189;
+        $cb = 248;
+
+        for ($y = 0; $y < $size; $y++) {
+            for ($x = 0; $x < $size; $x++) {
+                $rgba = imagecolorat($scaled, $x, $y);
+                $r = ($rgba >> 16) & 0xFF;
+                $g = ($rgba >> 8) & 0xFF;
+                $b = $rgba & 0xFF;
+                $lum = 0.299 * $r + 0.587 * $g + 0.114 * $b;
+
+                // Fondo negro del asset → saltar
+                if ($r < 35 && $g < 35 && $b < 35) {
+                    continue;
+                }
+                // Círculo blanco del logo → saltar (deja ver el carnet)
+                if ($lum > 230 && abs($r - $g) < 20 && abs($g - $b) < 20) {
+                    continue;
+                }
+
+                $px = $dx + $x;
+                $py = $dy + $y;
+                if ($px < 0 || $py < 0 || $px >= self::W || $py >= self::H) {
+                    continue;
+                }
+
+                $dst = imagecolorat($canvas, $px, $py);
+                $dr = ($dst >> 16) & 0xFF;
+                $dg = ($dst >> 8) & 0xFF;
+                $db = $dst & 0xFF;
+
+                // Forma del logo → celeste suave
+                $o = $opacity;
+                $nr = (int) ($dr * (1 - $o) + $cr * $o);
+                $ng = (int) ($dg * (1 - $o) + $cg * $o);
+                $nb = (int) ($db * (1 - $o) + $cb * $o);
+                imagesetpixel($canvas, $px, $py, imagecolorallocate($canvas, $nr, $ng, $nb));
+            }
+        }
+
+        imagedestroy($scaled);
     }
 
     // ─── Wordmark celeste ──────────────────────────────────────────────
