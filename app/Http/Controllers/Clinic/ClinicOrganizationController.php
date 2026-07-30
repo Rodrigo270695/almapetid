@@ -35,7 +35,30 @@ class ClinicOrganizationController extends Controller
                 'show_on_network' => $organization->show_on_network,
                 'active' => $organization->active,
             ],
+            'embed' => $this->embedSnippet((int) $organization->id),
         ]);
+    }
+
+    /**
+     * @return array{url: string, snippet: string}
+     */
+    private function embedSnippet(int $organizationId): array
+    {
+        $url = route('embed.search', ['ref' => $organizationId], absolute: true);
+        $snippet = '<iframe'
+            ."\n  src=\"".e($url)."\""
+            ."\n  title=\"AlmaPet ID — Buscar microchip\""
+            ."\n  width=\"100%\""
+            ."\n  height=\"640\""
+            ."\n  style=\"border:0;border-radius:16px;max-width:480px;background:#F7F9FB;\""
+            ."\n  loading=\"lazy\""
+            ."\n  referrerpolicy=\"no-referrer-when-downgrade\""
+            ."\n></iframe>";
+
+        return [
+            'url' => $url,
+            'snippet' => $snippet,
+        ];
     }
 
     public function update(UpdateOrganizationRequest $request): RedirectResponse

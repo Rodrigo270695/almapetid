@@ -1,6 +1,7 @@
 import { Form, Head, setLayoutProps } from '@inertiajs/react';
-import { Building2 } from 'lucide-react';
+import { Building2, Check, Code2, Copy } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,12 +25,17 @@ type Props = {
         show_on_network: boolean;
         active: boolean;
     };
+    embed: {
+        url: string;
+        snippet: string;
+    };
 };
 
-export default function ClinicSettings({ organization }: Props) {
+export default function ClinicSettings({ organization, embed }: Props) {
     const [phone, setPhone] = useState(
         sanitizePhoneDigits(organization.contact_phone ?? ''),
     );
+    const [copied, setCopied] = useState(false);
 
     setLayoutProps({
         breadcrumbs: [
@@ -37,6 +43,17 @@ export default function ClinicSettings({ organization }: Props) {
             { title: 'Configuración', href: clinicSettings() },
         ],
     });
+
+    const copySnippet = async () => {
+        try {
+            await navigator.clipboard.writeText(embed.snippet);
+            setCopied(true);
+            toast.success('Código iframe copiado');
+            window.setTimeout(() => setCopied(false), 2000);
+        } catch {
+            toast.error('No se pudo copiar. Selecciona el código manualmente.');
+        }
+    };
 
     return (
         <>
@@ -54,6 +71,54 @@ export default function ClinicSettings({ organization }: Props) {
                         RUC no se puede cambiar.
                     </p>
                 </div>
+
+                <section className="max-w-2xl space-y-4 rounded-2xl border border-border/70 bg-card/40 p-5">
+                    <div className="flex items-start gap-3">
+                        <div className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-brand-sky/12 text-brand-sky">
+                            <Code2 className="size-5" />
+                        </div>
+                        <div className="min-w-0">
+                            <h2 className="font-heading text-lg font-semibold tracking-tight">
+                                Buscador para tu web
+                            </h2>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Copia este iframe y pégalo en tu landing o
+                                página web. Tus visitantes buscan el microchip y
+                                ven el perfil público sin salir de tu sitio.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="overflow-hidden rounded-xl border border-border/60 bg-[#0A1A24]/95">
+                        <pre className="max-h-56 overflow-auto p-4 text-xs leading-relaxed break-all whitespace-pre-wrap text-white/85">
+                            {embed.snippet}
+                        </pre>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                        <Button
+                            type="button"
+                            onClick={() => void copySnippet()}
+                            className="cursor-pointer gap-2 bg-brand-sky text-white hover:bg-brand-sky/90"
+                        >
+                            {copied ? (
+                                <Check className="size-4" />
+                            ) : (
+                                <Copy className="size-4" />
+                            )}
+                            {copied ? 'Copiado' : 'Copiar iframe'}
+                        </Button>
+                        <Button type="button" variant="outline" asChild>
+                            <a
+                                href={embed.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Vista previa
+                            </a>
+                        </Button>
+                    </div>
+                </section>
 
                 <Form
                     {...update.form()}

@@ -150,6 +150,19 @@
             "location": "Ubicación"
         }
     },
+    "embed": {
+        "title": "Buscar microchip",
+        "badge": "Widget",
+        "hint": "Ingresa el microchip o código AlmaPet para ver el perfil público.",
+        "lost_alert": "Mascota reportada como perdida",
+        "status_active": "Activo",
+        "status_lost": "Perdida",
+        "clinic": "Veterinaria: {{name}}",
+        "code": "Código AlmaPet",
+        "microchip": "Microchip",
+        "open_full": "Abrir perfil completo",
+        "powered_by": "Impulsado por AlmaPet ID"
+    },
     "float": {
         "whatsapp": "WhatsApp",
         "whatsapp_clinic": "WhatsApp clínicas",

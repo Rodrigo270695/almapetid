@@ -23,6 +23,7 @@ use App\Http\Controllers\PublicSite\HandoffCheckoutController;
 use App\Http\Controllers\PublicSite\HandoffController;
 use App\Http\Controllers\Public\PublicLostWallController;
 use App\Http\Controllers\Public\PublicPetProfileController;
+use App\Http\Controllers\Public\EmbedSearchController;
 use App\Http\Controllers\Public\PublicSearchController;
 use App\Http\Controllers\Platform\PlatformSponsorController;
 use App\Http\Controllers\Platform\PlatformAlertController;
@@ -61,6 +62,10 @@ Route::get('/precios', function () {
 Route::get('/buscar', PublicSearchController::class)
     ->middleware('throttle:30,1')
     ->name('public.search');
+
+Route::get('/embed/buscar', EmbedSearchController::class)
+    ->middleware(['throttle:30,1', 'embed.frame'])
+    ->name('embed.search');
 
 Route::get('/certificado/{code}', [CertificateController::class, 'show'])
     ->middleware('throttle:20,1')

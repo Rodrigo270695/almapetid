@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AllowEmbedFraming;
 use App\Http\Middleware\EnsureClinicUser;
 use App\Http\Middleware\EnsureDocumentComplete;
 use App\Http\Middleware\EnsurePlatformAdmin;
@@ -42,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'document.complete' => EnsureDocumentComplete::class,
             'clinic' => EnsureClinicUser::class,
             'platform' => EnsurePlatformAdmin::class,
+            'embed.frame' => AllowEmbedFraming::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

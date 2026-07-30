@@ -150,6 +150,19 @@
             "location": "Location"
         }
     },
+    "embed": {
+        "title": "Search microchip",
+        "badge": "Widget",
+        "hint": "Enter the microchip or AlmaPet code to see the public profile.",
+        "lost_alert": "Pet reported as lost",
+        "status_active": "Active",
+        "status_lost": "Lost",
+        "clinic": "Clinic: {{name}}",
+        "code": "AlmaPet code",
+        "microchip": "Microchip",
+        "open_full": "Open full profile",
+        "powered_by": "Powered by AlmaPet ID"
+    },
     "float": {
         "whatsapp": "WhatsApp",
         "whatsapp_clinic": "Clinic WhatsApp",

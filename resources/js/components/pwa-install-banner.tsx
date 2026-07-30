@@ -12,6 +12,7 @@ const HIDE_PATH_PREFIXES = [
     '/register',
     '/forgot-password',
     '/reset-password',
+    '/embed',
 ] as const;
 
 function shouldHideBanner(pathname: string): boolean {
