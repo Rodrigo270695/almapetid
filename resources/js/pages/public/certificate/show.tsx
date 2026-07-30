@@ -49,28 +49,23 @@ export default function CertificateShow({
                     </div>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-border/70 bg-slate-200/60 p-4 shadow-sm dark:bg-slate-900/40">
-                    <div className="mx-auto w-full max-w-[560px] space-y-3">
-                        <div className="overflow-hidden rounded-md bg-white shadow">
-                            <iframe
-                                title={`Anverso ${code}`}
-                                src={`${pdf_url}#page=1&toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                                className="block aspect-[85.6/53.98] w-full bg-white"
-                                style={{ minHeight: 260 }}
-                            />
-                        </div>
-                        <div className="overflow-hidden rounded-md bg-white shadow">
-                            <iframe
-                                title={`Reverso ${code}`}
-                                src={`${pdf_url}#page=2&toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                                className="block aspect-[85.6/53.98] w-full bg-white"
-                                style={{ minHeight: 260 }}
-                            />
-                        </div>
-                        <p className="text-center text-[11px] text-muted-foreground">
-                            Anverso y reverso · carnet AlmaPet ID
-                        </p>
+                <div className="overflow-hidden rounded-xl border border-border/70 bg-slate-200/60 p-3 shadow-sm sm:p-5 dark:bg-slate-900/40">
+                    <div className="mx-auto w-full max-w-[720px] overflow-hidden rounded-lg bg-white shadow-md">
+                        {/*
+                          Un solo visor: anverso + reverso.
+                          El PDF sigue en tamaño tarjeta; el iframe es más alto/ancho
+                          para que el carnet se lea grande (zoom FitH).
+                        */}
+                        <iframe
+                            title={`Carnet ${code}`}
+                            src={`${pdf_url}#toolbar=0&navpanes=0&scrollbar=1&zoom=page-width`}
+                            className="block w-full bg-slate-100"
+                            style={{ height: 'min(78vh, 820px)', minHeight: 560 }}
+                        />
                     </div>
+                    <p className="mt-3 text-center text-[11px] text-muted-foreground">
+                        Deslizá para ver anverso y reverso · el archivo PDF conserva el tamaño de tarjeta
+                    </p>
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground">

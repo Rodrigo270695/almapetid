@@ -150,7 +150,8 @@ class CertificatePdfService
             $pub = (string) $chip->public_code;
             $bbox = imagettfbbox(5.5, 0, $font, $pub);
             $tw = abs(($bbox[2] ?? 0) - ($bbox[0] ?? 0));
-            imagettftext($img, 5.5, 0, $photoX + (int) (($photoW - $tw) / 2), $qrY + 54, $muted, $font, $pub);
+            // Más cerca del QR (más arriba), lejos de la línea del pie
+            imagettftext($img, 5.5, 0, $photoX + (int) (($photoW - $tw) / 2), $qrY + 48, $muted, $font, $pub);
         }
 
         // Datos
@@ -208,14 +209,14 @@ class CertificatePdfService
         if (mb_strlen($clinic) > 36) {
             $clinic = mb_substr($clinic, 0, 34).'…';
         }
-        imagefilledrectangle($img, 12, self::H - 26, self::W - 10, self::H - 25, imagecolorallocate($img, 186, 230, 253));
+        imagefilledrectangle($img, 12, self::H - 28, self::W - 10, self::H - 27, imagecolorallocate($img, 186, 230, 253));
         if ($font) {
             $foot = sprintf(
                 'Microchip %s  ·  Vigencia 3 años  ·  %s',
                 (string) $chip->microchip,
                 $clinic,
             );
-            imagettftext($img, 5.2, 0, 12, self::H - 12, $muted, $font, $foot);
+            imagettftext($img, 5.2, 0, 12, self::H - 14, $muted, $font, $foot);
         }
 
         // Franja lateral ámbar (detalle de seguridad)
@@ -248,7 +249,7 @@ class CertificatePdfService
             $code = $chip->certificate_code.'  ·  '.$chip->public_code;
             $bbox = imagettfbbox(6.5, 0, $font, $code);
             $tw = abs(($bbox[2] ?? 0) - ($bbox[0] ?? 0));
-            imagettftext($img, 6.5, 0, (int) ((self::W - $tw) / 2), (int) (self::H * 0.80), $skyDeep, $font, $code);
+            imagettftext($img, 6.5, 0, (int) ((self::W - $tw) / 2), (int) (self::H * 0.74), $skyDeep, $font, $code);
         }
 
         // Bandas superior/inferior tipo documento
