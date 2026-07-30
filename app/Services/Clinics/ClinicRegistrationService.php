@@ -75,6 +75,7 @@ final class ClinicRegistrationService
                 'document_type' => $data['document_type'],
                 'document_number' => $data['document_number'],
                 'email' => $data['email'],
+                'phone' => $data['phone'] ?? $data['contact_phone'] ?? null,
                 'password' => $data['password'],
                 'email_verified_at' => now(),
             ]);

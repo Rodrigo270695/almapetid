@@ -31,6 +31,7 @@ import {
     isPasswordStrong,
     passwordsMatch,
 } from '@/lib/password-strength';
+import { sanitizePhoneDigits } from '@/lib/phone';
 import { login } from '@/routes';
 import { choose } from '@/routes/auth';
 import { store } from '@/routes/clinic/register';
@@ -139,6 +140,7 @@ export default function ClinicRegister({
 
     const canSubmit =
         Boolean(email.trim()) &&
+        phone.replace(/\D+/g, '').length >= 7 &&
         isPasswordStrong(password) &&
         passwordsMatch(password, passwordConfirmation) &&
         geo.distrito_id !== null;
@@ -156,6 +158,15 @@ export default function ClinicRegister({
         }
         if (!email.trim()) {
             toast.error(t('clinic.validation.email', 'Ingresa un correo válido.'));
+            return;
+        }
+        if (phone.replace(/\D+/g, '').length < 7) {
+            toast.error(
+                t(
+                    'clinic.validation.phone',
+                    'Ingresa el teléfono de la clínica (solo números).',
+                ),
+            );
             return;
         }
         if (!isPasswordStrong(password)) {
@@ -453,13 +464,20 @@ function ClinicFormBody({
                     <Input
                         id="contact_phone"
                         name="contact_phone"
+                        type="tel"
+                        inputMode="numeric"
+                        required
                         tabIndex={2}
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) =>
+                            setPhone(sanitizePhoneDigits(e.target.value))
+                        }
                         placeholder={t('clinic.contact_phone_placeholder')}
                         className={authFieldClassName}
                     />
-                    <InputError message={errors.contact_phone} />
+                    <InputError
+                        message={errors.contact_phone || errors.phone}
+                    />
                 </div>
 
                 <PasswordStrengthFields
