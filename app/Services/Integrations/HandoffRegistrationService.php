@@ -11,6 +11,7 @@ use App\Models\Owner;
 use App\Models\Plan;
 use App\Models\RegistrationPayment;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -81,17 +82,20 @@ final class HandoffRegistrationService
 
         if ($existing !== null) {
             if ($existing->isPendingPayment()) {
+                $this->applyAnimalPhotoFromPayload($existing->animal, is_array($payload['animal'] ?? null) ? $payload['animal'] : []);
+
                 if ($markToken !== null) {
                     $this->tokens->markUsed($markToken);
                 }
 
                 return [
-                    'registration' => $existing,
+                    'registration' => $existing->fresh(['animal.owner', 'organization']) ?? $existing,
                     'activate_url' => $this->activateUrl($existing),
                     'pricing' => $pricing,
                 ];
             }
 
+            // Ya activo/perdido: no re-registra aquí (usar sync-photo).
             throw ValidationException::withMessages([
                 'microchip' => $existing->microchip === $microchip
                     ? 'Este microchip ya está registrado en AlmaPet ID.'
@@ -114,6 +118,7 @@ final class HandoffRegistrationService
                 'color' => $animalPayload['color'] ?? null,
                 'birth_date' => $animalPayload['birth_date'] ?? null,
                 'notes' => $animalPayload['notes'] ?? null,
+                'photo_path' => $this->storeAnimalPhotoFromPayload($animalPayload),
             ]);
 
             $registration = ChipRegistration::query()->create([
@@ -294,6 +299,94 @@ final class HandoffRegistrationService
         $row->save();
 
         return $row->fresh() ?? $row;
+    }
+
+    /**
+     * Actualiza la foto del animal vinculado a un paciente VetSaaS (activo o pendiente).
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    public function syncAnimalPhoto(array $payload): ChipRegistration
+    {
+        $tenantId = (string) ($payload['vetsaas_tenant_id'] ?? '');
+        $pacienteId = (string) ($payload['vetsaas_paciente_id'] ?? '');
+
+        $chip = ChipRegistration::query()
+            ->where('vetsaas_tenant_id', $tenantId)
+            ->where('vetsaas_paciente_id', $pacienteId)
+            ->with('animal')
+            ->latest('id')
+            ->first();
+
+        if ($chip === null) {
+            throw ValidationException::withMessages([
+                'vetsaas_paciente_id' => 'No hay registro AlmaPet para este paciente.',
+            ]);
+        }
+
+        $animalPayload = is_array($payload['animal'] ?? null) ? $payload['animal'] : $payload;
+        $this->applyAnimalPhotoFromPayload($chip->animal, $animalPayload);
+
+        return $chip->fresh(['animal.owner', 'organization']) ?? $chip;
+    }
+
+    /**
+     * @param  array<string, mixed>  $animalPayload
+     */
+    private function applyAnimalPhotoFromPayload(?Animal $animal, array $animalPayload): void
+    {
+        if ($animal === null) {
+            return;
+        }
+
+        $path = $this->storeAnimalPhotoFromPayload($animalPayload);
+        if ($path === null) {
+            return;
+        }
+
+        if (filled($animal->photo_path) && $animal->photo_path !== $path) {
+            Storage::disk('public')->delete($animal->photo_path);
+        }
+
+        $animal->forceFill(['photo_path' => $path])->save();
+    }
+
+    /**
+     * @param  array<string, mixed>  $animalPayload
+     */
+    private function storeAnimalPhotoFromPayload(array $animalPayload): ?string
+    {
+        $base64 = (string) ($animalPayload['photo_base64'] ?? '');
+        if ($base64 === '') {
+            return null;
+        }
+
+        if (str_contains($base64, ',')) {
+            $base64 = substr($base64, strpos($base64, ',') + 1) ?: '';
+        }
+
+        $binary = base64_decode($base64, true);
+        if ($binary === false || strlen($binary) < 32) {
+            return null;
+        }
+
+        // Límite ~2.5 MB decodificado
+        if (strlen($binary) > 2_500_000) {
+            return null;
+        }
+
+        $mime = strtolower(trim((string) ($animalPayload['photo_mime'] ?? 'image/jpeg')));
+        $ext = match ($mime) {
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+            default => 'jpg',
+        };
+
+        $path = 'animals/'.Str::uuid()->toString().'.'.$ext;
+        Storage::disk('public')->put($path, $binary);
+
+        return $path;
     }
 
     private function mapDocumentType(mixed $raw): string

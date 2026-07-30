@@ -56,6 +56,32 @@ final class HandoffApiController extends Controller
     }
 
     /**
+     * Sincroniza la foto del animal desde VetSaaS (registros ya existentes).
+     */
+    public function syncPhoto(
+        Request $request,
+        HandoffRegistrationService $registration,
+    ): JsonResponse {
+        $data = $request->validate([
+            'vetsaas_tenant_id' => ['required', 'string', 'max:36'],
+            'vetsaas_paciente_id' => ['required', 'string', 'max:36'],
+            'animal' => ['required', 'array'],
+            'animal.photo_base64' => ['required', 'string'],
+            'animal.photo_mime' => ['nullable', 'string', 'max:40'],
+        ]);
+
+        $chip = $registration->syncAnimalPhoto($data);
+
+        return response()->json([
+            'ok' => true,
+            'registration_id' => $chip->id,
+            'public_code' => $chip->public_code,
+            'certificate_code' => $chip->certificate_code,
+            'photo_synced' => filled($chip->animal?->photo_path),
+        ]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function validatedPayload(Request $request): array
@@ -91,6 +117,8 @@ final class HandoffApiController extends Controller
             'animal.color' => ['nullable', 'string', 'max:80'],
             'animal.birth_date' => ['nullable', 'date'],
             'animal.notes' => ['nullable', 'string', 'max:2000'],
+            'animal.photo_base64' => ['nullable', 'string'],
+            'animal.photo_mime' => ['nullable', 'string', 'max:40'],
         ]);
     }
 }

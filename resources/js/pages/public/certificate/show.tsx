@@ -50,11 +50,12 @@ export default function CertificateShow({
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-border/70 bg-slate-200/60 p-4 shadow-sm dark:bg-slate-900/40">
-                    <div className="mx-auto w-full max-w-[520px] overflow-hidden rounded-md bg-white shadow">
+                    <div className="mx-auto w-full max-w-[640px] overflow-hidden rounded-md bg-white shadow">
                         <iframe
                             title={`Certificado ${code}`}
-                            src={`${pdf_url}#toolbar=0&navpanes=0&scrollbar=0`}
-                            className="aspect-[85.6/53.98] h-auto w-full min-h-[280px] bg-white"
+                            src={`${pdf_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                            className="block aspect-[85.6/53.98] w-full bg-white"
+                            style={{ minHeight: 280 }}
                         />
                     </div>
                 </div>

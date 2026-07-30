@@ -4,6 +4,7 @@ namespace App\Services\Certificates;
 
 use App\Models\ChipRegistration;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Response;
@@ -31,17 +32,11 @@ class CertificatePdfService
             ->first();
     }
 
-    /**
-     * PDF para ver en el navegador (no fuerza descarga).
-     */
     public function stream(ChipRegistration $chip): SymfonyResponse
     {
         return $this->buildPdf($chip)->stream($this->filename($chip));
     }
 
-    /**
-     * PDF con descarga explícita (botón "Descargar").
-     */
     public function download(ChipRegistration $chip): Response
     {
         $binary = $this->buildPdf($chip)->output();
@@ -70,14 +65,20 @@ class CertificatePdfService
             'organization' => $chip->organization,
             'profileUrl' => $profileUrl,
             'qrPng' => $this->qrPngDataUri($profileUrl),
-            'logoDataUri' => $this->publicImageDataUri('brand/almapet-id-wordmark-sky.png'),
-            'iconDataUri' => $this->publicImageDataUri('icon-192.png'),
+            'logoDataUri' => $this->resizedPublicImage('brand/almapet-id-wordmark-sky.png', 320, 48),
+            'iconDataUri' => $this->resizedPublicImage('icon-192.png', 48, 48),
             'photoDataUri' => $this->animalPhotoDataUri($chip),
             'issuedAt' => $issuedAt,
             'expiresAt' => $expiresAt,
             'nationality' => $this->nationalityLabel($chip->country_code),
             'sexLabel' => $this->sexLabel($chip->animal?->sex),
-        ])->setPaper([0, 0, self::ID1_WIDTH_PT, self::ID1_HEIGHT_PT], 'portrait');
+        ])
+            ->setPaper([0, 0, self::ID1_WIDTH_PT, self::ID1_HEIGHT_PT], 'portrait')
+            ->setOption('dpi', 72)
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isRemoteEnabled', false)
+            ->setOption('isFontSubsettingEnabled', true);
     }
 
     private function filename(ChipRegistration $chip): string
@@ -87,33 +88,30 @@ class CertificatePdfService
 
     public function qrPngDataUri(string $url): string
     {
-        $qr = new QrCode(data: $url);
+        $qr = new QrCode(
+            data: $url,
+            errorCorrectionLevel: ErrorCorrectionLevel::Medium,
+            size: 120,
+            margin: 2,
+        );
         $result = (new PngWriter)->write($qr);
 
         return 'data:image/png;base64,'.base64_encode($result->getString());
     }
 
-    private function publicImageDataUri(string $relativePath): ?string
+    private function resizedPublicImage(string $relativePath, int $maxW, int $maxH): ?string
     {
         $path = public_path($relativePath);
-        if (! is_file($path)) {
-            return null;
+        if (! is_file($path) || ! function_exists('imagecreatefromstring')) {
+            return $this->fileToDataUri($path);
         }
-
-        $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
-            'png' => 'image/png',
-            'jpg', 'jpeg' => 'image/jpeg',
-            'webp' => 'image/webp',
-            'gif' => 'image/gif',
-            default => 'application/octet-stream',
-        };
 
         $binary = file_get_contents($path);
         if ($binary === false) {
             return null;
         }
 
-        return 'data:'.$mime.';base64,'.base64_encode($binary);
+        return $this->resizeBinaryToJpegDataUri($binary, $maxW, $maxH);
     }
 
     private function animalPhotoDataUri(ChipRegistration $chip): ?string
@@ -128,12 +126,66 @@ class CertificatePdfService
             return null;
         }
 
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $mime = match ($ext) {
+        return $this->resizeBinaryToJpegDataUri($binary, 140, 170);
+    }
+
+    private function resizeBinaryToJpegDataUri(string $binary, int $maxW, int $maxH): ?string
+    {
+        if (! function_exists('imagecreatefromstring')) {
+            return 'data:image/jpeg;base64,'.base64_encode($binary);
+        }
+
+        $src = @imagecreatefromstring($binary);
+        if ($src === false) {
+            return null;
+        }
+
+        $sw = imagesx($src);
+        $sh = imagesy($src);
+        if ($sw < 1 || $sh < 1) {
+            imagedestroy($src);
+
+            return null;
+        }
+
+        $scale = min($maxW / $sw, $maxH / $sh, 1.0);
+        $dw = max(1, (int) round($sw * $scale));
+        $dh = max(1, (int) round($sh * $scale));
+
+        $dst = imagecreatetruecolor($dw, $dh);
+        $white = imagecolorallocate($dst, 255, 255, 255);
+        imagefilledrectangle($dst, 0, 0, $dw, $dh, $white);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $dw, $dh, $sw, $sh);
+        imagedestroy($src);
+
+        ob_start();
+        imagejpeg($dst, null, 82);
+        imagedestroy($dst);
+        $jpeg = ob_get_clean();
+
+        if (! is_string($jpeg) || $jpeg === '') {
+            return null;
+        }
+
+        return 'data:image/jpeg;base64,'.base64_encode($jpeg);
+    }
+
+    private function fileToDataUri(?string $path): ?string
+    {
+        if ($path === null || ! is_file($path)) {
+            return null;
+        }
+
+        $binary = file_get_contents($path);
+        if ($binary === false) {
+            return null;
+        }
+
+        $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
             'png' => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
             'webp' => 'image/webp',
-            'gif' => 'image/gif',
-            default => 'image/jpeg',
+            default => 'image/png',
         };
 
         return 'data:'.$mime.';base64,'.base64_encode($binary);

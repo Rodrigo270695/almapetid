@@ -18,4 +18,8 @@ Route::prefix('v1')->middleware('throttle:60,1')->group(function () {
     Route::post('handoff/register', [HandoffApiController::class, 'register'])
         ->middleware(VerifyAlmaPetHandoffSecret::class)
         ->name('api.v1.handoff.register');
+
+    Route::post('handoff/sync-photo', [HandoffApiController::class, 'syncPhoto'])
+        ->middleware(VerifyAlmaPetHandoffSecret::class)
+        ->name('api.v1.handoff.sync-photo');
 });
